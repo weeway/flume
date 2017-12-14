@@ -21,109 +21,109 @@ package org.apache.flume.instrumentation;
 import org.apache.commons.lang.ArrayUtils;
 
 public class SourceCounter extends MonitoredCounterGroup implements
-    SourceCounterMBean {
+        SourceCounterMBean {
 
-  private static final String COUNTER_EVENTS_RECEIVED =
-      "src.events.received";
-  private static final String COUNTER_EVENTS_ACCEPTED =
-      "src.events.accepted";
+    private static final String COUNTER_EVENTS_RECEIVED =
+            "src.events.received";
+    private static final String COUNTER_EVENTS_ACCEPTED =
+            "src.events.accepted";
 
-  private static final String COUNTER_APPEND_RECEIVED =
-      "src.append.received";
-  private static final String COUNTER_APPEND_ACCEPTED =
-      "src.append.accepted";
+    private static final String COUNTER_APPEND_RECEIVED =
+            "src.append.received";
+    private static final String COUNTER_APPEND_ACCEPTED =
+            "src.append.accepted";
 
-  private static final String COUNTER_APPEND_BATCH_RECEIVED =
-      "src.append-batch.received";
-  private static final String COUNTER_APPEND_BATCH_ACCEPTED =
-      "src.append-batch.accepted";
-  
-  private static final String COUNTER_OPEN_CONNECTION_COUNT =
-          "src.open-connection.count";
+    private static final String COUNTER_APPEND_BATCH_RECEIVED =
+            "src.append-batch.received";
+    private static final String COUNTER_APPEND_BATCH_ACCEPTED =
+            "src.append-batch.accepted";
 
-  private static final String[] ATTRIBUTES = {
-    COUNTER_EVENTS_RECEIVED, COUNTER_EVENTS_ACCEPTED,
-    COUNTER_APPEND_RECEIVED, COUNTER_APPEND_ACCEPTED,
-    COUNTER_APPEND_BATCH_RECEIVED, COUNTER_APPEND_BATCH_ACCEPTED,
-    COUNTER_OPEN_CONNECTION_COUNT
-  };
+    private static final String COUNTER_OPEN_CONNECTION_COUNT =
+            "src.open-connection.count";
 
-  public SourceCounter(String name) {
-    super(MonitoredCounterGroup.Type.SOURCE, name, ATTRIBUTES);
-  }
+    private static final String[] ATTRIBUTES = {
+            COUNTER_EVENTS_RECEIVED, COUNTER_EVENTS_ACCEPTED,
+            COUNTER_APPEND_RECEIVED, COUNTER_APPEND_ACCEPTED,
+            COUNTER_APPEND_BATCH_RECEIVED, COUNTER_APPEND_BATCH_ACCEPTED,
+            COUNTER_OPEN_CONNECTION_COUNT
+    };
 
-  public SourceCounter(String name, String[] attributes) {
-    super(Type.SOURCE, name,
-        (String[]) ArrayUtils.addAll(attributes,ATTRIBUTES));
-  }
+    public SourceCounter(String name) {
+        super(MonitoredCounterGroup.Type.SOURCE, name, ATTRIBUTES);
+    }
 
-  @Override
-  public long getEventReceivedCount() {
-    return get(COUNTER_EVENTS_RECEIVED);
-  }
+    public SourceCounter(String name, String[] attributes) {
+        super(Type.SOURCE, name,
+                (String[]) ArrayUtils.addAll(attributes, ATTRIBUTES));
+    }
 
-  public long incrementEventReceivedCount() {
-    return increment(COUNTER_EVENTS_RECEIVED);
-  }
+    @Override
+    public long getEventReceivedCount() {
+        return get(COUNTER_EVENTS_RECEIVED);
+    }
 
-  public long addToEventReceivedCount(long delta) {
-    return addAndGet(COUNTER_EVENTS_RECEIVED, delta);
-  }
+    public long incrementEventReceivedCount() {
+        return increment(COUNTER_EVENTS_RECEIVED);
+    }
 
-  @Override
-  public long getEventAcceptedCount() {
-    return get(COUNTER_EVENTS_ACCEPTED);
-  }
+    public long addToEventReceivedCount(long delta) {
+        return addAndGet(COUNTER_EVENTS_RECEIVED, delta);
+    }
 
-  public long incrementEventAcceptedCount() {
-    return increment(COUNTER_EVENTS_ACCEPTED);
-  }
+    @Override
+    public long getEventAcceptedCount() {
+        return get(COUNTER_EVENTS_ACCEPTED);
+    }
 
-  public long addToEventAcceptedCount(long delta) {
-    return addAndGet(COUNTER_EVENTS_ACCEPTED, delta);
-  }
+    public long incrementEventAcceptedCount() {
+        return increment(COUNTER_EVENTS_ACCEPTED);
+    }
 
-  @Override
-  public long getAppendReceivedCount() {
-    return get(COUNTER_APPEND_RECEIVED);
-  }
+    public long addToEventAcceptedCount(long delta) {
+        return addAndGet(COUNTER_EVENTS_ACCEPTED, delta);
+    }
 
-  public long incrementAppendReceivedCount() {
-    return increment(COUNTER_APPEND_RECEIVED);
-  }
+    @Override
+    public long getAppendReceivedCount() {
+        return get(COUNTER_APPEND_RECEIVED);
+    }
 
-  @Override
-  public long getAppendAcceptedCount() {
-    return get(COUNTER_APPEND_ACCEPTED);
-  }
+    public long incrementAppendReceivedCount() {
+        return increment(COUNTER_APPEND_RECEIVED);
+    }
 
-  public long incrementAppendAcceptedCount() {
-    return increment(COUNTER_APPEND_ACCEPTED);
-  }
+    @Override
+    public long getAppendAcceptedCount() {
+        return get(COUNTER_APPEND_ACCEPTED);
+    }
 
-  @Override
-  public long getAppendBatchReceivedCount() {
-    return get(COUNTER_APPEND_BATCH_RECEIVED);
-  }
+    public long incrementAppendAcceptedCount() {
+        return increment(COUNTER_APPEND_ACCEPTED);
+    }
 
-  public long incrementAppendBatchReceivedCount() {
-    return increment(COUNTER_APPEND_BATCH_RECEIVED);
-  }
+    @Override
+    public long getAppendBatchReceivedCount() {
+        return get(COUNTER_APPEND_BATCH_RECEIVED);
+    }
 
-  @Override
-  public long getAppendBatchAcceptedCount() {
-    return get(COUNTER_APPEND_BATCH_ACCEPTED);
-  }
+    public long incrementAppendBatchReceivedCount() {
+        return increment(COUNTER_APPEND_BATCH_RECEIVED);
+    }
 
-  public long incrementAppendBatchAcceptedCount() {
-    return increment(COUNTER_APPEND_BATCH_ACCEPTED);
-  }
+    @Override
+    public long getAppendBatchAcceptedCount() {
+        return get(COUNTER_APPEND_BATCH_ACCEPTED);
+    }
 
-  public long getOpenConnectionCount() {
-    return get(COUNTER_OPEN_CONNECTION_COUNT);
-  }
+    public long incrementAppendBatchAcceptedCount() {
+        return increment(COUNTER_APPEND_BATCH_ACCEPTED);
+    }
 
-  public void setOpenConnectionCount(long openConnectionCount) {
-    set(COUNTER_OPEN_CONNECTION_COUNT, openConnectionCount);
-  }
+    public long getOpenConnectionCount() {
+        return get(COUNTER_OPEN_CONNECTION_COUNT);
+    }
+
+    public void setOpenConnectionCount(long openConnectionCount) {
+        set(COUNTER_OPEN_CONNECTION_COUNT, openConnectionCount);
+    }
 }

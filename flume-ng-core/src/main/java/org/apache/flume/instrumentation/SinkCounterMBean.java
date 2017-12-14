@@ -17,6 +17,7 @@
  * under the License.
  */
 package org.apache.flume.instrumentation;
+
 /**
  * This interface represents a sink counter mbean. Any class implementing
  * this interface must sub-class
@@ -27,25 +28,25 @@ package org.apache.flume.instrumentation;
 
 public interface SinkCounterMBean {
 
-  long getConnectionCreatedCount();
+    long getConnectionCreatedCount();
 
-  long getConnectionClosedCount();
+    long getConnectionClosedCount();
 
-  long getConnectionFailedCount();
+    long getConnectionFailedCount();
 
-  long getBatchEmptyCount();
+    long getBatchEmptyCount();
 
-  long getBatchUnderflowCount();
+    long getBatchUnderflowCount();
 
-  long getBatchCompleteCount();
+    long getBatchCompleteCount();
 
-  long getEventDrainAttemptCount();
+    long getEventDrainAttemptCount();
 
-  long getEventDrainSuccessCount();
+    long getEventDrainSuccessCount();
 
-  long getStartTime();
+    long getStartTime();
 
-  long getStopTime();
+    long getStopTime();
 
-  String getType();
+    String getType();
 }

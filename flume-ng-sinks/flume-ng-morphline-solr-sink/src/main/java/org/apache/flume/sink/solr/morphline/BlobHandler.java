@@ -51,79 +51,79 @@ import org.slf4j.LoggerFactory;
  */
 public class BlobHandler implements HTTPSourceHandler {
 
-  private int maxBlobLength = MAX_BLOB_LENGTH_DEFAULT;
+    private int maxBlobLength = MAX_BLOB_LENGTH_DEFAULT;
 
-  public static final String MAX_BLOB_LENGTH_KEY = "maxBlobLength";
-  public static final int MAX_BLOB_LENGTH_DEFAULT = 100 * 1000 * 1000;
+    public static final String MAX_BLOB_LENGTH_KEY = "maxBlobLength";
+    public static final int MAX_BLOB_LENGTH_DEFAULT = 100 * 1000 * 1000;
 
-  private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
-  private static final Logger LOGGER = LoggerFactory.getLogger(BlobHandler.class);
+    private static final int DEFAULT_BUFFER_SIZE = 1024 * 8;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlobHandler.class);
 
-  public BlobHandler() {
-  }
-
-  @Override
-  public void configure(Context context) {
-    this.maxBlobLength = context.getInteger(MAX_BLOB_LENGTH_KEY, MAX_BLOB_LENGTH_DEFAULT);
-    if (this.maxBlobLength <= 0) {
-      throw new ConfigurationException("Configuration parameter " + MAX_BLOB_LENGTH_KEY
-          + " must be greater than zero: " + maxBlobLength);
+    public BlobHandler() {
     }
-  }
 
-  @SuppressWarnings("resource")
-  @Override
-  public List<Event> getEvents(HttpServletRequest request) throws Exception {
-    Map<String, String> headers = getHeaders(request);
-    InputStream in = request.getInputStream();
-    try {
-      ByteArrayOutputStream blob = null;
-      byte[] buf = new byte[Math.min(maxBlobLength, DEFAULT_BUFFER_SIZE)];
-      int blobLength = 0;
-      int n = 0;
-      while ((n = in.read(buf, 0, Math.min(buf.length, maxBlobLength - blobLength))) != -1) {
-        if (blob == null) {
-          blob = new ByteArrayOutputStream(n);
+    @Override
+    public void configure(Context context) {
+        this.maxBlobLength = context.getInteger(MAX_BLOB_LENGTH_KEY, MAX_BLOB_LENGTH_DEFAULT);
+        if (this.maxBlobLength <= 0) {
+            throw new ConfigurationException("Configuration parameter " + MAX_BLOB_LENGTH_KEY
+                    + " must be greater than zero: " + maxBlobLength);
         }
-        blob.write(buf, 0, n);
-        blobLength += n;
-        if (blobLength >= maxBlobLength) {
-          LOGGER.warn("Request length exceeds maxBlobLength ({}), truncating BLOB event!",
-              maxBlobLength);
-          break;
+    }
+
+    @SuppressWarnings("resource")
+    @Override
+    public List<Event> getEvents(HttpServletRequest request) throws Exception {
+        Map<String, String> headers = getHeaders(request);
+        InputStream in = request.getInputStream();
+        try {
+            ByteArrayOutputStream blob = null;
+            byte[] buf = new byte[Math.min(maxBlobLength, DEFAULT_BUFFER_SIZE)];
+            int blobLength = 0;
+            int n = 0;
+            while ((n = in.read(buf, 0, Math.min(buf.length, maxBlobLength - blobLength))) != -1) {
+                if (blob == null) {
+                    blob = new ByteArrayOutputStream(n);
+                }
+                blob.write(buf, 0, n);
+                blobLength += n;
+                if (blobLength >= maxBlobLength) {
+                    LOGGER.warn("Request length exceeds maxBlobLength ({}), truncating BLOB event!",
+                            maxBlobLength);
+                    break;
+                }
+            }
+
+            byte[] array = blob != null ? blob.toByteArray() : new byte[0];
+            Event event = EventBuilder.withBody(array, headers);
+            if (LOGGER.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
+                LOGGER.debug("blobEvent: {}", event);
+            }
+            return Collections.singletonList(event);
+        } finally {
+            in.close();
         }
-      }
+    }
 
-      byte[] array = blob != null ? blob.toByteArray() : new byte[0];
-      Event event = EventBuilder.withBody(array, headers);
-      if (LOGGER.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
-        LOGGER.debug("blobEvent: {}", event);
-      }
-      return Collections.singletonList(event);
-    } finally {
-      in.close();
+    private Map<String, String> getHeaders(HttpServletRequest request) {
+        if (LOGGER.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
+            Map requestHeaders = new HashMap();
+            Enumeration iter = request.getHeaderNames();
+            while (iter.hasMoreElements()) {
+                String name = (String) iter.nextElement();
+                requestHeaders.put(name, request.getHeader(name));
+            }
+            LOGGER.debug("requestHeaders: {}", requestHeaders);
+        }
+        Map<String, String> headers = new HashMap();
+        if (request.getContentType() != null) {
+            headers.put(Metadata.CONTENT_TYPE, request.getContentType());
+        }
+        Enumeration iter = request.getParameterNames();
+        while (iter.hasMoreElements()) {
+            String name = (String) iter.nextElement();
+            headers.put(name, request.getParameter(name));
+        }
+        return headers;
     }
-  }
-
-  private Map<String, String> getHeaders(HttpServletRequest request) {
-    if (LOGGER.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
-      Map requestHeaders = new HashMap();
-      Enumeration iter = request.getHeaderNames();
-      while (iter.hasMoreElements()) {
-        String name = (String) iter.nextElement();
-        requestHeaders.put(name, request.getHeader(name));
-      }
-      LOGGER.debug("requestHeaders: {}", requestHeaders);
-    }
-    Map<String, String> headers = new HashMap();
-    if (request.getContentType() != null) {
-      headers.put(Metadata.CONTENT_TYPE, request.getContentType());
-    }
-    Enumeration iter = request.getParameterNames();
-    while (iter.hasMoreElements()) {
-      String name = (String) iter.nextElement();
-      headers.put(name, request.getParameter(name));
-    }
-    return headers;
-  }
 }

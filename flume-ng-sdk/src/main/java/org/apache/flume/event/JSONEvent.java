@@ -20,6 +20,7 @@ package org.apache.flume.event;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
 import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
 
@@ -27,45 +28,45 @@ import org.apache.flume.FlumeException;
  *
  */
 public class JSONEvent implements Event {
-  private Map<String, String> headers;
-  private String body;
-  private transient String charset = "UTF-8";
+    private Map<String, String> headers;
+    private String body;
+    private transient String charset = "UTF-8";
 
-  @Override
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
-
-  @Override
-  public void setHeaders(Map<String, String> headers) {
-    this.headers = headers;
-  }
-
-  @Override
-  public byte[] getBody() {
-    if (body != null) {
-      try {
-        return body.getBytes(charset);
-      } catch (UnsupportedEncodingException ex) {
-        throw new FlumeException(String.format("%s encoding not supported", charset), ex);
-      }
-    } else {
-      return new byte[0];
+    @Override
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 
-  }
-
-  @Override
-  public void setBody(byte[] body) {
-    if (body != null) {
-      this.body = new String(body);
-    } else {
-      this.body = "";
+    @Override
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
-  }
 
-  public void setCharset(String charset) {
-    this.charset = charset;
-  }
+    @Override
+    public byte[] getBody() {
+        if (body != null) {
+            try {
+                return body.getBytes(charset);
+            } catch (UnsupportedEncodingException ex) {
+                throw new FlumeException(String.format("%s encoding not supported", charset), ex);
+            }
+        } else {
+            return new byte[0];
+        }
+
+    }
+
+    @Override
+    public void setBody(byte[] body) {
+        if (body != null) {
+            this.body = new String(body);
+        } else {
+            this.body = "";
+        }
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
 
 }

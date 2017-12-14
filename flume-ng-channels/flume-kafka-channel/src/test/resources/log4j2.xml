@@ -17,56 +17,56 @@
 
 -->
 <Configuration status="OFF">
-  <Properties>
-    <Property name="kafka.logs.dir">target/logs</Property>
-  </Properties>
-  <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d (%t) [%p - %l] %m%n" />
-    </Console>
-    <RollingFile name="kafka" fileName="${kafka.logs.dir}/server.log">
-      <PatternLayout pattern="[%d] %p %m (%c)%n" />
-      <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
-    </RollingFile>
-    <RollingFile name="stateChange" fileName="${kafka.logs.dir}/state-change.log">
-      <PatternLayout pattern="[%d] %p %m (%c)%n" />
-      <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
-    </RollingFile>
-    <RollingFile name="request" fileName="${kafka.logs.dir}/kafka-request.log">
-      <PatternLayout pattern="[%d] %p %m (%c)%n" />
-      <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
-    </RollingFile>
-    <RollingFile name="cleaner" fileName="${kafka.logs.dir}/log-cleaner.log">
-      <PatternLayout pattern="[%d] %p %m (%c)%n" />
-      <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
-    </RollingFile>
-    <RollingFile name="controller" fileName="${kafka.logs.dir}/controller.log">
-      <PatternLayout pattern="[%d] %p %m (%c)%n" />
-      <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
-    </RollingFile>
-  </Appenders>
+    <Properties>
+        <Property name="kafka.logs.dir">target/logs</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d (%t) [%p - %l] %m%n"/>
+        </Console>
+        <RollingFile name="kafka" fileName="${kafka.logs.dir}/server.log">
+            <PatternLayout pattern="[%d] %p %m (%c)%n"/>
+            <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+        </RollingFile>
+        <RollingFile name="stateChange" fileName="${kafka.logs.dir}/state-change.log">
+            <PatternLayout pattern="[%d] %p %m (%c)%n"/>
+            <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+        </RollingFile>
+        <RollingFile name="request" fileName="${kafka.logs.dir}/kafka-request.log">
+            <PatternLayout pattern="[%d] %p %m (%c)%n"/>
+            <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+        </RollingFile>
+        <RollingFile name="cleaner" fileName="${kafka.logs.dir}/log-cleaner.log">
+            <PatternLayout pattern="[%d] %p %m (%c)%n"/>
+            <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+        </RollingFile>
+        <RollingFile name="controller" fileName="${kafka.logs.dir}/controller.log">
+            <PatternLayout pattern="[%d] %p %m (%c)%n"/>
+            <CronTriggeringPolicy schedule="0 0 0 * * ?"/>
+        </RollingFile>
+    </Appenders>
 
-  <Loggers>
-    <Logger name="kafka" level="info">
-      <AppenderRef ref="kafka"/>
-    </Logger>
-    <Logger name="kafka.network.RequestChannel.*" level="WARN" additivity="false">
-      <AppenderRef ref="request"/>
-    </Logger>
-    <Logger name="kafka.request.logger" level="WARN" additivity="false">
-      <AppenderRef ref="request"/>
-    </Logger>
-    <Logger name="kafka.controller" level="TRACE" additivity="false">
-      <AppenderRef ref="controller"/>
-    </Logger>
-    <Logger name="kafka.log.cleaner" level="INFO" additivity="false">
-      <AppenderRef ref="cleaner"/>
-    </Logger>
-    <Logger name="state.change.logger" level="TRACE" additivity="false">
-      <AppenderRef ref="stateChange"/>
-    </Logger>
-    <Root level="INFO">
-      <AppenderRef ref="Console" />
-    </Root>
-  </Loggers>
+    <Loggers>
+        <Logger name="kafka" level="info">
+            <AppenderRef ref="kafka"/>
+        </Logger>
+        <Logger name="kafka.network.RequestChannel.*" level="WARN" additivity="false">
+            <AppenderRef ref="request"/>
+        </Logger>
+        <Logger name="kafka.request.logger" level="WARN" additivity="false">
+            <AppenderRef ref="request"/>
+        </Logger>
+        <Logger name="kafka.controller" level="TRACE" additivity="false">
+            <AppenderRef ref="controller"/>
+        </Logger>
+        <Logger name="kafka.log.cleaner" level="INFO" additivity="false">
+            <AppenderRef ref="cleaner"/>
+        </Logger>
+        <Logger name="state.change.logger" level="TRACE" additivity="false">
+            <AppenderRef ref="stateChange"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
 </Configuration>

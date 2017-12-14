@@ -21,28 +21,28 @@ package org.apache.flume.conf.channel;
  */
 public enum ChannelSelectorType {
 
-  /**
-   * Place holder for custom channel selectors not part of this enumeration.
-   */
-  OTHER(null),
+    /**
+     * Place holder for custom channel selectors not part of this enumeration.
+     */
+    OTHER(null),
 
-  /**
-   * Replicating channel selector.
-   */
-  REPLICATING("org.apache.flume.channel.ReplicatingChannelSelector"),
+    /**
+     * Replicating channel selector.
+     */
+    REPLICATING("org.apache.flume.channel.ReplicatingChannelSelector"),
 
-  /**
-   * Multiplexing channel selector.
-   */
-  MULTIPLEXING("org.apache.flume.channel.MultiplexingChannelSelector");
+    /**
+     * Multiplexing channel selector.
+     */
+    MULTIPLEXING("org.apache.flume.channel.MultiplexingChannelSelector");
 
-  private final String channelSelectorClassName;
+    private final String channelSelectorClassName;
 
-  private ChannelSelectorType(String channelSelectorClassName) {
-    this.channelSelectorClassName = channelSelectorClassName;
-  }
+    private ChannelSelectorType(String channelSelectorClassName) {
+        this.channelSelectorClassName = channelSelectorClassName;
+    }
 
-  public String getChannelSelectorClassName() {
-    return channelSelectorClassName;
-  }
+    public String getChannelSelectorClassName() {
+        return channelSelectorClassName;
+    }
 }

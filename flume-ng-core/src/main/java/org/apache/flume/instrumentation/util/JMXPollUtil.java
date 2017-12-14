@@ -20,6 +20,7 @@ package org.apache.flume.instrumentation.util;
 
 import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
+
 import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import javax.management.AttributeList;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,45 +38,45 @@ import org.slf4j.LoggerFactory;
  */
 public class JMXPollUtil {
 
-  private static Logger LOG = LoggerFactory.getLogger(JMXPollUtil.class);
-  private static MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
+    private static Logger LOG = LoggerFactory.getLogger(JMXPollUtil.class);
+    private static MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 
-  public static Map<String, Map<String, String>> getAllMBeans() {
-    Map<String, Map<String, String>> mbeanMap = Maps.newHashMap();
-    Set<ObjectInstance> queryMBeans = null;
-    try {
-      queryMBeans = mbeanServer.queryMBeans(null, null);
-    } catch (Exception ex) {
-      LOG.error("Could not get Mbeans for monitoring", ex);
-      Throwables.propagate(ex);
-    }
-    for (ObjectInstance obj : queryMBeans) {
-      try {
-        if (!obj.getObjectName().toString().startsWith("org.apache.flume")) {
-          continue;
+    public static Map<String, Map<String, String>> getAllMBeans() {
+        Map<String, Map<String, String>> mbeanMap = Maps.newHashMap();
+        Set<ObjectInstance> queryMBeans = null;
+        try {
+            queryMBeans = mbeanServer.queryMBeans(null, null);
+        } catch (Exception ex) {
+            LOG.error("Could not get Mbeans for monitoring", ex);
+            Throwables.propagate(ex);
         }
-        MBeanAttributeInfo[] attrs = mbeanServer.getMBeanInfo(obj.getObjectName()).getAttributes();
-        String[] strAtts = new String[attrs.length];
-        for (int i = 0; i < strAtts.length; i++) {
-          strAtts[i] = attrs[i].getName();
-        }
-        AttributeList attrList = mbeanServer.getAttributes(obj.getObjectName(), strAtts);
-        String component = obj.getObjectName().toString().substring(
-            obj.getObjectName().toString().indexOf('=') + 1);
-        Map<String, String> attrMap = Maps.newHashMap();
+        for (ObjectInstance obj : queryMBeans) {
+            try {
+                if (!obj.getObjectName().toString().startsWith("org.apache.flume")) {
+                    continue;
+                }
+                MBeanAttributeInfo[] attrs = mbeanServer.getMBeanInfo(obj.getObjectName()).getAttributes();
+                String[] strAtts = new String[attrs.length];
+                for (int i = 0; i < strAtts.length; i++) {
+                    strAtts[i] = attrs[i].getName();
+                }
+                AttributeList attrList = mbeanServer.getAttributes(obj.getObjectName(), strAtts);
+                String component = obj.getObjectName().toString().substring(
+                        obj.getObjectName().toString().indexOf('=') + 1);
+                Map<String, String> attrMap = Maps.newHashMap();
 
-        for (Object attr : attrList) {
-          Attribute localAttr = (Attribute) attr;
-          if (localAttr.getName().equalsIgnoreCase("type")) {
-            component = localAttr.getValue() + "." + component;
-          }
-          attrMap.put(localAttr.getName(), localAttr.getValue().toString());
+                for (Object attr : attrList) {
+                    Attribute localAttr = (Attribute) attr;
+                    if (localAttr.getName().equalsIgnoreCase("type")) {
+                        component = localAttr.getValue() + "." + component;
+                    }
+                    attrMap.put(localAttr.getName(), localAttr.getValue().toString());
+                }
+                mbeanMap.put(component, attrMap);
+            } catch (Exception e) {
+                LOG.error("Unable to poll JMX for metrics.", e);
+            }
         }
-        mbeanMap.put(component, attrMap);
-      } catch (Exception e) {
-        LOG.error("Unable to poll JMX for metrics.", e);
-      }
+        return mbeanMap;
     }
-    return mbeanMap;
-  }
 }

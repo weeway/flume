@@ -20,5 +20,5 @@
 package org.apache.flume.node;
 
 public interface ConfigurationProvider {
-  MaterializedConfiguration getConfiguration();
+    MaterializedConfiguration getConfiguration();
 }

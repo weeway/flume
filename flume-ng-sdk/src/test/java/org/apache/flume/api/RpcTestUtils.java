@@ -52,316 +52,320 @@ import java.util.concurrent.Executors;
  */
 public class RpcTestUtils {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(RpcTestUtils.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(RpcTestUtils.class);
 
-  private static final String localhost = "localhost";
+    private static final String localhost = "localhost";
 
 
-  /**
-   * Helper method for testing simple (single) appends on handlers
-   * @param handler
-   * @throws FlumeException
-   * @throws EventDeliveryException
-   */
-  public static void handlerSimpleAppendTest(AvroSourceProtocol handler)
-      throws FlumeException, EventDeliveryException {
-    handlerSimpleAppendTest(handler, false, false, 0);
-  }
-
-  /**
-   * Helper method for testing simple (single) with compression level 6 appends on handlers
-   * @param handler
-   * @throws FlumeException
-   * @throws EventDeliveryException
-   */
-  public static void handlerSimpleAppendTest(AvroSourceProtocol handler,
-                                             boolean enableServerCompression,
-                                             boolean enableClientCompression, int compressionLevel)
-      throws FlumeException, EventDeliveryException {
-    NettyAvroRpcClient client = null;
-    Server server = startServer(handler, 0, enableServerCompression);
-    try {
-      Properties starterProp = new Properties();
-      if (enableClientCompression) {
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "deflate");
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_LEVEL,
-                                "" + compressionLevel);
-      } else {
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "none");
-      }
-      client = getStockLocalClient(server.getPort(), starterProp);
-      boolean isActive = client.isActive();
-      Assert.assertTrue("Client should be active", isActive);
-      client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
-    } finally {
-      stopServer(server);
-      if (client != null) client.close();
-    }
-  }
-
-  public static void handlerBatchAppendTest(AvroSourceProtocol handler)
-      throws FlumeException, EventDeliveryException {
-    handlerBatchAppendTest(handler, false, false, 0);
-  }
-
-  /**
-   * Helper method for testing batch appends on handlers
-   * @param handler
-   * @throws FlumeException
-   * @throws EventDeliveryException
-   */
-  public static void handlerBatchAppendTest(AvroSourceProtocol handler,
-                                            boolean enableServerCompression,
-                                            boolean enableClientCompression, int compressionLevel)
-      throws FlumeException, EventDeliveryException {
-    NettyAvroRpcClient client = null;
-    Server server = startServer(handler, 0 , enableServerCompression);
-    try {
-
-      Properties starterProp = new Properties();
-      if (enableClientCompression) {
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "deflate");
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_LEVEL,
-                                "" + compressionLevel);
-      } else {
-        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "none");
-      }
-
-      client = getStockLocalClient(server.getPort(), starterProp);
-      boolean isActive = client.isActive();
-      Assert.assertTrue("Client should be active", isActive);
-
-      int batchSize = client.getBatchSize();
-      List<Event> events = new ArrayList<Event>();
-      for (int i = 0; i < batchSize; i++) {
-        events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
-      }
-      client.appendBatch(events);
-
-    } finally {
-      stopServer(server);
-      if (client != null) client.close();
-    }
-  }
-
-  /**
-   * Helper method for constructing a Netty RPC client that talks to localhost.
-   */
-  public static NettyAvroRpcClient getStockLocalClient(int port) {
-    Properties props = new Properties();
-
-    return getStockLocalClient(port, props);
-  }
-
-  public static NettyAvroRpcClient getStockLocalClient(int port, Properties starterProp) {
-    starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS, "h1");
-    starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + "h1",
-        "127.0.0.1" + ":" + port);
-    NettyAvroRpcClient client = new NettyAvroRpcClient();
-    client.configure(starterProp);
-
-    return client;
-  }
-
-  /**
-   * Start a NettyServer, wait a moment for it to spin up, and return it.
-   */
-  public static Server startServer(AvroSourceProtocol handler, int port,
-                                   boolean enableCompression) {
-    Responder responder = new SpecificResponder(AvroSourceProtocol.class, handler);
-    Server server;
-    if (enableCompression) {
-      server = new NettyServer(responder, new InetSocketAddress(localhost, port),
-                               new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-                                                                 Executors.newCachedThreadPool()),
-                               new CompressionChannelPipelineFactory(), null);
-    } else {
-      server = new NettyServer(responder, new InetSocketAddress(localhost, port));
-    }
-    server.start();
-    logger.info("Server started on hostname: {}, port: {}",
-                new Object[] { localhost, Integer.toString(server.getPort()) });
-
-    try {
-      Thread.sleep(300L);
-    } catch (InterruptedException ex) {
-      logger.error("Thread interrupted. Exception follows.", ex);
-      Thread.currentThread().interrupt();
+    /**
+     * Helper method for testing simple (single) appends on handlers
+     *
+     * @param handler
+     * @throws FlumeException
+     * @throws EventDeliveryException
+     */
+    public static void handlerSimpleAppendTest(AvroSourceProtocol handler)
+            throws FlumeException, EventDeliveryException {
+        handlerSimpleAppendTest(handler, false, false, 0);
     }
 
-    return server;
-  }
-
-  public static Server startServer(AvroSourceProtocol handler) {
-    return startServer(handler, 0, false);
-  }
-
-  public static Server startServer(AvroSourceProtocol handler, int port) {
-    return startServer(handler, port, false);
-  }
-
-
-  /**
-   * Request that the specified Server stop, and attempt to wait for it to exit.
-   * @param server A running NettyServer
-   */
-  public static void stopServer(Server server) {
-    try {
-      server.close();
-      server.join();
-    } catch (InterruptedException ex) {
-      logger.error("Thread interrupted. Exception follows.", ex);
-      Thread.currentThread().interrupt();
-    }
-  }
-
-  public static class LoadBalancedAvroHandler implements AvroSourceProtocol {
-
-    private int appendCount = 0;
-    private int appendBatchCount = 0;
-
-    private boolean failed = false;
-
-    public int getAppendCount() {
-      return appendCount;
+    /**
+     * Helper method for testing simple (single) with compression level 6 appends on handlers
+     *
+     * @param handler
+     * @throws FlumeException
+     * @throws EventDeliveryException
+     */
+    public static void handlerSimpleAppendTest(AvroSourceProtocol handler,
+                                               boolean enableServerCompression,
+                                               boolean enableClientCompression, int compressionLevel)
+            throws FlumeException, EventDeliveryException {
+        NettyAvroRpcClient client = null;
+        Server server = startServer(handler, 0, enableServerCompression);
+        try {
+            Properties starterProp = new Properties();
+            if (enableClientCompression) {
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "deflate");
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_LEVEL,
+                        "" + compressionLevel);
+            } else {
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "none");
+            }
+            client = getStockLocalClient(server.getPort(), starterProp);
+            boolean isActive = client.isActive();
+            Assert.assertTrue("Client should be active", isActive);
+            client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
+        } finally {
+            stopServer(server);
+            if (client != null) client.close();
+        }
     }
 
-    public int getAppendBatchCount() {
-      return appendBatchCount;
+    public static void handlerBatchAppendTest(AvroSourceProtocol handler)
+            throws FlumeException, EventDeliveryException {
+        handlerBatchAppendTest(handler, false, false, 0);
     }
 
-    public boolean isFailed() {
-      return failed;
+    /**
+     * Helper method for testing batch appends on handlers
+     *
+     * @param handler
+     * @throws FlumeException
+     * @throws EventDeliveryException
+     */
+    public static void handlerBatchAppendTest(AvroSourceProtocol handler,
+                                              boolean enableServerCompression,
+                                              boolean enableClientCompression, int compressionLevel)
+            throws FlumeException, EventDeliveryException {
+        NettyAvroRpcClient client = null;
+        Server server = startServer(handler, 0, enableServerCompression);
+        try {
+
+            Properties starterProp = new Properties();
+            if (enableClientCompression) {
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "deflate");
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_LEVEL,
+                        "" + compressionLevel);
+            } else {
+                starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_COMPRESSION_TYPE, "none");
+            }
+
+            client = getStockLocalClient(server.getPort(), starterProp);
+            boolean isActive = client.isActive();
+            Assert.assertTrue("Client should be active", isActive);
+
+            int batchSize = client.getBatchSize();
+            List<Event> events = new ArrayList<Event>();
+            for (int i = 0; i < batchSize; i++) {
+                events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
+            }
+            client.appendBatch(events);
+
+        } finally {
+            stopServer(server);
+            if (client != null) client.close();
+        }
     }
 
-    public void setFailed() {
-      this.failed = true;
+    /**
+     * Helper method for constructing a Netty RPC client that talks to localhost.
+     */
+    public static NettyAvroRpcClient getStockLocalClient(int port) {
+        Properties props = new Properties();
+
+        return getStockLocalClient(port, props);
     }
 
-    public void setOK() {
-      this.failed = false;
+    public static NettyAvroRpcClient getStockLocalClient(int port, Properties starterProp) {
+        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS, "h1");
+        starterProp.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + "h1",
+                "127.0.0.1" + ":" + port);
+        NettyAvroRpcClient client = new NettyAvroRpcClient();
+        client.configure(starterProp);
+
+        return client;
     }
 
-    @Override
-    public Status append(AvroFlumeEvent event) throws AvroRemoteException {
-      if (failed) {
-        logger.debug("Event rejected");
-        return Status.FAILED;
-      }
-      logger.debug("LB: Received event from append(): {}",
-          new String(event.getBody().array(), Charset.forName("UTF8")));
-      appendCount++;
-      return Status.OK;
+    /**
+     * Start a NettyServer, wait a moment for it to spin up, and return it.
+     */
+    public static Server startServer(AvroSourceProtocol handler, int port,
+                                     boolean enableCompression) {
+        Responder responder = new SpecificResponder(AvroSourceProtocol.class, handler);
+        Server server;
+        if (enableCompression) {
+            server = new NettyServer(responder, new InetSocketAddress(localhost, port),
+                    new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
+                            Executors.newCachedThreadPool()),
+                    new CompressionChannelPipelineFactory(), null);
+        } else {
+            server = new NettyServer(responder, new InetSocketAddress(localhost, port));
+        }
+        server.start();
+        logger.info("Server started on hostname: {}, port: {}",
+                new Object[]{localhost, Integer.toString(server.getPort())});
+
+        try {
+            Thread.sleep(300L);
+        } catch (InterruptedException ex) {
+            logger.error("Thread interrupted. Exception follows.", ex);
+            Thread.currentThread().interrupt();
+        }
+
+        return server;
     }
 
-    @Override
-    public Status appendBatch(List<AvroFlumeEvent> events) throws
-        AvroRemoteException {
-      if (failed) {
-        logger.debug("Event batch rejected");
-        return Status.FAILED;
-      }
-      logger.debug("LB: Received {} events from appendBatch()",
-          events.size());
-
-      appendBatchCount++;
-      return Status.OK;
-    }
-  }
-
-  /**
-   * A service that logs receipt of the request and returns OK
-   */
-  public static class OKAvroHandler implements AvroSourceProtocol {
-
-    @Override
-    public Status append(AvroFlumeEvent event) throws AvroRemoteException {
-      logger.info("OK: Received event from append(): {}",
-          new String(event.getBody().array(), Charset.forName("UTF8")));
-      return Status.OK;
+    public static Server startServer(AvroSourceProtocol handler) {
+        return startServer(handler, 0, false);
     }
 
-    @Override
-    public Status appendBatch(List<AvroFlumeEvent> events) throws
-        AvroRemoteException {
-      logger.info("OK: Received {} events from appendBatch()",
-          events.size());
-      return Status.OK;
+    public static Server startServer(AvroSourceProtocol handler, int port) {
+        return startServer(handler, port, false);
     }
 
-  }
 
-  /**
-   * A service that logs receipt of the request and returns Failed
-   */
-  public static class FailedAvroHandler implements AvroSourceProtocol {
-
-    @Override
-    public Status append(AvroFlumeEvent event) throws AvroRemoteException {
-      logger.info("Failed: Received event from append(): {}",
-                  new String(event.getBody().array(), Charset.forName("UTF8")));
-      return Status.FAILED;
+    /**
+     * Request that the specified Server stop, and attempt to wait for it to exit.
+     *
+     * @param server A running NettyServer
+     */
+    public static void stopServer(Server server) {
+        try {
+            server.close();
+            server.join();
+        } catch (InterruptedException ex) {
+            logger.error("Thread interrupted. Exception follows.", ex);
+            Thread.currentThread().interrupt();
+        }
     }
 
-    @Override
-    public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
-      logger.info("Failed: Received {} events from appendBatch()", events.size());
-      return Status.FAILED;
+    public static class LoadBalancedAvroHandler implements AvroSourceProtocol {
+
+        private int appendCount = 0;
+        private int appendBatchCount = 0;
+
+        private boolean failed = false;
+
+        public int getAppendCount() {
+            return appendCount;
+        }
+
+        public int getAppendBatchCount() {
+            return appendBatchCount;
+        }
+
+        public boolean isFailed() {
+            return failed;
+        }
+
+        public void setFailed() {
+            this.failed = true;
+        }
+
+        public void setOK() {
+            this.failed = false;
+        }
+
+        @Override
+        public Status append(AvroFlumeEvent event) throws AvroRemoteException {
+            if (failed) {
+                logger.debug("Event rejected");
+                return Status.FAILED;
+            }
+            logger.debug("LB: Received event from append(): {}",
+                    new String(event.getBody().array(), Charset.forName("UTF8")));
+            appendCount++;
+            return Status.OK;
+        }
+
+        @Override
+        public Status appendBatch(List<AvroFlumeEvent> events) throws
+                AvroRemoteException {
+            if (failed) {
+                logger.debug("Event batch rejected");
+                return Status.FAILED;
+            }
+            logger.debug("LB: Received {} events from appendBatch()",
+                    events.size());
+
+            appendBatchCount++;
+            return Status.OK;
+        }
     }
 
-  }
+    /**
+     * A service that logs receipt of the request and returns OK
+     */
+    public static class OKAvroHandler implements AvroSourceProtocol {
 
-  /**
-   * A service that logs receipt of the request and returns Unknown
-   */
-  public static class UnknownAvroHandler implements AvroSourceProtocol {
+        @Override
+        public Status append(AvroFlumeEvent event) throws AvroRemoteException {
+            logger.info("OK: Received event from append(): {}",
+                    new String(event.getBody().array(), Charset.forName("UTF8")));
+            return Status.OK;
+        }
 
-    @Override
-    public Status append(AvroFlumeEvent event) throws AvroRemoteException {
-      logger.info("Unknown: Received event from append(): {}",
-                  new String(event.getBody().array(), Charset.forName("UTF8")));
-      return Status.UNKNOWN;
+        @Override
+        public Status appendBatch(List<AvroFlumeEvent> events) throws
+                AvroRemoteException {
+            logger.info("OK: Received {} events from appendBatch()",
+                    events.size());
+            return Status.OK;
+        }
+
     }
 
-    @Override
-    public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
-      logger.info("Unknown: Received {} events from appendBatch()",
-                  events.size());
-      return Status.UNKNOWN;
+    /**
+     * A service that logs receipt of the request and returns Failed
+     */
+    public static class FailedAvroHandler implements AvroSourceProtocol {
+
+        @Override
+        public Status append(AvroFlumeEvent event) throws AvroRemoteException {
+            logger.info("Failed: Received event from append(): {}",
+                    new String(event.getBody().array(), Charset.forName("UTF8")));
+            return Status.FAILED;
+        }
+
+        @Override
+        public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
+            logger.info("Failed: Received {} events from appendBatch()", events.size());
+            return Status.FAILED;
+        }
+
     }
 
-  }
+    /**
+     * A service that logs receipt of the request and returns Unknown
+     */
+    public static class UnknownAvroHandler implements AvroSourceProtocol {
 
-  /**
-   * A service that logs receipt of the request and then throws an exception
-   */
-  public static class ThrowingAvroHandler implements AvroSourceProtocol {
+        @Override
+        public Status append(AvroFlumeEvent event) throws AvroRemoteException {
+            logger.info("Unknown: Received event from append(): {}",
+                    new String(event.getBody().array(), Charset.forName("UTF8")));
+            return Status.UNKNOWN;
+        }
 
-    @Override
-    public Status append(AvroFlumeEvent event) throws AvroRemoteException {
-      logger.info("Throwing: Received event from append(): {}",
-                  new String(event.getBody().array(), Charset.forName("UTF8")));
-      throw new AvroRemoteException("Handler smash!");
+        @Override
+        public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
+            logger.info("Unknown: Received {} events from appendBatch()",
+                    events.size());
+            return Status.UNKNOWN;
+        }
+
     }
 
-    @Override
-    public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
-      logger.info("Throwing: Received {} events from appendBatch()", events.size());
-      throw new AvroRemoteException("Handler smash!");
-    }
-  }
+    /**
+     * A service that logs receipt of the request and then throws an exception
+     */
+    public static class ThrowingAvroHandler implements AvroSourceProtocol {
 
-  private static class CompressionChannelPipelineFactory implements ChannelPipelineFactory {
+        @Override
+        public Status append(AvroFlumeEvent event) throws AvroRemoteException {
+            logger.info("Throwing: Received event from append(): {}",
+                    new String(event.getBody().array(), Charset.forName("UTF8")));
+            throw new AvroRemoteException("Handler smash!");
+        }
 
-    @Override
-    public ChannelPipeline getPipeline() throws Exception {
-      ChannelPipeline pipeline = Channels.pipeline();
-      ZlibEncoder encoder = new ZlibEncoder(6);
-      pipeline.addFirst("deflater", encoder);
-      pipeline.addFirst("inflater", new ZlibDecoder());
-      return pipeline;
+        @Override
+        public Status appendBatch(List<AvroFlumeEvent> events) throws AvroRemoteException {
+            logger.info("Throwing: Received {} events from appendBatch()", events.size());
+            throw new AvroRemoteException("Handler smash!");
+        }
     }
-  }
+
+    private static class CompressionChannelPipelineFactory implements ChannelPipelineFactory {
+
+        @Override
+        public ChannelPipeline getPipeline() throws Exception {
+            ChannelPipeline pipeline = Channels.pipeline();
+            ZlibEncoder encoder = new ZlibEncoder(6);
+            pipeline.addFirst("deflater", encoder);
+            pipeline.addFirst("inflater", new ZlibDecoder());
+            return pipeline;
+        }
+    }
 
 }

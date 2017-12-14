@@ -24,6 +24,6 @@ import org.apache.flume.Event;
 @Deprecated
 public interface EventFormatter {
 
-  public byte[] format(Event event);
+    public byte[] format(Event event);
 
 }

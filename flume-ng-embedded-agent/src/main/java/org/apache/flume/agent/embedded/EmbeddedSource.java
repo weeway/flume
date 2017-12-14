@@ -37,16 +37,16 @@ import org.apache.flume.source.AbstractSource;
 @InterfaceStability.Unstable
 public class EmbeddedSource extends AbstractSource implements EventDrivenSource, Configurable {
 
-  @Override
-  public void configure(Context context) {
-  }
+    @Override
+    public void configure(Context context) {
+    }
 
-  public void put(Event event) throws ChannelException {
-    getChannelProcessor().processEvent(event);
-  }
+    public void put(Event event) throws ChannelException {
+        getChannelProcessor().processEvent(event);
+    }
 
-  public void putAll(List<Event> events) throws ChannelException {
-    getChannelProcessor().processEventBatch(events);
-  }
+    public void putAll(List<Event> events) throws ChannelException {
+        getChannelProcessor().processEventBatch(events);
+    }
 
 }

@@ -39,38 +39,38 @@ import org.apache.flume.event.EventBuilder;
 @InterfaceStability.Evolving
 public class SimpleTextLineEventReader implements EventReader {
 
-  private final BufferedReader reader;
+    private final BufferedReader reader;
 
-  public SimpleTextLineEventReader(Reader in) {
-    reader = new BufferedReader(in);
-  }
-
-  @Override
-  public Event readEvent() throws IOException {
-    String line = reader.readLine();
-    if (line != null) {
-      return EventBuilder.withBody(line, Charsets.UTF_8);
-    } else {
-      return null;
+    public SimpleTextLineEventReader(Reader in) {
+        reader = new BufferedReader(in);
     }
-  }
 
-  @Override
-  public List<Event> readEvents(int n) throws IOException {
-    List<Event> events = Lists.newLinkedList();
-    while (events.size() < n) {
-      Event event = readEvent();
-      if (event != null) {
-        events.add(event);
-      } else {
-        break;
-      }
+    @Override
+    public Event readEvent() throws IOException {
+        String line = reader.readLine();
+        if (line != null) {
+            return EventBuilder.withBody(line, Charsets.UTF_8);
+        } else {
+            return null;
+        }
     }
-    return events;
-  }
 
-  @Override
-  public void close() throws IOException {
-    reader.close();
-  }
+    @Override
+    public List<Event> readEvents(int n) throws IOException {
+        List<Event> events = Lists.newLinkedList();
+        while (events.size() < n) {
+            Event event = readEvent();
+            if (event != null) {
+                events.add(event);
+            } else {
+                break;
+            }
+        }
+        return events;
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
+    }
 }

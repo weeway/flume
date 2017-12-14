@@ -31,46 +31,47 @@ import java.util.Map;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public abstract class AbstractChannel
-    implements Channel, LifecycleAware, Configurable {
+        implements Channel, LifecycleAware, Configurable {
 
-  private String name;
+    private String name;
 
-  private LifecycleState lifecycleState;
+    private LifecycleState lifecycleState;
 
-  public AbstractChannel() {
-    lifecycleState = LifecycleState.IDLE;
-  }
+    public AbstractChannel() {
+        lifecycleState = LifecycleState.IDLE;
+    }
 
-  @Override
-  public synchronized void setName(String name) {
-    this.name = name;
-  }
+    @Override
+    public synchronized void setName(String name) {
+        this.name = name;
+    }
 
-  @Override
-  public synchronized void start() {
-    lifecycleState = LifecycleState.START;
-  }
+    @Override
+    public synchronized void start() {
+        lifecycleState = LifecycleState.START;
+    }
 
-  @Override
-  public synchronized void stop() {
-    lifecycleState = LifecycleState.STOP;
-  }
+    @Override
+    public synchronized void stop() {
+        lifecycleState = LifecycleState.STOP;
+    }
 
-  @Override
-  public synchronized LifecycleState getLifecycleState() {
-    return lifecycleState;
-  }
+    @Override
+    public synchronized LifecycleState getLifecycleState() {
+        return lifecycleState;
+    }
 
-  @Override
-  public synchronized String getName() {
-    return name;
-  }
+    @Override
+    public synchronized String getName() {
+        return name;
+    }
 
-  @Override
-  public void configure(Context context) {}
+    @Override
+    public void configure(Context context) {
+    }
 
-  public String toString() {
-    return this.getClass().getName() + "{name: " + name + "}";
-  }
+    public String toString() {
+        return this.getClass().getName() + "{name: " + name + "}";
+    }
 
 }

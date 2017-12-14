@@ -12,27 +12,27 @@
 
 <mime-info>
 
-  <mime-type type="text/space-separated-values">
-    <glob pattern="*.ssv"/>
-  </mime-type>
+    <mime-type type="text/space-separated-values">
+        <glob pattern="*.ssv"/>
+    </mime-type>
 
-  <mime-type type="avro/binary">
-    <magic priority="50">
-      <match value="0x4f626a01" type="string" offset="0"/>
-    </magic>
-    <glob pattern="*.avro"/>
-  </mime-type>
+    <mime-type type="avro/binary">
+        <magic priority="50">
+            <match value="0x4f626a01" type="string" offset="0"/>
+        </magic>
+        <glob pattern="*.avro"/>
+    </mime-type>
 
-  <mime-type type="mytwittertest/json+delimited+length">
-    <magic priority="50">
-      <match value="[0-9]+(\r)?\n\\{&quot;" type="regex" offset="0:16"/>
-    </magic>
-  </mime-type>
+    <mime-type type="mytwittertest/json+delimited+length">
+        <magic priority="50">
+            <match value="[0-9]+(\r)?\n\\{&quot;" type="regex" offset="0:16"/>
+        </magic>
+    </mime-type>
 
-  <mime-type type="application/hadoop-sequence-file">
-    <magic priority="50">
-      <match value="SEQ[\0-\6]" type="regex" offset="0"/>
-    </magic>
-  </mime-type>
+    <mime-type type="application/hadoop-sequence-file">
+        <magic priority="50">
+            <match value="SEQ[\0-\6]" type="regex" offset="0"/>
+        </magic>
+    </mime-type>
 
 </mime-info>

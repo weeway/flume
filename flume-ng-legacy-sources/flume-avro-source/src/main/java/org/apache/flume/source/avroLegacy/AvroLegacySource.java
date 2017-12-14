@@ -79,79 +79,79 @@ import org.apache.flume.ChannelException;
  */
 
 public class AvroLegacySource extends AbstractSource implements
-    EventDrivenSource, Configurable, FlumeOGEventAvroServer {
+        EventDrivenSource, Configurable, FlumeOGEventAvroServer {
 
-  static final Logger LOG = LoggerFactory.getLogger(AvroLegacySource.class);
+    static final Logger LOG = LoggerFactory.getLogger(AvroLegacySource.class);
 
-  //  Flume OG event fields
-  public static final String HOST = "host";
-  public static final String TIMESTAMP = "timestamp";
-  public static final String PRIORITY = "pri";
-  public static final String NANOS = "nanos";
-  public static final String OG_EVENT = "FlumeOG";
+    //  Flume OG event fields
+    public static final String HOST = "host";
+    public static final String TIMESTAMP = "timestamp";
+    public static final String PRIORITY = "pri";
+    public static final String NANOS = "nanos";
+    public static final String OG_EVENT = "FlumeOG";
 
-  private CounterGroup counterGroup;
-  protected FlumeOGEventAvroServer avroClient;
-  private String host;
-  private int port;
-  private SpecificResponder res;
-  private HttpServer http;
+    private CounterGroup counterGroup;
+    protected FlumeOGEventAvroServer avroClient;
+    private String host;
+    private int port;
+    private SpecificResponder res;
+    private HttpServer http;
 
-  public AvroLegacySource() {
-    counterGroup = new CounterGroup();
-  }
-
-  @Override
-  public void start() {
-    // setup http server to receive OG events
-    res = new SpecificResponder(FlumeOGEventAvroServer.class, this);
-    try {
-      http = new HttpServer(res, host, port);
-    } catch (IOException eI) {
-      LOG.warn("Failed to start server", eI);
-      return;
-    }
-    http.start();
-    super.start();
-  }
-
-  @Override
-  public void stop() {
-    http.close();
-    super.stop();
-  }
-
-  @Override
-  public Void append( AvroFlumeOGEvent evt ) throws AvroRemoteException {
-    counterGroup.incrementAndGet("rpc.received");
-    Map<String, String> headers = new HashMap<String, String>();
-
-    // extract Flume OG event headers
-    headers.put(HOST, evt.getHost().toString());
-    headers.put(TIMESTAMP, evt.getTimestamp().toString());
-    headers.put(PRIORITY, evt.getPriority().toString());
-    headers.put(NANOS, evt.getNanos().toString());
-    for (Entry<CharSequence, ByteBuffer> entry : evt.getFields().entrySet()) {
-      headers.put(entry.getKey().toString(), entry.getValue().toString());
-    }
-    headers.put(OG_EVENT, "yes");
-
-    Event event = EventBuilder.withBody(evt.getBody().array(), headers);
-    try {
-      getChannelProcessor().processEvent(event);
-      counterGroup.incrementAndGet("rpc.events");
-    } catch (ChannelException ex) {
-      return null;
+    public AvroLegacySource() {
+        counterGroup = new CounterGroup();
     }
 
-    counterGroup.incrementAndGet("rpc.successful");
-    return null;
-  }
+    @Override
+    public void start() {
+        // setup http server to receive OG events
+        res = new SpecificResponder(FlumeOGEventAvroServer.class, this);
+        try {
+            http = new HttpServer(res, host, port);
+        } catch (IOException eI) {
+            LOG.warn("Failed to start server", eI);
+            return;
+        }
+        http.start();
+        super.start();
+    }
 
-  @Override
-  public void configure(Context context) {
-    port = Integer.parseInt(context.getString("port"));
-    host = context.getString("host");
-  }
+    @Override
+    public void stop() {
+        http.close();
+        super.stop();
+    }
+
+    @Override
+    public Void append(AvroFlumeOGEvent evt) throws AvroRemoteException {
+        counterGroup.incrementAndGet("rpc.received");
+        Map<String, String> headers = new HashMap<String, String>();
+
+        // extract Flume OG event headers
+        headers.put(HOST, evt.getHost().toString());
+        headers.put(TIMESTAMP, evt.getTimestamp().toString());
+        headers.put(PRIORITY, evt.getPriority().toString());
+        headers.put(NANOS, evt.getNanos().toString());
+        for (Entry<CharSequence, ByteBuffer> entry : evt.getFields().entrySet()) {
+            headers.put(entry.getKey().toString(), entry.getValue().toString());
+        }
+        headers.put(OG_EVENT, "yes");
+
+        Event event = EventBuilder.withBody(evt.getBody().array(), headers);
+        try {
+            getChannelProcessor().processEvent(event);
+            counterGroup.incrementAndGet("rpc.events");
+        } catch (ChannelException ex) {
+            return null;
+        }
+
+        counterGroup.incrementAndGet("rpc.successful");
+        return null;
+    }
+
+    @Override
+    public void configure(Context context) {
+        port = Integer.parseInt(context.getString("port"));
+        host = context.getString("host");
+    }
 
 }

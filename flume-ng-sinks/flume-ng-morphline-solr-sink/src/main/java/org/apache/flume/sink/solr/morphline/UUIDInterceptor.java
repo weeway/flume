@@ -31,85 +31,88 @@ import org.apache.flume.interceptor.Interceptor;
  */
 public class UUIDInterceptor implements Interceptor {
 
-  private String headerName;
-  private boolean preserveExisting;
-  private String prefix;
+    private String headerName;
+    private boolean preserveExisting;
+    private String prefix;
 
-  public static final String HEADER_NAME = "headerName";
-  public static final String PRESERVE_EXISTING_NAME = "preserveExisting";
-  public static final String PREFIX_NAME = "prefix";
+    public static final String HEADER_NAME = "headerName";
+    public static final String PRESERVE_EXISTING_NAME = "preserveExisting";
+    public static final String PREFIX_NAME = "prefix";
 
-  protected UUIDInterceptor(Context context) {
-    headerName = context.getString(HEADER_NAME, "id");
-    preserveExisting = context.getBoolean(PRESERVE_EXISTING_NAME, true);
-    prefix = context.getString(PREFIX_NAME, "");
-  }
-
-  @Override
-  public void initialize() {
-  }
-
-  protected String getPrefix() {
-    return prefix;
-  }
-
-  protected String generateUUID() {
-    return getPrefix() + UUID.randomUUID().toString();
-  }
-
-  protected boolean isMatch(Event event) {
-    return true;
-  }
-
-  @Override
-  public Event intercept(Event event) {
-    Map<String, String> headers = event.getHeaders();
-    if (preserveExisting && headers.containsKey(headerName)) {
-      // we must preserve the existing id
-    } else if (isMatch(event)) {
-      headers.put(headerName, generateUUID());
-    }
-    return event;
-  }
-
-  @Override
-  public List<Event> intercept(List<Event> events) {
-    List results = new ArrayList(events.size());
-    for (Event event : events) {
-      event = intercept(event);
-      if (event != null) {
-        results.add(event);
-      }
-    }
-    return results;
-  }
-
-  @Override
-  public void close() {
-  }
-
-  
-  ///////////////////////////////////////////////////////////////////////////////
-  // Nested classes:
-  ///////////////////////////////////////////////////////////////////////////////
-  /** Builder implementations MUST have a public no-arg constructor */
-  public static class Builder implements Interceptor.Builder {
-
-    private Context context;
-
-    public Builder() {
+    protected UUIDInterceptor(Context context) {
+        headerName = context.getString(HEADER_NAME, "id");
+        preserveExisting = context.getBoolean(PRESERVE_EXISTING_NAME, true);
+        prefix = context.getString(PREFIX_NAME, "");
     }
 
     @Override
-    public UUIDInterceptor build() {
-      return new UUIDInterceptor(context);
+    public void initialize() {
+    }
+
+    protected String getPrefix() {
+        return prefix;
+    }
+
+    protected String generateUUID() {
+        return getPrefix() + UUID.randomUUID().toString();
+    }
+
+    protected boolean isMatch(Event event) {
+        return true;
     }
 
     @Override
-    public void configure(Context context) {
-      this.context = context;
+    public Event intercept(Event event) {
+        Map<String, String> headers = event.getHeaders();
+        if (preserveExisting && headers.containsKey(headerName)) {
+            // we must preserve the existing id
+        } else if (isMatch(event)) {
+            headers.put(headerName, generateUUID());
+        }
+        return event;
     }
 
-  }
+    @Override
+    public List<Event> intercept(List<Event> events) {
+        List results = new ArrayList(events.size());
+        for (Event event : events) {
+            event = intercept(event);
+            if (event != null) {
+                results.add(event);
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public void close() {
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////
+    // Nested classes:
+    ///////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Builder implementations MUST have a public no-arg constructor
+     */
+    public static class Builder implements Interceptor.Builder {
+
+        private Context context;
+
+        public Builder() {
+        }
+
+        @Override
+        public UUIDInterceptor build() {
+            return new UUIDInterceptor(context);
+        }
+
+        @Override
+        public void configure(Context context) {
+            this.context = context;
+        }
+
+    }
 
 }

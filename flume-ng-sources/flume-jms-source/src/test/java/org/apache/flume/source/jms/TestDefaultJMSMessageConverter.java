@@ -47,143 +47,148 @@ import com.google.common.collect.Maps;
 
 public class TestDefaultJMSMessageConverter {
 
-  private static final String TEXT = "text";
-  private static final byte[] BYTES = TEXT.getBytes(Charsets.UTF_8);
-  private Context context;
-  private Message message;
-  private Map<String, String> headers;
-  private JMSMessageConverter converter;
+    private static final String TEXT = "text";
+    private static final byte[] BYTES = TEXT.getBytes(Charsets.UTF_8);
+    private Context context;
+    private Message message;
+    private Map<String, String> headers;
+    private JMSMessageConverter converter;
 
-  @Before
-  public void setUp() throws Exception {
-    headers = Maps.newHashMap();
-    context = new Context();
-    converter = new DefaultJMSMessageConverter.Builder().build(context);
-  }
+    @Before
+    public void setUp() throws Exception {
+        headers = Maps.newHashMap();
+        context = new Context();
+        converter = new DefaultJMSMessageConverter.Builder().build(context);
+    }
 
-  void createTextMessage() throws Exception {
-    TextMessage message = mock(TextMessage.class);
-    when(message.getText()).thenReturn(TEXT);
-    this.message = message;
-  }
+    void createTextMessage() throws Exception {
+        TextMessage message = mock(TextMessage.class);
+        when(message.getText()).thenReturn(TEXT);
+        this.message = message;
+    }
 
-  void createNullTextMessage() throws Exception {
-    TextMessage message = mock(TextMessage.class);
-    when(message.getText()).thenReturn(null);
-    this.message = message;
-  }
+    void createNullTextMessage() throws Exception {
+        TextMessage message = mock(TextMessage.class);
+        when(message.getText()).thenReturn(null);
+        this.message = message;
+    }
 
-  void createBytesMessage() throws Exception {
-    BytesMessage message = mock(BytesMessage.class);
-    when(message.getBodyLength()).thenReturn((long)BYTES.length);
-    when(message.readBytes(any(byte[].class))).then(new Answer<Integer>() {
-      @Override
-      public Integer answer(InvocationOnMock invocation) throws Throwable {
-        byte[] buffer = (byte[])invocation.getArguments()[0];
-        if (buffer != null) {
-          assertEquals(buffer.length, BYTES.length);
-          System.arraycopy(BYTES, 0, buffer, 0, BYTES.length);
-        }
-        return BYTES.length;
-      }
-    });
-    this.message = message;
-  }
-  void createObjectMessage() throws Exception {
-    ObjectMessage message = mock(ObjectMessage.class);
-    when(message.getObject()).thenReturn(TEXT);
-    this.message = message;
-  }
-  void createHeaders() throws Exception {
-    final Iterator<String> keys = headers.keySet().iterator();
-    when(message.getPropertyNames()).thenReturn(new Enumeration<Object>() {
-      @Override
-      public boolean hasMoreElements() {
-        return keys.hasNext();
-      }
-      @Override
-      public Object nextElement() {
-        return keys.next();
-      }
-    });
-    when(message.getStringProperty(anyString())).then(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return headers.get(invocation.getArguments()[0]);
-      }
-    });
-  }
+    void createBytesMessage() throws Exception {
+        BytesMessage message = mock(BytesMessage.class);
+        when(message.getBodyLength()).thenReturn((long) BYTES.length);
+        when(message.readBytes(any(byte[].class))).then(new Answer<Integer>() {
+            @Override
+            public Integer answer(InvocationOnMock invocation) throws Throwable {
+                byte[] buffer = (byte[]) invocation.getArguments()[0];
+                if (buffer != null) {
+                    assertEquals(buffer.length, BYTES.length);
+                    System.arraycopy(BYTES, 0, buffer, 0, BYTES.length);
+                }
+                return BYTES.length;
+            }
+        });
+        this.message = message;
+    }
 
-  @Test
-  public void testTextMessage() throws Exception {
-    createTextMessage();
-    headers.put("key1", "value1");
-    headers.put("key2", "value2");
-    createHeaders();
-    Event event = converter.convert(message).iterator().next();
-    assertEquals(headers, event.getHeaders());
-    assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
-  }
+    void createObjectMessage() throws Exception {
+        ObjectMessage message = mock(ObjectMessage.class);
+        when(message.getObject()).thenReturn(TEXT);
+        this.message = message;
+    }
 
-  @Test
-  public void testNullTextMessage() throws Exception {
-    createNullTextMessage();
-    headers.put("key1", "value1");
-    headers.put("key2", "value2");
-    createHeaders();
-    Event event = converter.convert(message).iterator().next();
-    assertEquals(headers, event.getHeaders());
-    // In case of a null text message, the event's body will be empty due to
-    // SimpleEvent's body not updated with a valid text message.
-    assertEquals(event.getBody().length, 0);
-  }
+    void createHeaders() throws Exception {
+        final Iterator<String> keys = headers.keySet().iterator();
+        when(message.getPropertyNames()).thenReturn(new Enumeration<Object>() {
+            @Override
+            public boolean hasMoreElements() {
+                return keys.hasNext();
+            }
 
-  @Test
-  public void testBytesMessage() throws Exception {
-    createBytesMessage();
-    headers.put("key1", "value1");
-    headers.put("key2", "value2");
-    createHeaders();
-    Event event = converter.convert(message).iterator().next();
-    assertEquals(headers, event.getHeaders());
-    assertArrayEquals(BYTES, event.getBody());
-  }
-  @Test(expected = JMSException.class)
-  public void testBytesMessageTooLarge() throws Exception {
-    createBytesMessage();
-    when(((BytesMessage)message).getBodyLength()).thenReturn(Long.MAX_VALUE);
-    createHeaders();
-    converter.convert(message);
-  }
-  @Test(expected = JMSException.class)
-  public void testBytesMessagePartialReturn() throws Exception {
-    createBytesMessage();
-    when(((BytesMessage)message).readBytes(any(byte[].class)))
-      .thenReturn(BYTES.length + 1);
-    createHeaders();
-    converter.convert(message);
-  }
+            @Override
+            public Object nextElement() {
+                return keys.next();
+            }
+        });
+        when(message.getStringProperty(anyString())).then(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return headers.get(invocation.getArguments()[0]);
+            }
+        });
+    }
 
-  @Test
-  public void testObjectMessage() throws Exception {
-    createObjectMessage();
-    headers.put("key1", "value1");
-    headers.put("key2", "value2");
-    createHeaders();
-    Event event = converter.convert(message).iterator().next();
-    assertEquals(headers, event.getHeaders());
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    ObjectOutput out = new ObjectOutputStream(bos);
-    out.writeObject(TEXT);
-    assertArrayEquals(bos.toByteArray(), event.getBody());
-  }
+    @Test
+    public void testTextMessage() throws Exception {
+        createTextMessage();
+        headers.put("key1", "value1");
+        headers.put("key2", "value2");
+        createHeaders();
+        Event event = converter.convert(message).iterator().next();
+        assertEquals(headers, event.getHeaders());
+        assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
+    }
 
-  @Test
-  public void testNoHeaders() throws Exception {
-    createTextMessage();
-    createHeaders();
-    Event event = converter.convert(message).iterator().next();
-    assertEquals(Collections.EMPTY_MAP, event.getHeaders());
-    assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
-  }
+    @Test
+    public void testNullTextMessage() throws Exception {
+        createNullTextMessage();
+        headers.put("key1", "value1");
+        headers.put("key2", "value2");
+        createHeaders();
+        Event event = converter.convert(message).iterator().next();
+        assertEquals(headers, event.getHeaders());
+        // In case of a null text message, the event's body will be empty due to
+        // SimpleEvent's body not updated with a valid text message.
+        assertEquals(event.getBody().length, 0);
+    }
+
+    @Test
+    public void testBytesMessage() throws Exception {
+        createBytesMessage();
+        headers.put("key1", "value1");
+        headers.put("key2", "value2");
+        createHeaders();
+        Event event = converter.convert(message).iterator().next();
+        assertEquals(headers, event.getHeaders());
+        assertArrayEquals(BYTES, event.getBody());
+    }
+
+    @Test(expected = JMSException.class)
+    public void testBytesMessageTooLarge() throws Exception {
+        createBytesMessage();
+        when(((BytesMessage) message).getBodyLength()).thenReturn(Long.MAX_VALUE);
+        createHeaders();
+        converter.convert(message);
+    }
+
+    @Test(expected = JMSException.class)
+    public void testBytesMessagePartialReturn() throws Exception {
+        createBytesMessage();
+        when(((BytesMessage) message).readBytes(any(byte[].class)))
+                .thenReturn(BYTES.length + 1);
+        createHeaders();
+        converter.convert(message);
+    }
+
+    @Test
+    public void testObjectMessage() throws Exception {
+        createObjectMessage();
+        headers.put("key1", "value1");
+        headers.put("key2", "value2");
+        createHeaders();
+        Event event = converter.convert(message).iterator().next();
+        assertEquals(headers, event.getHeaders());
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = new ObjectOutputStream(bos);
+        out.writeObject(TEXT);
+        assertArrayEquals(bos.toByteArray(), event.getBody());
+    }
+
+    @Test
+    public void testNoHeaders() throws Exception {
+        createTextMessage();
+        createHeaders();
+        Event event = converter.convert(message).iterator().next();
+        assertEquals(Collections.EMPTY_MAP, event.getHeaders());
+        assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
+    }
 }

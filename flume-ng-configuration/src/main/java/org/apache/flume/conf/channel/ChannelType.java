@@ -23,43 +23,44 @@ package org.apache.flume.conf.channel;
  */
 public enum ChannelType {
 
-  /**
-   * Place holder for custom channels not part of this enumeration.
-   */
-  OTHER(null),
+    /**
+     * Place holder for custom channels not part of this enumeration.
+     */
+    OTHER(null),
 
-  /**
-   * File channel
-   * @see FileChannel
-   */
-  FILE("org.apache.flume.channel.file.FileChannel"),
+    /**
+     * File channel
+     *
+     * @see FileChannel
+     */
+    FILE("org.apache.flume.channel.file.FileChannel"),
 
-  /**
-   * Memory channel
-   *
-   * @see MemoryChannel
-   */
-  MEMORY("org.apache.flume.channel.MemoryChannel"),
+    /**
+     * Memory channel
+     *
+     * @see MemoryChannel
+     */
+    MEMORY("org.apache.flume.channel.MemoryChannel"),
 
-  /**
-   * JDBC channel provided by org.apache.flume.channel.jdbc.JdbcChannel
-   */
-  JDBC("org.apache.flume.channel.jdbc.JdbcChannel"),
+    /**
+     * JDBC channel provided by org.apache.flume.channel.jdbc.JdbcChannel
+     */
+    JDBC("org.apache.flume.channel.jdbc.JdbcChannel"),
 
-  /**
-   * Spillable Memory channel
-   *
-   * @see SpillableMemoryChannel
-   */
-  SPILLABLEMEMORY("org.apache.flume.channel.SpillableMemoryChannel");
+    /**
+     * Spillable Memory channel
+     *
+     * @see SpillableMemoryChannel
+     */
+    SPILLABLEMEMORY("org.apache.flume.channel.SpillableMemoryChannel");
 
-  private final String channelClassName;
+    private final String channelClassName;
 
-  private ChannelType(String channelClassName) {
-    this.channelClassName = channelClassName;
-  }
+    private ChannelType(String channelClassName) {
+        this.channelClassName = channelClassName;
+    }
 
-  public String getChannelClassName() {
-    return channelClassName;
-  }
+    public String getChannelClassName() {
+        return channelClassName;
+    }
 }

@@ -43,103 +43,110 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 
 public abstract class JMSMessageConsumerTestBase {
-  static final String USERNAME = "userName";
-  static final String PASSWORD = "password";
-  static final String DESTINATION_NAME = "destinationName";
-  static final String SELECTOR = "selector";
-  static final String TEXT = "text";
-  static final InitialContext WONT_USE = null;
+    static final String USERNAME = "userName";
+    static final String PASSWORD = "password";
+    static final String DESTINATION_NAME = "destinationName";
+    static final String SELECTOR = "selector";
+    static final String TEXT = "text";
+    static final InitialContext WONT_USE = null;
 
-  Context context;
-  JMSMessageConsumer consumer;
-  ConnectionFactory connectionFactory;
-  String destinationName;
-  JMSDestinationType destinationType;
-  JMSDestinationLocator destinationLocator;
-  String messageSelector;
-  int batchSize;
-  long pollTimeout;
-  JMSMessageConverter converter;
-  Optional<String> userName;
-  Optional<String> password;
+    Context context;
+    JMSMessageConsumer consumer;
+    ConnectionFactory connectionFactory;
+    String destinationName;
+    JMSDestinationType destinationType;
+    JMSDestinationLocator destinationLocator;
+    String messageSelector;
+    int batchSize;
+    long pollTimeout;
+    JMSMessageConverter converter;
+    Optional<String> userName;
+    Optional<String> password;
 
-  Connection connection;
-  Session session;
-  Queue queue;
-  Topic topic;
-  MessageConsumer messageConsumer;
-  TextMessage message;
-  Event event;
+    Connection connection;
+    Session session;
+    Queue queue;
+    Topic topic;
+    MessageConsumer messageConsumer;
+    TextMessage message;
+    Event event;
 
-  @Before
-  public void setup() throws Exception {
-    beforeSetup();
-    connectionFactory = mock(ConnectionFactory.class);
-    connection = mock(Connection.class);
-    session = mock(Session.class);
-    queue = mock(Queue.class);
-    topic = mock(Topic.class);
-    messageConsumer = mock(MessageConsumer.class);
-    message = mock(TextMessage.class);
-    when(message.getPropertyNames()).thenReturn(new Enumeration<Object>() {
-      @Override
-      public boolean hasMoreElements() {
-        return false;
-      }
-      @Override
-      public Object nextElement() {
-        throw new UnsupportedOperationException();
-      }
-    });
-    when(message.getText()).thenReturn(TEXT);
-    when(connectionFactory.createConnection(USERNAME, PASSWORD)).thenReturn(connection);
-    when(connection.createSession(true, Session.SESSION_TRANSACTED)).thenReturn(session);
-    when(session.createQueue(destinationName)).thenReturn(queue);
-    when(session.createConsumer(any(Destination.class), anyString())).thenReturn(messageConsumer);
-    when(messageConsumer.receiveNoWait()).thenReturn(message);
-    when(messageConsumer.receive(anyLong())).thenReturn(message);
-    destinationName = DESTINATION_NAME;
-    destinationType = JMSDestinationType.QUEUE;
-    destinationLocator = JMSDestinationLocator.CDI;
-    messageSelector = SELECTOR;
-    batchSize = 10;
-    pollTimeout = 500L;
-    context = new Context();
-    converter = new DefaultJMSMessageConverter.Builder().build(context);
-    event = converter.convert(message).iterator().next();
-    userName = Optional.of(USERNAME);
-    password = Optional.of(PASSWORD);
-    afterSetup();
-  }
-  void beforeSetup() throws Exception {
+    @Before
+    public void setup() throws Exception {
+        beforeSetup();
+        connectionFactory = mock(ConnectionFactory.class);
+        connection = mock(Connection.class);
+        session = mock(Session.class);
+        queue = mock(Queue.class);
+        topic = mock(Topic.class);
+        messageConsumer = mock(MessageConsumer.class);
+        message = mock(TextMessage.class);
+        when(message.getPropertyNames()).thenReturn(new Enumeration<Object>() {
+            @Override
+            public boolean hasMoreElements() {
+                return false;
+            }
 
-  }
-  void afterSetup() throws Exception {
-
-  }
-  void beforeTearDown() throws Exception {
-
-  }
-  void afterTearDown() throws Exception {
-
-  }
-  void assertBodyIsExpected(List<Event> events) {
-    for (Event event : events) {
-      assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
+            @Override
+            public Object nextElement() {
+                throw new UnsupportedOperationException();
+            }
+        });
+        when(message.getText()).thenReturn(TEXT);
+        when(connectionFactory.createConnection(USERNAME, PASSWORD)).thenReturn(connection);
+        when(connection.createSession(true, Session.SESSION_TRANSACTED)).thenReturn(session);
+        when(session.createQueue(destinationName)).thenReturn(queue);
+        when(session.createConsumer(any(Destination.class), anyString())).thenReturn(messageConsumer);
+        when(messageConsumer.receiveNoWait()).thenReturn(message);
+        when(messageConsumer.receive(anyLong())).thenReturn(message);
+        destinationName = DESTINATION_NAME;
+        destinationType = JMSDestinationType.QUEUE;
+        destinationLocator = JMSDestinationLocator.CDI;
+        messageSelector = SELECTOR;
+        batchSize = 10;
+        pollTimeout = 500L;
+        context = new Context();
+        converter = new DefaultJMSMessageConverter.Builder().build(context);
+        event = converter.convert(message).iterator().next();
+        userName = Optional.of(USERNAME);
+        password = Optional.of(PASSWORD);
+        afterSetup();
     }
-  }
 
-  JMSMessageConsumer create() {
-    return new JMSMessageConsumer(WONT_USE, connectionFactory, destinationName,
-        destinationLocator, destinationType, messageSelector, batchSize,
-        pollTimeout, converter, userName, password, Optional.<String>absent(), false, "");
-  }
-  @After
-  public void tearDown() throws Exception {
-    beforeTearDown();
-    if (consumer != null) {
-      consumer.close();
+    void beforeSetup() throws Exception {
+
     }
-    afterTearDown();
-  }
+
+    void afterSetup() throws Exception {
+
+    }
+
+    void beforeTearDown() throws Exception {
+
+    }
+
+    void afterTearDown() throws Exception {
+
+    }
+
+    void assertBodyIsExpected(List<Event> events) {
+        for (Event event : events) {
+            assertEquals(TEXT, new String(event.getBody(), Charsets.UTF_8));
+        }
+    }
+
+    JMSMessageConsumer create() {
+        return new JMSMessageConsumer(WONT_USE, connectionFactory, destinationName,
+                destinationLocator, destinationType, messageSelector, batchSize,
+                pollTimeout, converter, userName, password, Optional.<String>absent(), false, "");
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        beforeTearDown();
+        if (consumer != null) {
+            consumer.close();
+        }
+        afterTearDown();
+    }
 }

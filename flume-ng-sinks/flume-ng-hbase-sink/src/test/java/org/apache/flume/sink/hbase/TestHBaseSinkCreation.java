@@ -28,23 +28,23 @@ import org.junit.Test;
 
 public class TestHBaseSinkCreation {
 
-  private SinkFactory sinkFactory;
+    private SinkFactory sinkFactory;
 
-  @Before
-  public void setUp() {
-    sinkFactory = new DefaultSinkFactory();
-  }
+    @Before
+    public void setUp() {
+        sinkFactory = new DefaultSinkFactory();
+    }
 
-  private void verifySinkCreation(String name, String type,
-      Class<?> typeClass) throws FlumeException {
-    Sink sink = sinkFactory.create(name, type);
-    Assert.assertNotNull(sink);
-    Assert.assertTrue(typeClass.isInstance(sink));
-  }
+    private void verifySinkCreation(String name, String type,
+                                    Class<?> typeClass) throws FlumeException {
+        Sink sink = sinkFactory.create(name, type);
+        Assert.assertNotNull(sink);
+        Assert.assertTrue(typeClass.isInstance(sink));
+    }
 
-  @Test
-  public void testSinkCreation() {
-    verifySinkCreation("hbase-sink", "hbase", HBaseSink.class);
-    verifySinkCreation("asynchbase-sink", "asynchbase", AsyncHBaseSink.class);
-  }
+    @Test
+    public void testSinkCreation() {
+        verifySinkCreation("hbase-sink", "hbase", HBaseSink.class);
+        verifySinkCreation("asynchbase-sink", "asynchbase", AsyncHBaseSink.class);
+    }
 }

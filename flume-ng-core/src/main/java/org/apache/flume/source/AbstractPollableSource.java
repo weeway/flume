@@ -38,45 +38,45 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public abstract class AbstractPollableSource
-    extends BasicSourceSemantics implements PollableSource {
+        extends BasicSourceSemantics implements PollableSource {
 
-  long backoffSleepIncrement = PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT;
-  long maxBackoffSleep = PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP;
+    long backoffSleepIncrement = PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT;
+    long maxBackoffSleep = PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP;
 
-  public AbstractPollableSource() {
-    super();
-  }
-
-  public Status process() throws EventDeliveryException {
-    Exception exception = getStartException();
-    if (exception != null) {
-      throw new FlumeException("Source had error configuring or starting",
-          exception);
+    public AbstractPollableSource() {
+        super();
     }
-    if (!isStarted()) {
-      throw new EventDeliveryException("Source is not started.  It is in '" +
-                                       getLifecycleState() + "' state");
+
+    public Status process() throws EventDeliveryException {
+        Exception exception = getStartException();
+        if (exception != null) {
+            throw new FlumeException("Source had error configuring or starting",
+                    exception);
+        }
+        if (!isStarted()) {
+            throw new EventDeliveryException("Source is not started.  It is in '" +
+                    getLifecycleState() + "' state");
+        }
+        return doProcess();
     }
-    return doProcess();
-  }
 
-  @Override
-  public synchronized void configure(Context context) {
-    super.configure(context);
-    backoffSleepIncrement =
-            context.getLong(PollableSourceConstants.BACKOFF_SLEEP_INCREMENT,
-                    PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT);
-    maxBackoffSleep = context.getLong(PollableSourceConstants.MAX_BACKOFF_SLEEP,
-            PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP);
-  }
+    @Override
+    public synchronized void configure(Context context) {
+        super.configure(context);
+        backoffSleepIncrement =
+                context.getLong(PollableSourceConstants.BACKOFF_SLEEP_INCREMENT,
+                        PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT);
+        maxBackoffSleep = context.getLong(PollableSourceConstants.MAX_BACKOFF_SLEEP,
+                PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP);
+    }
 
-  public long getBackOffSleepIncrement() {
-    return backoffSleepIncrement;
-  }
+    public long getBackOffSleepIncrement() {
+        return backoffSleepIncrement;
+    }
 
-  public long getMaxBackOffSleepInterval() {
-    return maxBackoffSleep;
-  }
+    public long getMaxBackOffSleepInterval() {
+        return maxBackoffSleep;
+    }
 
-  protected abstract Status doProcess() throws EventDeliveryException;
+    protected abstract Status doProcess() throws EventDeliveryException;
 }

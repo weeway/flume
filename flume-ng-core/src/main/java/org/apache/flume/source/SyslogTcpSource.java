@@ -52,139 +52,139 @@ import org.slf4j.LoggerFactory;
  */
 @Deprecated
 public class SyslogTcpSource extends AbstractSource
-                             implements EventDrivenSource, Configurable {
-  private static final Logger logger = LoggerFactory.getLogger(SyslogTcpSource.class);
+        implements EventDrivenSource, Configurable {
+    private static final Logger logger = LoggerFactory.getLogger(SyslogTcpSource.class);
 
-  private int port;
-  private String host = null;
-  private Channel nettyChannel;
-  private Integer eventSize;
-  private Map<String, String> formaterProp;
-  private SourceCounter sourceCounter;
-  private Set<String> keepFields;
+    private int port;
+    private String host = null;
+    private Channel nettyChannel;
+    private Integer eventSize;
+    private Map<String, String> formaterProp;
+    private SourceCounter sourceCounter;
+    private Set<String> keepFields;
 
-  public class syslogTcpHandler extends SimpleChannelHandler {
+    public class syslogTcpHandler extends SimpleChannelHandler {
 
-    private SyslogUtils syslogUtils = new SyslogUtils();
+        private SyslogUtils syslogUtils = new SyslogUtils();
 
-    public void setEventSize(int eventSize) {
-      syslogUtils.setEventSize(eventSize);
-    }
+        public void setEventSize(int eventSize) {
+            syslogUtils.setEventSize(eventSize);
+        }
 
-    public void setKeepFields(Set<String> keepFields) {
-      syslogUtils.setKeepFields(keepFields);
-    }
+        public void setKeepFields(Set<String> keepFields) {
+            syslogUtils.setKeepFields(keepFields);
+        }
 
-    public void setFormater(Map<String, String> prop) {
-      syslogUtils.addFormats(prop);
+        public void setFormater(Map<String, String> prop) {
+            syslogUtils.addFormats(prop);
+        }
+
+        @Override
+        public void messageReceived(ChannelHandlerContext ctx, MessageEvent mEvent) {
+            ChannelBuffer buff = (ChannelBuffer) mEvent.getMessage();
+            while (buff.readable()) {
+                Event e = syslogUtils.extractEvent(buff);
+                if (e == null) {
+                    logger.debug("Parsed partial event, event will be generated when " +
+                            "rest of the event is received.");
+                    continue;
+                }
+                sourceCounter.incrementEventReceivedCount();
+
+                try {
+                    getChannelProcessor().processEvent(e);
+                    sourceCounter.incrementEventAcceptedCount();
+                } catch (ChannelException ex) {
+                    logger.error("Error writting to channel, event dropped", ex);
+                } catch (RuntimeException ex) {
+                    logger.error("Error parsing event from syslog stream, event dropped", ex);
+                    return;
+                }
+            }
+
+        }
     }
 
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent mEvent) {
-      ChannelBuffer buff = (ChannelBuffer) mEvent.getMessage();
-      while (buff.readable()) {
-        Event e = syslogUtils.extractEvent(buff);
-        if (e == null) {
-          logger.debug("Parsed partial event, event will be generated when " +
-              "rest of the event is received.");
-          continue;
+    public void start() {
+        ChannelFactory factory = new NioServerSocketChannelFactory(
+                Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
+
+        ServerBootstrap serverBootstrap = new ServerBootstrap(factory);
+        serverBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() {
+                syslogTcpHandler handler = new syslogTcpHandler();
+                handler.setEventSize(eventSize);
+                handler.setFormater(formaterProp);
+                handler.setKeepFields(keepFields);
+                return Channels.pipeline(handler);
+            }
+        });
+
+        logger.info("Syslog TCP Source starting...");
+
+        if (host == null) {
+            nettyChannel = serverBootstrap.bind(new InetSocketAddress(port));
+        } else {
+            nettyChannel = serverBootstrap.bind(new InetSocketAddress(host, port));
         }
-        sourceCounter.incrementEventReceivedCount();
 
-        try {
-          getChannelProcessor().processEvent(e);
-          sourceCounter.incrementEventAcceptedCount();
-        } catch (ChannelException ex) {
-          logger.error("Error writting to channel, event dropped", ex);
-        } catch (RuntimeException ex) {
-          logger.error("Error parsing event from syslog stream, event dropped", ex);
-          return;
+        sourceCounter.start();
+        super.start();
+    }
+
+    @Override
+    public void stop() {
+        logger.info("Syslog TCP Source stopping...");
+        logger.info("Metrics: {}", sourceCounter);
+
+        if (nettyChannel != null) {
+            nettyChannel.close();
+            try {
+                nettyChannel.getCloseFuture().await(60, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                logger.warn("netty server stop interrupted", e);
+            } finally {
+                nettyChannel = null;
+            }
         }
-      }
 
-    }
-  }
-
-  @Override
-  public void start() {
-    ChannelFactory factory = new NioServerSocketChannelFactory(
-        Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
-
-    ServerBootstrap serverBootstrap = new ServerBootstrap(factory);
-    serverBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-      @Override
-      public ChannelPipeline getPipeline() {
-        syslogTcpHandler handler = new syslogTcpHandler();
-        handler.setEventSize(eventSize);
-        handler.setFormater(formaterProp);
-        handler.setKeepFields(keepFields);
-        return Channels.pipeline(handler);
-      }
-    });
-
-    logger.info("Syslog TCP Source starting...");
-
-    if (host == null) {
-      nettyChannel = serverBootstrap.bind(new InetSocketAddress(port));
-    } else {
-      nettyChannel = serverBootstrap.bind(new InetSocketAddress(host, port));
+        sourceCounter.stop();
+        super.stop();
     }
 
-    sourceCounter.start();
-    super.start();
-  }
+    @Override
+    public void configure(Context context) {
+        Configurables.ensureRequiredNonNull(context,
+                SyslogSourceConfigurationConstants.CONFIG_PORT);
+        port = context.getInteger(SyslogSourceConfigurationConstants.CONFIG_PORT);
+        host = context.getString(SyslogSourceConfigurationConstants.CONFIG_HOST);
+        eventSize = context.getInteger("eventSize", SyslogUtils.DEFAULT_SIZE);
+        formaterProp = context.getSubProperties(
+                SyslogSourceConfigurationConstants.CONFIG_FORMAT_PREFIX);
+        keepFields = SyslogUtils.chooseFieldsToKeep(
+                context.getString(
+                        SyslogSourceConfigurationConstants.CONFIG_KEEP_FIELDS,
+                        SyslogSourceConfigurationConstants.DEFAULT_KEEP_FIELDS));
 
-  @Override
-  public void stop() {
-    logger.info("Syslog TCP Source stopping...");
-    logger.info("Metrics: {}", sourceCounter);
-
-    if (nettyChannel != null) {
-      nettyChannel.close();
-      try {
-        nettyChannel.getCloseFuture().await(60, TimeUnit.SECONDS);
-      } catch (InterruptedException e) {
-        logger.warn("netty server stop interrupted", e);
-      } finally {
-        nettyChannel = null;
-      }
+        if (sourceCounter == null) {
+            sourceCounter = new SourceCounter(getName());
+        }
     }
 
-    sourceCounter.stop();
-    super.stop();
-  }
-
-  @Override
-  public void configure(Context context) {
-    Configurables.ensureRequiredNonNull(context,
-        SyslogSourceConfigurationConstants.CONFIG_PORT);
-    port = context.getInteger(SyslogSourceConfigurationConstants.CONFIG_PORT);
-    host = context.getString(SyslogSourceConfigurationConstants.CONFIG_HOST);
-    eventSize = context.getInteger("eventSize", SyslogUtils.DEFAULT_SIZE);
-    formaterProp = context.getSubProperties(
-        SyslogSourceConfigurationConstants.CONFIG_FORMAT_PREFIX);
-    keepFields = SyslogUtils.chooseFieldsToKeep(
-        context.getString(
-            SyslogSourceConfigurationConstants.CONFIG_KEEP_FIELDS,
-            SyslogSourceConfigurationConstants.DEFAULT_KEEP_FIELDS));
-
-    if (sourceCounter == null) {
-      sourceCounter = new SourceCounter(getName());
+    @VisibleForTesting
+    InetSocketAddress getBoundAddress() {
+        SocketAddress localAddress = nettyChannel.getLocalAddress();
+        if (!(localAddress instanceof InetSocketAddress)) {
+            throw new IllegalArgumentException("Not bound to an internet address");
+        }
+        return (InetSocketAddress) localAddress;
     }
-  }
 
-  @VisibleForTesting
-  InetSocketAddress getBoundAddress() {
-    SocketAddress localAddress = nettyChannel.getLocalAddress();
-    if (!(localAddress instanceof InetSocketAddress)) {
-      throw new IllegalArgumentException("Not bound to an internet address");
+
+    @VisibleForTesting
+    SourceCounter getSourceCounter() {
+        return sourceCounter;
     }
-    return (InetSocketAddress) localAddress;
-  }
-
-
-  @VisibleForTesting
-  SourceCounter getSourceCounter() {
-    return sourceCounter;
-  }
 }

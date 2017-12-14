@@ -33,46 +33,46 @@ import java.util.List;
  * column for the row whose row key is the event's body bytes.
  */
 public class IncrementAsyncHBaseSerializer implements AsyncHbaseEventSerializer {
-  private byte[] table;
-  private byte[] cf;
-  private byte[] column;
-  private Event currentEvent;
+    private byte[] table;
+    private byte[] cf;
+    private byte[] column;
+    private Event currentEvent;
 
-  @Override
-  public void initialize(byte[] table, byte[] cf) {
-    this.table = table;
-    this.cf = cf;
-  }
+    @Override
+    public void initialize(byte[] table, byte[] cf) {
+        this.table = table;
+        this.cf = cf;
+    }
 
-  @Override
-  public void setEvent(Event event) {
-    this.currentEvent = event;
-  }
+    @Override
+    public void setEvent(Event event) {
+        this.currentEvent = event;
+    }
 
-  @Override
-  public List<PutRequest> getActions() {
-    return Collections.emptyList();
-  }
+    @Override
+    public List<PutRequest> getActions() {
+        return Collections.emptyList();
+    }
 
-  @Override
-  public List<AtomicIncrementRequest> getIncrements() {
-    List<AtomicIncrementRequest> incrs = new ArrayList<AtomicIncrementRequest>();
-    AtomicIncrementRequest incr = new AtomicIncrementRequest(table,
-        currentEvent.getBody(), cf, column, 1);
-    incrs.add(incr);
-    return incrs;
-  }
+    @Override
+    public List<AtomicIncrementRequest> getIncrements() {
+        List<AtomicIncrementRequest> incrs = new ArrayList<AtomicIncrementRequest>();
+        AtomicIncrementRequest incr = new AtomicIncrementRequest(table,
+                currentEvent.getBody(), cf, column, 1);
+        incrs.add(incr);
+        return incrs;
+    }
 
-  @Override
-  public void cleanUp() {
-  }
+    @Override
+    public void cleanUp() {
+    }
 
-  @Override
-  public void configure(Context context) {
-    column = context.getString("column", "col").getBytes();
-  }
+    @Override
+    public void configure(Context context) {
+        column = context.getString("column", "col").getBytes();
+    }
 
-  @Override
-  public void configure(ComponentConfiguration conf) {
-  }
+    @Override
+    public void configure(ComponentConfiguration conf) {
+    }
 }

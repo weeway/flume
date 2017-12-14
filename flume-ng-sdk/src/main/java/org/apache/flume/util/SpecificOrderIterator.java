@@ -29,27 +29,27 @@ import java.util.List;
  */
 public class SpecificOrderIterator<T> implements Iterator<T> {
 
-  private final int[] order;
-  private final List<T> items;
-  private int index = 0;
+    private final int[] order;
+    private final List<T> items;
+    private int index = 0;
 
-  public SpecificOrderIterator(int[] orderArray, List<T> itemList) {
-    order = orderArray;
-    items = itemList;
-  }
+    public SpecificOrderIterator(int[] orderArray, List<T> itemList) {
+        order = orderArray;
+        items = itemList;
+    }
 
-  @Override
-  public boolean hasNext() {
-    return index < order.length;
-  }
+    @Override
+    public boolean hasNext() {
+        return index < order.length;
+    }
 
-  @Override
-  public T next() {
-    return items.get(order[index++]);
-  }
+    @Override
+    public T next() {
+        return items.get(order[index++]);
+    }
 
-  @Override
-  public void remove() {
-    throw new UnsupportedOperationException();
-  }
+    @Override
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
 }

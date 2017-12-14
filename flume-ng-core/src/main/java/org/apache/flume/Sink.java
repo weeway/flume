@@ -33,7 +33,7 @@ import org.apache.flume.lifecycle.LifecycleAware;
  * Sinks can be grouped together for various behaviors using <tt>SinkGroup</tt>
  * and <tt>SinkProcessor</tt>. They are polled periodically by a
  * <tt>SinkRunner</tt> via the processor</p>
- *<p>
+ * <p>
  * Sinks are associated with unique names that can be used for separating
  * configuration and working namespaces.
  * </p>
@@ -50,30 +50,32 @@ import org.apache.flume.lifecycle.LifecycleAware;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface Sink extends LifecycleAware, NamedComponent {
-  /**
-   * <p>Sets the channel the sink will consume from</p>
-   * @param channel The channel to be polled
-   */
-  public void setChannel(Channel channel);
+    /**
+     * <p>Sets the channel the sink will consume from</p>
+     *
+     * @param channel The channel to be polled
+     */
+    public void setChannel(Channel channel);
 
-  /**
-   * @return the channel associated with this sink
-   */
-  public Channel getChannel();
+    /**
+     * @return the channel associated with this sink
+     */
+    public Channel getChannel();
 
-  /**
-   * <p>Requests the sink to attempt to consume data from attached channel</p>
-   * <p><strong>Note</strong>: This method should be consuming from the channel
-   * within the bounds of a Transaction. On successful delivery, the transaction
-   * should be committed, and on failure it should be rolled back.
-   * @return READY if 1 or more Events were successfully delivered, BACKOFF if
-   * no data could be retrieved from the channel feeding this sink
-   * @throws EventDeliveryException In case of any kind of failure to
-   * deliver data to the next hop destination.
-   */
-  public Status process() throws EventDeliveryException;
+    /**
+     * <p>Requests the sink to attempt to consume data from attached channel</p>
+     * <p><strong>Note</strong>: This method should be consuming from the channel
+     * within the bounds of a Transaction. On successful delivery, the transaction
+     * should be committed, and on failure it should be rolled back.
+     *
+     * @return READY if 1 or more Events were successfully delivered, BACKOFF if
+     * no data could be retrieved from the channel feeding this sink
+     * @throws EventDeliveryException In case of any kind of failure to
+     *                                deliver data to the next hop destination.
+     */
+    public Status process() throws EventDeliveryException;
 
-  public static enum Status {
-    READY, BACKOFF
-  }
+    public static enum Status {
+        READY, BACKOFF
+    }
 }

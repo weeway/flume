@@ -24,40 +24,40 @@ import org.junit.Test;
 
 public class TestUUIDInterceptor extends Assert {
 
-  private static final String ID = "id";
+    private static final String ID = "id";
 
-  @Test
-  public void testBasic() throws Exception {
-    Context context = new Context();
-    context.put(UUIDInterceptor.HEADER_NAME, ID);
-    context.put(UUIDInterceptor.PRESERVE_EXISTING_NAME, "true");
-    Event event = new SimpleEvent();
-    assertTrue(build(context).intercept(event).getHeaders().get(ID).length() > 0);
-  }
+    @Test
+    public void testBasic() throws Exception {
+        Context context = new Context();
+        context.put(UUIDInterceptor.HEADER_NAME, ID);
+        context.put(UUIDInterceptor.PRESERVE_EXISTING_NAME, "true");
+        Event event = new SimpleEvent();
+        assertTrue(build(context).intercept(event).getHeaders().get(ID).length() > 0);
+    }
 
-  @Test
-  public void testPreserveExisting() throws Exception {
-    Context context = new Context();
-    context.put(UUIDInterceptor.HEADER_NAME, ID);
-    context.put(UUIDInterceptor.PRESERVE_EXISTING_NAME, "true");
-    Event event = new SimpleEvent();
-    event.getHeaders().put(ID, "foo");
-    assertEquals("foo", build(context).intercept(event).getHeaders().get(ID));
-  }
+    @Test
+    public void testPreserveExisting() throws Exception {
+        Context context = new Context();
+        context.put(UUIDInterceptor.HEADER_NAME, ID);
+        context.put(UUIDInterceptor.PRESERVE_EXISTING_NAME, "true");
+        Event event = new SimpleEvent();
+        event.getHeaders().put(ID, "foo");
+        assertEquals("foo", build(context).intercept(event).getHeaders().get(ID));
+    }
 
-  @Test
-  public void testPrefix() throws Exception {
-    Context context = new Context();
-    context.put(UUIDInterceptor.HEADER_NAME, ID);
-    context.put(UUIDInterceptor.PREFIX_NAME, "bar#");
-    Event event = new SimpleEvent();
-    assertTrue(build(context).intercept(event).getHeaders().get(ID).startsWith("bar#"));
-  }
+    @Test
+    public void testPrefix() throws Exception {
+        Context context = new Context();
+        context.put(UUIDInterceptor.HEADER_NAME, ID);
+        context.put(UUIDInterceptor.PREFIX_NAME, "bar#");
+        Event event = new SimpleEvent();
+        assertTrue(build(context).intercept(event).getHeaders().get(ID).startsWith("bar#"));
+    }
 
-  private UUIDInterceptor build(Context context) {
-    UUIDInterceptor.Builder builder = new UUIDInterceptor.Builder();
-    builder.configure(context);
-    return builder.build();
-  }
+    private UUIDInterceptor build(Context context) {
+        UUIDInterceptor.Builder builder = new UUIDInterceptor.Builder();
+        builder.configure(context);
+        return builder.build();
+    }
 
 }

@@ -85,39 +85,39 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceStability.Stable
 public interface LifecycleAware {
 
-  /**
-   * <p>
-   * Starts a service or component.
-   * </p>
-   * <p>
-   * Implementations should determine the result of any start logic and effect
-   * the return value of {@link #getLifecycleState()} accordingly.
-   * </p>
-   *
-   * @throws LifecycleException
-   * @throws InterruptedException
-   */
-  public void start();
+    /**
+     * <p>
+     * Starts a service or component.
+     * </p>
+     * <p>
+     * Implementations should determine the result of any start logic and effect
+     * the return value of {@link #getLifecycleState()} accordingly.
+     * </p>
+     *
+     * @throws LifecycleException
+     * @throws InterruptedException
+     */
+    public void start();
 
-  /**
-   * <p>
-   * Stops a service or component.
-   * </p>
-   * <p>
-   * Implementations should determine the result of any stop logic and effect
-   * the return value of {@link #getLifecycleState()} accordingly.
-   * </p>
-   *
-   * @throws LifecycleException
-   * @throws InterruptedException
-   */
-  public void stop();
+    /**
+     * <p>
+     * Stops a service or component.
+     * </p>
+     * <p>
+     * Implementations should determine the result of any stop logic and effect
+     * the return value of {@link #getLifecycleState()} accordingly.
+     * </p>
+     *
+     * @throws LifecycleException
+     * @throws InterruptedException
+     */
+    public void stop();
 
-  /**
-   * <p>
-   * Return the current state of the service or component.
-   * </p>
-   */
-  public LifecycleState getLifecycleState();
+    /**
+     * <p>
+     * Return the current state of the service or component.
+     * </p>
+     */
+    public LifecycleState getLifecycleState();
 
 }

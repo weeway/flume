@@ -30,78 +30,78 @@ import java.util.Map;
 
 public class TestAsyncHBaseSinkConfiguration {
 
-  private static final String tableName = "TestHbaseSink";
-  private static final String columnFamily = "TestColumnFamily";
-  private static Context ctx = new Context();
+    private static final String tableName = "TestHbaseSink";
+    private static final String columnFamily = "TestColumnFamily";
+    private static Context ctx = new Context();
 
 
-  @Before
-  public void setUp() throws Exception {
-    Map<String, String> ctxMap = new HashMap<>();
-    ctxMap.put("table", tableName);
-    ctxMap.put("columnFamily", columnFamily);
-    ctx = new Context();
-    ctx.putAll(ctxMap);
-  }
+    @Before
+    public void setUp() throws Exception {
+        Map<String, String> ctxMap = new HashMap<>();
+        ctxMap.put("table", tableName);
+        ctxMap.put("columnFamily", columnFamily);
+        ctx = new Context();
+        ctx.putAll(ctxMap);
+    }
 
 
-  //FLUME-3186 Make asyncHbaseClient configuration parameters available from flume config
-  @Test
-  public void testAsyncConfigBackwardCompatibility() throws Exception {
-    //Old way: zookeeperQuorum
-    String oldZkQuorumTestValue = "old_zookeeper_quorum_test_value";
-    String oldZkZnodeParentValue = "old_zookeeper_znode_parent_test_value";
-    ctx.put(HBaseSinkConfigurationConstants.ZK_QUORUM, oldZkQuorumTestValue);
-    ctx.put(HBaseSinkConfigurationConstants.ZK_ZNODE_PARENT,oldZkZnodeParentValue);
-    AsyncHBaseSink sink = new AsyncHBaseSink();
-    Configurables.configure(sink, ctx);
-    Assert.assertEquals(
-            oldZkQuorumTestValue,
-            sink.asyncClientConfig.getString(HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY));
-    Assert.assertEquals(
-            oldZkZnodeParentValue,
-            sink.asyncClientConfig.getString(
-                    HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY));
-  }
+    //FLUME-3186 Make asyncHbaseClient configuration parameters available from flume config
+    @Test
+    public void testAsyncConfigBackwardCompatibility() throws Exception {
+        //Old way: zookeeperQuorum
+        String oldZkQuorumTestValue = "old_zookeeper_quorum_test_value";
+        String oldZkZnodeParentValue = "old_zookeeper_znode_parent_test_value";
+        ctx.put(HBaseSinkConfigurationConstants.ZK_QUORUM, oldZkQuorumTestValue);
+        ctx.put(HBaseSinkConfigurationConstants.ZK_ZNODE_PARENT, oldZkZnodeParentValue);
+        AsyncHBaseSink sink = new AsyncHBaseSink();
+        Configurables.configure(sink, ctx);
+        Assert.assertEquals(
+                oldZkQuorumTestValue,
+                sink.asyncClientConfig.getString(HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY));
+        Assert.assertEquals(
+                oldZkZnodeParentValue,
+                sink.asyncClientConfig.getString(
+                        HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY));
+    }
 
-  @Test
-  public void testAsyncConfigNewStyleOverwriteOldOne() throws Exception {
-    //Old way: zookeeperQuorum
-    String oldZkQuorumTestValue = "old_zookeeper_quorum_test_value";
-    String oldZkZnodeParentValue = "old_zookeeper_znode_parent_test_value";
-    ctx.put(HBaseSinkConfigurationConstants.ZK_QUORUM, oldZkQuorumTestValue);
-    ctx.put(HBaseSinkConfigurationConstants.ZK_ZNODE_PARENT,oldZkZnodeParentValue);
+    @Test
+    public void testAsyncConfigNewStyleOverwriteOldOne() throws Exception {
+        //Old way: zookeeperQuorum
+        String oldZkQuorumTestValue = "old_zookeeper_quorum_test_value";
+        String oldZkZnodeParentValue = "old_zookeeper_znode_parent_test_value";
+        ctx.put(HBaseSinkConfigurationConstants.ZK_QUORUM, oldZkQuorumTestValue);
+        ctx.put(HBaseSinkConfigurationConstants.ZK_ZNODE_PARENT, oldZkZnodeParentValue);
 
-    String newZkQuorumTestValue = "new_zookeeper_quorum_test_value";
-    String newZkZnodeParentValue = "new_zookeeper_znode_parent_test_value";
-    ctx.put(
-            HBaseSinkConfigurationConstants.ASYNC_PREFIX +
-                    HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY,
-            newZkQuorumTestValue);
-    ctx.put(
-            HBaseSinkConfigurationConstants.ASYNC_PREFIX +
-                    HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY,
-            newZkZnodeParentValue);
-    AsyncHBaseSink sink = new AsyncHBaseSink();
-    Configurables.configure(sink, ctx);
-    Assert.assertEquals(
-            newZkQuorumTestValue,
-            sink.asyncClientConfig.getString(HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY));
-    Assert.assertEquals(
-            newZkZnodeParentValue,
-            sink.asyncClientConfig.getString(
-                    HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY));
-  }
+        String newZkQuorumTestValue = "new_zookeeper_quorum_test_value";
+        String newZkZnodeParentValue = "new_zookeeper_znode_parent_test_value";
+        ctx.put(
+                HBaseSinkConfigurationConstants.ASYNC_PREFIX +
+                        HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY,
+                newZkQuorumTestValue);
+        ctx.put(
+                HBaseSinkConfigurationConstants.ASYNC_PREFIX +
+                        HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY,
+                newZkZnodeParentValue);
+        AsyncHBaseSink sink = new AsyncHBaseSink();
+        Configurables.configure(sink, ctx);
+        Assert.assertEquals(
+                newZkQuorumTestValue,
+                sink.asyncClientConfig.getString(HBaseSinkConfigurationConstants.ASYNC_ZK_QUORUM_KEY));
+        Assert.assertEquals(
+                newZkZnodeParentValue,
+                sink.asyncClientConfig.getString(
+                        HBaseSinkConfigurationConstants.ASYNC_ZK_BASEPATH_KEY));
+    }
 
-  @Test
-  public void testAsyncConfigAnyKeyCanBePassed() throws Exception {
-    String valueOfANewProp = "vale of the new property";
-    String keyOfANewProp = "some.key.to.be.passed";
-    ctx.put(HBaseSinkConfigurationConstants.ASYNC_PREFIX + keyOfANewProp, valueOfANewProp);
-    AsyncHBaseSink sink = new AsyncHBaseSink();
-    Configurables.configure(sink, ctx);
-    Assert.assertEquals(valueOfANewProp, sink.asyncClientConfig.getString(keyOfANewProp));
-  }
+    @Test
+    public void testAsyncConfigAnyKeyCanBePassed() throws Exception {
+        String valueOfANewProp = "vale of the new property";
+        String keyOfANewProp = "some.key.to.be.passed";
+        ctx.put(HBaseSinkConfigurationConstants.ASYNC_PREFIX + keyOfANewProp, valueOfANewProp);
+        AsyncHBaseSink sink = new AsyncHBaseSink();
+        Configurables.configure(sink, ctx);
+        Assert.assertEquals(valueOfANewProp, sink.asyncClientConfig.getString(keyOfANewProp));
+    }
 }
 
 

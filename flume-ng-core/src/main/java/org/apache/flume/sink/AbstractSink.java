@@ -32,54 +32,54 @@ import com.google.common.base.Preconditions;
 @InterfaceStability.Stable
 public abstract class AbstractSink implements Sink, LifecycleAware {
 
-  private Channel channel;
-  private String name;
+    private Channel channel;
+    private String name;
 
-  private LifecycleState lifecycleState;
+    private LifecycleState lifecycleState;
 
-  public AbstractSink() {
-    lifecycleState = LifecycleState.IDLE;
-  }
+    public AbstractSink() {
+        lifecycleState = LifecycleState.IDLE;
+    }
 
-  @Override
-  public synchronized void start() {
-    Preconditions.checkState(channel != null, "No channel configured");
+    @Override
+    public synchronized void start() {
+        Preconditions.checkState(channel != null, "No channel configured");
 
-    lifecycleState = LifecycleState.START;
-  }
+        lifecycleState = LifecycleState.START;
+    }
 
-  @Override
-  public synchronized void stop() {
-    lifecycleState = LifecycleState.STOP;
-  }
+    @Override
+    public synchronized void stop() {
+        lifecycleState = LifecycleState.STOP;
+    }
 
-  @Override
-  public synchronized Channel getChannel() {
-    return channel;
-  }
+    @Override
+    public synchronized Channel getChannel() {
+        return channel;
+    }
 
-  @Override
-  public synchronized void setChannel(Channel channel) {
-    this.channel = channel;
-  }
+    @Override
+    public synchronized void setChannel(Channel channel) {
+        this.channel = channel;
+    }
 
-  @Override
-  public synchronized LifecycleState getLifecycleState() {
-    return lifecycleState;
-  }
+    @Override
+    public synchronized LifecycleState getLifecycleState() {
+        return lifecycleState;
+    }
 
-  @Override
-  public synchronized void setName(String name) {
-    this.name = name;
-  }
+    @Override
+    public synchronized void setName(String name) {
+        this.name = name;
+    }
 
-  @Override
-  public synchronized String getName() {
-    return name;
-  }
+    @Override
+    public synchronized String getName() {
+        return name;
+    }
 
-  @Override
-  public String toString() {
-    return this.getClass().getName() + "{name:" + name + ", channel:" + channel.getName() + "}";
-  }
+    @Override
+    public String toString() {
+        return this.getClass().getName() + "{name:" + name + ", channel:" + channel.getName() + "}";
+    }
 }

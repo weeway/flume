@@ -24,52 +24,52 @@ import org.apache.flume.Sink;
 import java.util.List;
 
 public class CountingSinkRunner extends Thread {
-  private int count;
-  private final int until;
-  private final Sink sink;
-  private volatile boolean run;
-  private final List<Exception> errors = Lists.newArrayList();
+    private int count;
+    private final int until;
+    private final Sink sink;
+    private volatile boolean run;
+    private final List<Exception> errors = Lists.newArrayList();
 
-  public CountingSinkRunner(Sink sink) {
-    this(sink, Integer.MAX_VALUE);
-  }
-
-  public CountingSinkRunner(Sink sink, int until) {
-    this.sink = sink;
-    this.until = until;
-  }
-
-  @Override
-  public void run() {
-    run = true;
-    while (run && count < until) {
-      boolean error = true;
-      try {
-        if (Sink.Status.READY.equals(sink.process())) {
-          count++;
-          error = false;
-        }
-      } catch (Exception ex) {
-        errors.add(ex);
-      }
-      if (error) {
-        try {
-          Thread.sleep(1000L);
-        } catch (InterruptedException e) {
-        }
-      }
+    public CountingSinkRunner(Sink sink) {
+        this(sink, Integer.MAX_VALUE);
     }
-  }
 
-  public void shutdown() {
-    run = false;
-  }
+    public CountingSinkRunner(Sink sink, int until) {
+        this.sink = sink;
+        this.until = until;
+    }
 
-  public int getCount() {
-    return count;
-  }
+    @Override
+    public void run() {
+        run = true;
+        while (run && count < until) {
+            boolean error = true;
+            try {
+                if (Sink.Status.READY.equals(sink.process())) {
+                    count++;
+                    error = false;
+                }
+            } catch (Exception ex) {
+                errors.add(ex);
+            }
+            if (error) {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
 
-  public List<Exception> getErrors() {
-    return errors;
-  }
+    public void shutdown() {
+        run = false;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public List<Exception> getErrors() {
+        return errors;
+    }
 }

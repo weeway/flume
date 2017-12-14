@@ -19,5 +19,5 @@
 package org.apache.flume.source.jms;
 
 public enum JMSDestinationLocator {
-  JNDI, CDI
+    JNDI, CDI
 }

@@ -25,76 +25,76 @@ import org.apache.flume.conf.channel.ChannelConfiguration.ChannelConfigurationTy
 import org.apache.flume.conf.source.SourceConfiguration;
 
 public class ChannelSelectorConfiguration extends
-    ComponentConfiguration {
+        ComponentConfiguration {
 
-  protected Set<String> channelNames;
+    protected Set<String> channelNames;
 
-  protected ChannelSelectorConfiguration(String componentName) {
-    super(componentName);
-    // unless it is set to some other type
-    this.setType(ChannelSelectorType.REPLICATING.toString());
-    channelNames = null;
-  }
-
-  public Set<String> getChannels() {
-    return channelNames;
-  }
-
-  public void setChannels(Set<String> channelNames) {
-    this.channelNames = channelNames;
-  }
-
-  public void configure(Context context) throws ConfigurationException {
-    super.configure(context);
-  }
-
-  public enum ChannelSelectorConfigurationType {
-    OTHER(null),
-    REPLICATING(null),
-    MULTIPLEXING(
-        "org.apache.flume.conf.channel." +
-            "MultiplexingChannelSelectorConfiguration");
-
-    private String selectorType;
-
-    private ChannelSelectorConfigurationType(String type) {
-      this.selectorType = type;
+    protected ChannelSelectorConfiguration(String componentName) {
+        super(componentName);
+        // unless it is set to some other type
+        this.setType(ChannelSelectorType.REPLICATING.toString());
+        channelNames = null;
     }
 
-    public String getChannelSelectorConfigurationType() {
-      return this.selectorType;
+    public Set<String> getChannels() {
+        return channelNames;
     }
 
-    @SuppressWarnings("unchecked")
-    public ChannelSelectorConfiguration getConfiguration(
-        String name)
-        throws ConfigurationException {
-      if (this.equals(ChannelConfigurationType.OTHER)) {
-        return new ChannelSelectorConfiguration(name);
-      }
-      Class<? extends ChannelSelectorConfiguration> clazz;
-      ChannelSelectorConfiguration instance = null;
-      try {
-        // Components where it is null, no configuration is necessary.
-        if (this.selectorType != null) {
-          clazz =
-              (Class<? extends ChannelSelectorConfiguration>) Class
-                  .forName(this.selectorType);
-          instance = clazz.getConstructor(String.class).newInstance(name);
-        } else {
-          return new ChannelSelectorConfiguration(name);
+    public void setChannels(Set<String> channelNames) {
+        this.channelNames = channelNames;
+    }
+
+    public void configure(Context context) throws ConfigurationException {
+        super.configure(context);
+    }
+
+    public enum ChannelSelectorConfigurationType {
+        OTHER(null),
+        REPLICATING(null),
+        MULTIPLEXING(
+                "org.apache.flume.conf.channel." +
+                        "MultiplexingChannelSelectorConfiguration");
+
+        private String selectorType;
+
+        private ChannelSelectorConfigurationType(String type) {
+            this.selectorType = type;
         }
-      } catch (ClassNotFoundException e) {
-        // Could not find the configuration stub, do basic validation
-        instance = new ChannelSelectorConfiguration(name);
-        // Let the caller know that this was created because of this exception.
-        instance.setNotFoundConfigClass();
-      } catch (Exception e) {
-        throw new ConfigurationException("Configuration error!", e);
 
-      }
-      return instance;
+        public String getChannelSelectorConfigurationType() {
+            return this.selectorType;
+        }
+
+        @SuppressWarnings("unchecked")
+        public ChannelSelectorConfiguration getConfiguration(
+                String name)
+                throws ConfigurationException {
+            if (this.equals(ChannelConfigurationType.OTHER)) {
+                return new ChannelSelectorConfiguration(name);
+            }
+            Class<? extends ChannelSelectorConfiguration> clazz;
+            ChannelSelectorConfiguration instance = null;
+            try {
+                // Components where it is null, no configuration is necessary.
+                if (this.selectorType != null) {
+                    clazz =
+                            (Class<? extends ChannelSelectorConfiguration>) Class
+                                    .forName(this.selectorType);
+                    instance = clazz.getConstructor(String.class).newInstance(name);
+                } else {
+                    return new ChannelSelectorConfiguration(name);
+                }
+            } catch (ClassNotFoundException e) {
+                // Could not find the configuration stub, do basic validation
+                instance = new ChannelSelectorConfiguration(name);
+                // Let the caller know that this was created because of this exception.
+                instance.setNotFoundConfigClass();
+            } catch (Exception e) {
+                throw new ConfigurationException("Configuration error!", e);
+
+            }
+            return instance;
+        }
+
     }
-
-  }
 }

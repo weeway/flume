@@ -20,26 +20,27 @@
 package org.apache.flume.sink.hdfs;
 
 import java.io.IOException;
+
 import org.apache.flume.Event;
 
 public class HDFSBadDataStream extends HDFSDataStream {
-  public class HDFSBadSeqWriter extends HDFSSequenceFile {
-    @Override
-    public void append(Event e) throws IOException {
+    public class HDFSBadSeqWriter extends HDFSSequenceFile {
+        @Override
+        public void append(Event e) throws IOException {
 
-      if (e.getHeaders().containsKey("fault")) {
-        throw new IOException("Injected fault");
-      } else if (e.getHeaders().containsKey("slow")) {
-        long waitTime = Long.parseLong(e.getHeaders().get("slow"));
-        try {
-          Thread.sleep(waitTime);
-        } catch (InterruptedException eT) {
-          throw new IOException("append interrupted", eT);
+            if (e.getHeaders().containsKey("fault")) {
+                throw new IOException("Injected fault");
+            } else if (e.getHeaders().containsKey("slow")) {
+                long waitTime = Long.parseLong(e.getHeaders().get("slow"));
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException eT) {
+                    throw new IOException("append interrupted", eT);
+                }
+            }
+            super.append(e);
         }
-      }
-      super.append(e);
-    }
 
-  }
+    }
 
 }

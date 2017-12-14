@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,23 +20,23 @@ package org.apache.flume.interceptor;
 
 public enum InterceptorType {
 
-  TIMESTAMP(org.apache.flume.interceptor.TimestampInterceptor.Builder.class),
-  HOST(org.apache.flume.interceptor.HostInterceptor.Builder.class),
-  STATIC(org.apache.flume.interceptor.StaticInterceptor.Builder.class),
-  REGEX_FILTER(
-      org.apache.flume.interceptor.RegexFilteringInterceptor.Builder.class),
-  REGEX_EXTRACTOR(org.apache.flume.interceptor.RegexExtractorInterceptor.Builder.class),
-  REMOVE_HEADER(org.apache.flume.interceptor.RemoveHeaderInterceptor.Builder.class),
-  SEARCH_REPLACE(org.apache.flume.interceptor.SearchAndReplaceInterceptor.Builder.class);
+    TIMESTAMP(org.apache.flume.interceptor.TimestampInterceptor.Builder.class),
+    HOST(org.apache.flume.interceptor.HostInterceptor.Builder.class),
+    STATIC(org.apache.flume.interceptor.StaticInterceptor.Builder.class),
+    REGEX_FILTER(
+            org.apache.flume.interceptor.RegexFilteringInterceptor.Builder.class),
+    REGEX_EXTRACTOR(org.apache.flume.interceptor.RegexExtractorInterceptor.Builder.class),
+    REMOVE_HEADER(org.apache.flume.interceptor.RemoveHeaderInterceptor.Builder.class),
+    SEARCH_REPLACE(org.apache.flume.interceptor.SearchAndReplaceInterceptor.Builder.class);
 
-  private final Class<? extends Interceptor.Builder> builderClass;
+    private final Class<? extends Interceptor.Builder> builderClass;
 
-  InterceptorType(Class<? extends Interceptor.Builder> builderClass) {
-    this.builderClass = builderClass;
-  }
+    InterceptorType(Class<? extends Interceptor.Builder> builderClass) {
+        this.builderClass = builderClass;
+    }
 
-  public Class<? extends Interceptor.Builder> getBuilderClass() {
-    return builderClass;
-  }
+    public Class<? extends Interceptor.Builder> getBuilderClass() {
+        return builderClass;
+    }
 
 }

@@ -17,22 +17,22 @@
 
 -->
 <Configuration status="OFF">
-  <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%-4r [%t] %-5p %c %x - %m%n" />
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Logger name="org.apache.flume.sink" level="INFO"/>
-    <Logger name="org.apache.solr" level="DEBUG"/>
-    <Logger name="org.kitesdk.morphline" level="DEBUG"/>
-    <Logger name="org.apache.solr.morphline" level="DEBUG"/>
-    <Logger name="org.apache.solr" level="DEBUG"/>
-    <Logger name="org.apache.solr.update.processor.LogUpdateProcessor" level="WARN"/>
-    <Logger name="org.apache.solr.core.SolrCore" level="WARN"/>
-    <Logger name="org.apache.solr.search.SolrIndexSearcher" level="ERROR"/>
-    <Root level="WARN">
-      <AppenderRef ref="Console" />
-    </Root>
-  </Loggers>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-4r [%t] %-5p %c %x - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.apache.flume.sink" level="INFO"/>
+        <Logger name="org.apache.solr" level="DEBUG"/>
+        <Logger name="org.kitesdk.morphline" level="DEBUG"/>
+        <Logger name="org.apache.solr.morphline" level="DEBUG"/>
+        <Logger name="org.apache.solr" level="DEBUG"/>
+        <Logger name="org.apache.solr.update.processor.LogUpdateProcessor" level="WARN"/>
+        <Logger name="org.apache.solr.core.SolrCore" level="WARN"/>
+        <Logger name="org.apache.solr.search.SolrIndexSearcher" level="ERROR"/>
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
 </Configuration>

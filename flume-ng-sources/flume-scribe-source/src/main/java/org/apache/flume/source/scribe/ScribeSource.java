@@ -48,139 +48,140 @@ import org.slf4j.LoggerFactory;
  * Flume should adopt the Scribe entry {@code LogEntry} from existing
  * Scribe system. Mostly, we may receive message from local Scribe and Flume
  * take responsibility of central Scribe.
- *
+ * <p>
  * <p>
  * We use Thrift without deserializing, throughput has 2X increasing
  */
 public class ScribeSource extends AbstractSource implements
-      EventDrivenSource, Configurable {
+        EventDrivenSource, Configurable {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ScribeSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ScribeSource.class);
 
-  public static final String SCRIBE_CATEGORY = "category";
+    public static final String SCRIBE_CATEGORY = "category";
 
-  private static final int DEFAULT_PORT = 1499;
-  private static final int DEFAULT_WORKERS = 5;
-  private static final int DEFAULT_MAX_READ_BUFFER_BYTES = 16384000;
+    private static final int DEFAULT_PORT = 1499;
+    private static final int DEFAULT_WORKERS = 5;
+    private static final int DEFAULT_MAX_READ_BUFFER_BYTES = 16384000;
 
-  private TServer server;
-  private int port;
-  private int workers;
-  private int maxReadBufferBytes;
+    private TServer server;
+    private int port;
+    private int workers;
+    private int maxReadBufferBytes;
 
-  private SourceCounter sourceCounter;
+    private SourceCounter sourceCounter;
 
-  @Override
-  public void configure(Context context) {
-    port = context.getInteger("port", DEFAULT_PORT);
-    maxReadBufferBytes = context.getInteger("maxReadBufferBytes", DEFAULT_MAX_READ_BUFFER_BYTES);
-    if(maxReadBufferBytes <= 0){
-      maxReadBufferBytes = DEFAULT_MAX_READ_BUFFER_BYTES;
+    @Override
+    public void configure(Context context) {
+        port = context.getInteger("port", DEFAULT_PORT);
+        maxReadBufferBytes = context.getInteger("maxReadBufferBytes", DEFAULT_MAX_READ_BUFFER_BYTES);
+        if (maxReadBufferBytes <= 0) {
+            maxReadBufferBytes = DEFAULT_MAX_READ_BUFFER_BYTES;
+        }
+
+        workers = context.getInteger("workerThreads", DEFAULT_WORKERS);
+        if (workers <= 0) {
+            workers = DEFAULT_WORKERS;
+        }
+
+        if (sourceCounter == null) {
+            sourceCounter = new SourceCounter(getName());
+        }
     }
 
-    workers = context.getInteger("workerThreads", DEFAULT_WORKERS);
-    if (workers <= 0) {
-      workers = DEFAULT_WORKERS;
+    private class Startup extends Thread {
+
+        public void run() {
+            try {
+                Scribe.Processor processor = new Scribe.Processor(new Receiver());
+                TNonblockingServerTransport transport = new TNonblockingServerSocket(port);
+                THsHaServer.Args args = new THsHaServer.Args(transport);
+
+                args.minWorkerThreads(workers);
+                args.maxWorkerThreads(workers);
+                args.processor(processor);
+                args.transportFactory(new TFramedTransport.Factory(maxReadBufferBytes));
+                args.protocolFactory(new TBinaryProtocol.Factory(false, false));
+                args.maxReadBufferBytes = maxReadBufferBytes;
+
+                server = new THsHaServer(args);
+
+                LOG.info("Starting Scribe Source on port " + port);
+
+                server.serve();
+            } catch (Exception e) {
+                LOG.warn("Scribe failed", e);
+            }
+        }
+
     }
 
-    if (sourceCounter == null) {
-      sourceCounter = new SourceCounter(getName());
-    }
-  }
-
-  private class Startup extends Thread {
-
-    public void run() {
-      try {
-        Scribe.Processor processor = new Scribe.Processor(new Receiver());
-        TNonblockingServerTransport transport = new TNonblockingServerSocket(port);
-        THsHaServer.Args args = new THsHaServer.Args(transport);
-
-        args.minWorkerThreads(workers);
-        args.maxWorkerThreads(workers);
-        args.processor(processor);
-        args.transportFactory(new TFramedTransport.Factory(maxReadBufferBytes));
-        args.protocolFactory(new TBinaryProtocol.Factory(false, false));
-        args.maxReadBufferBytes = maxReadBufferBytes;
-
-        server = new THsHaServer(args);
-
-        LOG.info("Starting Scribe Source on port " + port);
-
-        server.serve();
-      } catch (Exception e) {
-        LOG.warn("Scribe failed", e);
-      }
-    }
-
-  }
-
-  @Override
-  public void start() {
-    Startup startupThread = new Startup();
-    startupThread.start();
-
-    try {
-      Thread.sleep(3000);
-    } catch (InterruptedException e) {}
-
-    if (!server.isServing()) {
-      throw new IllegalStateException("Failed initialization of ScribeSource");
-    }
-
-    sourceCounter.start();
-    super.start();
-  }
-
-  @Override
-  public void stop() {
-    LOG.info("Scribe source stopping");
-
-    if (server != null) {
-      server.stop();
-    }
-
-    sourceCounter.stop();
-    super.stop();
-
-    LOG.info("Scribe source stopped. Metrics:{}", sourceCounter);
-  }
-
-
-  class Receiver implements Iface {
-
-    public ResultCode Log(List<LogEntry> list) throws TException {
-      if (list != null) {
-        sourceCounter.addToEventReceivedCount(list.size());
+    @Override
+    public void start() {
+        Startup startupThread = new Startup();
+        startupThread.start();
 
         try {
-          List<Event> events = new ArrayList<Event>(list.size());
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+        }
 
-          for (LogEntry entry : list) {
-            Map<String, String> headers = new HashMap<String, String>(1, 1);
-            String category = entry.getCategory();
+        if (!server.isServing()) {
+            throw new IllegalStateException("Failed initialization of ScribeSource");
+        }
 
-            if (category != null) {
-              headers.put(SCRIBE_CATEGORY, category);
+        sourceCounter.start();
+        super.start();
+    }
+
+    @Override
+    public void stop() {
+        LOG.info("Scribe source stopping");
+
+        if (server != null) {
+            server.stop();
+        }
+
+        sourceCounter.stop();
+        super.stop();
+
+        LOG.info("Scribe source stopped. Metrics:{}", sourceCounter);
+    }
+
+
+    class Receiver implements Iface {
+
+        public ResultCode Log(List<LogEntry> list) throws TException {
+            if (list != null) {
+                sourceCounter.addToEventReceivedCount(list.size());
+
+                try {
+                    List<Event> events = new ArrayList<Event>(list.size());
+
+                    for (LogEntry entry : list) {
+                        Map<String, String> headers = new HashMap<String, String>(1, 1);
+                        String category = entry.getCategory();
+
+                        if (category != null) {
+                            headers.put(SCRIBE_CATEGORY, category);
+                        }
+
+                        Event event = EventBuilder.withBody(entry.getMessage().getBytes(), headers);
+                        events.add(event);
+                    }
+
+                    if (events.size() > 0) {
+                        getChannelProcessor().processEventBatch(events);
+                    }
+
+                    sourceCounter.addToEventAcceptedCount(list.size());
+                    return ResultCode.OK;
+                } catch (Exception e) {
+                    LOG.warn("Scribe source handling failure", e);
+                }
             }
 
-            Event event = EventBuilder.withBody(entry.getMessage().getBytes(), headers);
-            events.add(event);
-          }
-
-          if (events.size() > 0) {
-            getChannelProcessor().processEventBatch(events);
-          }
-
-          sourceCounter.addToEventAcceptedCount(list.size());
-          return ResultCode.OK;
-        } catch (Exception e) {
-          LOG.warn("Scribe source handling failure", e);
+            return ResultCode.TRY_LATER;
         }
-      }
-
-      return ResultCode.TRY_LATER;
     }
-  }
 
 }

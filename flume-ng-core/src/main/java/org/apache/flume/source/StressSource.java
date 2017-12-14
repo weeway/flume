@@ -40,117 +40,117 @@ import org.slf4j.LoggerFactory;
  * the size of Event payload, with empty headers. User can configure
  * total number of events to be sent as well maximum number of Successful
  * Events to be delivered. Useful for tests
- *
+ * <p>
  * Example configuration for Agent a1
  * <PRE>
- *   a1.sources = stresssource-1
- *   a1.channels = memoryChannel-1
- *   a1.sources.stresssource-1.type = org.apache.flume.source.StressSource
- *   a1.sources.stresssource-1.size = 10240
- *   a1.sources.stresssource-1.maxTotalEvents = 1000000
- *   a1.sources.stresssource-1.channels = memoryChannel-1
+ * a1.sources = stresssource-1
+ * a1.channels = memoryChannel-1
+ * a1.sources.stresssource-1.type = org.apache.flume.source.StressSource
+ * a1.sources.stresssource-1.size = 10240
+ * a1.sources.stresssource-1.maxTotalEvents = 1000000
+ * a1.sources.stresssource-1.channels = memoryChannel-1
  * </PRE>
- *
+ * <p>
  * See {@link StressSource#configure(Context)} for configuration options.
  */
 public class StressSource extends AbstractPollableSource implements Configurable {
 
-  private static final Logger logger = LoggerFactory.getLogger(StressSource.class);
+    private static final Logger logger = LoggerFactory.getLogger(StressSource.class);
 
-  private CounterGroup counterGroup;
-  private byte[] buffer;
-  private long maxTotalEvents;
-  private long maxSuccessfulEvents;
-  private int batchSize;
-  private long lastSent = 0;
-  private Event event;
-  private List<Event> eventBatchList;
-  private List<Event> eventBatchListToProcess;
+    private CounterGroup counterGroup;
+    private byte[] buffer;
+    private long maxTotalEvents;
+    private long maxSuccessfulEvents;
+    private int batchSize;
+    private long lastSent = 0;
+    private Event event;
+    private List<Event> eventBatchList;
+    private List<Event> eventBatchListToProcess;
 
-  public StressSource() {
-    counterGroup = new CounterGroup();
-  }
+    public StressSource() {
+        counterGroup = new CounterGroup();
+    }
 
-  /**
-   * Read parameters from context
-   * <li>-maxTotalEvents = type long that defines the total number of Events to be sent
-   * <li>-maxSuccessfulEvents = type long that defines the number of successful Events
-   * <li>-size = type int that defines the number of bytes in each Event
-   * <li>-batchSize = type int that defines the number of Events being sent in one batch
-   */
-  @Override
-  protected void doConfigure(Context context) throws FlumeException {
+    /**
+     * Read parameters from context
+     * <li>-maxTotalEvents = type long that defines the total number of Events to be sent
+     * <li>-maxSuccessfulEvents = type long that defines the number of successful Events
+     * <li>-size = type int that defines the number of bytes in each Event
+     * <li>-batchSize = type int that defines the number of Events being sent in one batch
+     */
+    @Override
+    protected void doConfigure(Context context) throws FlumeException {
     /* Limit on the total number of events. */
-    maxTotalEvents = context.getLong("maxTotalEvents", -1L);
+        maxTotalEvents = context.getLong("maxTotalEvents", -1L);
     /* Limit on the total number of successful events. */
-    maxSuccessfulEvents = context.getLong("maxSuccessfulEvents", -1L);
+        maxSuccessfulEvents = context.getLong("maxSuccessfulEvents", -1L);
     /* Set max events in a batch submission */
-    batchSize = context.getInteger("batchSize", 1);
+        batchSize = context.getInteger("batchSize", 1);
     /* Size of events to be generated. */
-    int size = context.getInteger("size", 500);
+        int size = context.getInteger("size", 500);
 
-    prepEventData(size);
-  }
-
-  private void prepEventData(int bufferSize) {
-    buffer = new byte[bufferSize];
-    Arrays.fill(buffer, Byte.MAX_VALUE);
-
-    if (batchSize > 1) {
-      //Create event objects in case of batch test
-      eventBatchList = new ArrayList<Event>();
-
-      for (int i = 0; i < batchSize; i++) {
-        eventBatchList.add(EventBuilder.withBody(buffer));
-      }
-    } else {
-      //Create single event in case of non-batch test
-      event = EventBuilder.withBody(buffer);
+        prepEventData(size);
     }
-  }
 
-  @Override
-  protected Status doProcess() throws EventDeliveryException {
-    long totalEventSent = counterGroup.addAndGet("events.total", lastSent);
+    private void prepEventData(int bufferSize) {
+        buffer = new byte[bufferSize];
+        Arrays.fill(buffer, Byte.MAX_VALUE);
 
-    if ((maxTotalEvents >= 0 &&
-            totalEventSent >= maxTotalEvents) ||
-            (maxSuccessfulEvents >= 0 &&
-                    counterGroup.get("events.successful") >= maxSuccessfulEvents)) {
-      return Status.BACKOFF;
-    }
-    try {
-      lastSent = batchSize;
+        if (batchSize > 1) {
+            //Create event objects in case of batch test
+            eventBatchList = new ArrayList<Event>();
 
-      if (batchSize == 1) {
-        getChannelProcessor().processEvent(event);
-      } else {
-        long eventsLeft = maxTotalEvents - totalEventSent;
-
-        if (maxTotalEvents >= 0 && eventsLeft < batchSize) {
-          eventBatchListToProcess = eventBatchList.subList(0, (int)eventsLeft);
+            for (int i = 0; i < batchSize; i++) {
+                eventBatchList.add(EventBuilder.withBody(buffer));
+            }
         } else {
-          eventBatchListToProcess = eventBatchList;
+            //Create single event in case of non-batch test
+            event = EventBuilder.withBody(buffer);
         }
-        lastSent = eventBatchListToProcess.size();
-        getChannelProcessor().processEventBatch(eventBatchListToProcess);
-      }
-
-      counterGroup.addAndGet("events.successful", lastSent);
-    } catch (ChannelException ex) {
-      counterGroup.addAndGet("events.failed", lastSent);
-      return Status.BACKOFF;
     }
-    return Status.READY;
-  }
 
-  @Override
-  protected void doStart() throws FlumeException {
-    logger.info("Stress source doStart finished");
-  }
+    @Override
+    protected Status doProcess() throws EventDeliveryException {
+        long totalEventSent = counterGroup.addAndGet("events.total", lastSent);
 
-  @Override
-  protected void doStop() throws FlumeException {
-    logger.info("Stress source do stop. Metrics:{}", counterGroup);
-  }
+        if ((maxTotalEvents >= 0 &&
+                totalEventSent >= maxTotalEvents) ||
+                (maxSuccessfulEvents >= 0 &&
+                        counterGroup.get("events.successful") >= maxSuccessfulEvents)) {
+            return Status.BACKOFF;
+        }
+        try {
+            lastSent = batchSize;
+
+            if (batchSize == 1) {
+                getChannelProcessor().processEvent(event);
+            } else {
+                long eventsLeft = maxTotalEvents - totalEventSent;
+
+                if (maxTotalEvents >= 0 && eventsLeft < batchSize) {
+                    eventBatchListToProcess = eventBatchList.subList(0, (int) eventsLeft);
+                } else {
+                    eventBatchListToProcess = eventBatchList;
+                }
+                lastSent = eventBatchListToProcess.size();
+                getChannelProcessor().processEventBatch(eventBatchListToProcess);
+            }
+
+            counterGroup.addAndGet("events.successful", lastSent);
+        } catch (ChannelException ex) {
+            counterGroup.addAndGet("events.failed", lastSent);
+            return Status.BACKOFF;
+        }
+        return Status.READY;
+    }
+
+    @Override
+    protected void doStart() throws FlumeException {
+        logger.info("Stress source doStart finished");
+    }
+
+    @Override
+    protected void doStop() throws FlumeException {
+        logger.info("Stress source do stop. Metrics:{}", counterGroup);
+    }
 }

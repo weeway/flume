@@ -34,66 +34,66 @@ import org.slf4j.LoggerFactory;
  */
 public class HostInfo {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HostInfo.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HostInfo.class);
 
-  private final String referenceName;
-  private final String hostName;
-  private final int portNumber;
+    private final String referenceName;
+    private final String hostName;
+    private final int portNumber;
 
-  public HostInfo(String referenceName, String hostName, int portNumber) {
-    this.referenceName = referenceName;
-    this.hostName = hostName;
-    this.portNumber = portNumber;
-  }
-
-  public String getReferenceName() {
-    return referenceName;
-  }
-
-  public String getHostName() {
-    return hostName;
-  }
-
-  public int getPortNumber() {
-    return portNumber;
-  }
-
-  @Override
-  public String toString() {
-    return referenceName + "{" + hostName + ":" + portNumber + "}";
-  }
-
-  public static List<HostInfo> getHostInfoList(Properties properties) {
-    List<HostInfo> hosts = new ArrayList<HostInfo>();
-    String hostNames = properties.getProperty(
-        RpcClientConfigurationConstants.CONFIG_HOSTS);
-    String[] hostList;
-    if (hostNames != null && !hostNames.isEmpty()) {
-      hostList = hostNames.split("\\s+");
-      for (int i = 0; i < hostList.length; i++) {
-        String hostAndPortStr = properties.getProperty(
-            RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + hostList[i]);
-        // Ignore that host if value is not there
-        if (hostAndPortStr != null) {
-          String[] hostAndPort = hostAndPortStr.split(":");
-          if (hostAndPort.length != 2) {
-            LOGGER.error("Invalid host address" + hostAndPortStr);
-            throw new FlumeException("Invalid host address" + hostAndPortStr);
-          }
-          Integer port = null;
-          try {
-            port = Integer.parseInt(hostAndPort[1]);
-          } catch (NumberFormatException e) {
-            LOGGER.error("Invalid port number" + hostAndPortStr, e);
-            throw new FlumeException("Invalid port number" + hostAndPortStr);
-          }
-          HostInfo info = new HostInfo(hostList[i],
-              hostAndPort[0].trim(), port);
-          hosts.add(info);
-        }
-      }
+    public HostInfo(String referenceName, String hostName, int portNumber) {
+        this.referenceName = referenceName;
+        this.hostName = hostName;
+        this.portNumber = portNumber;
     }
 
-    return hosts;
-  }
+    public String getReferenceName() {
+        return referenceName;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    @Override
+    public String toString() {
+        return referenceName + "{" + hostName + ":" + portNumber + "}";
+    }
+
+    public static List<HostInfo> getHostInfoList(Properties properties) {
+        List<HostInfo> hosts = new ArrayList<HostInfo>();
+        String hostNames = properties.getProperty(
+                RpcClientConfigurationConstants.CONFIG_HOSTS);
+        String[] hostList;
+        if (hostNames != null && !hostNames.isEmpty()) {
+            hostList = hostNames.split("\\s+");
+            for (int i = 0; i < hostList.length; i++) {
+                String hostAndPortStr = properties.getProperty(
+                        RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + hostList[i]);
+                // Ignore that host if value is not there
+                if (hostAndPortStr != null) {
+                    String[] hostAndPort = hostAndPortStr.split(":");
+                    if (hostAndPort.length != 2) {
+                        LOGGER.error("Invalid host address" + hostAndPortStr);
+                        throw new FlumeException("Invalid host address" + hostAndPortStr);
+                    }
+                    Integer port = null;
+                    try {
+                        port = Integer.parseInt(hostAndPort[1]);
+                    } catch (NumberFormatException e) {
+                        LOGGER.error("Invalid port number" + hostAndPortStr, e);
+                        throw new FlumeException("Invalid port number" + hostAndPortStr);
+                    }
+                    HostInfo info = new HostInfo(hostList[i],
+                            hostAndPort[0].trim(), port);
+                    hosts.add(info);
+                }
+            }
+        }
+
+        return hosts;
+    }
 }

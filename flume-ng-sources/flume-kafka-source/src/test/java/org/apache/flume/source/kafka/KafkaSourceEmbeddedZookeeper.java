@@ -26,45 +26,45 @@ import java.net.InetSocketAddress;
 import java.util.UUID;
 
 public class KafkaSourceEmbeddedZookeeper {
-  private int zkPort;
-  private ZooKeeperServer zookeeper;
-  private NIOServerCnxnFactory factory;
-  File dir;
+    private int zkPort;
+    private ZooKeeperServer zookeeper;
+    private NIOServerCnxnFactory factory;
+    File dir;
 
-  public KafkaSourceEmbeddedZookeeper(int zkPort) {
-    int tickTime = 2000;
+    public KafkaSourceEmbeddedZookeeper(int zkPort) {
+        int tickTime = 2000;
 
-    this.zkPort = zkPort;
+        this.zkPort = zkPort;
 
-    String dataDirectory = System.getProperty("java.io.tmpdir");
-    dir = new File(dataDirectory, "zookeeper" + UUID.randomUUID()).getAbsoluteFile();
+        String dataDirectory = System.getProperty("java.io.tmpdir");
+        dir = new File(dataDirectory, "zookeeper" + UUID.randomUUID()).getAbsoluteFile();
 
-    try {
-      FileUtils.deleteDirectory(dir);
-    } catch (IOException e) {
-      e.printStackTrace();
-      System.exit(1);
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        try {
+            this.zookeeper = new ZooKeeperServer(dir, dir, tickTime);
+            this.factory = new NIOServerCnxnFactory();
+            factory.configure(new InetSocketAddress(KafkaSourceEmbeddedKafka.HOST, zkPort), 0);
+            factory.startup(zookeeper);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    try {
-      this.zookeeper = new ZooKeeperServer(dir,dir,tickTime);
-      this.factory = new NIOServerCnxnFactory();
-      factory.configure(new InetSocketAddress(KafkaSourceEmbeddedKafka.HOST, zkPort),0);
-      factory.startup(zookeeper);
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    public void stopZookeeper() throws IOException {
+        zookeeper.shutdown();
+        factory.shutdown();
+        FileUtils.deleteDirectory(dir);
     }
-  }
 
-  public void stopZookeeper() throws IOException {
-    zookeeper.shutdown();
-    factory.shutdown();
-    FileUtils.deleteDirectory(dir);
-  }
-
-  public String getConnectString() {
-    return KafkaSourceEmbeddedKafka.HOST + ":" + zkPort;
-  }
+    public String getConnectString() {
+        return KafkaSourceEmbeddedKafka.HOST + ":" + zkPort;
+    }
 }

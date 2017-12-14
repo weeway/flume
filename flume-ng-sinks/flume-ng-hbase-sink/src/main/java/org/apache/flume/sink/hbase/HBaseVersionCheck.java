@@ -24,20 +24,20 @@ import org.slf4j.Logger;
 
 class HBaseVersionCheck {
 
-  private static int getMajorVersion(String version) throws NumberFormatException {
-    return Integer.parseInt(version.split("\\.")[0]);
-  }
-
-  static boolean hasVersionLessThan2(Logger logger) {
-    String version = VersionInfo.getVersion();
-    try {
-      if (getMajorVersion(version) < 2) {
-        return true;
-      }
-    } catch (NumberFormatException ex) {
-      logger.error(ex.getMessage());
+    private static int getMajorVersion(String version) throws NumberFormatException {
+        return Integer.parseInt(version.split("\\.")[0]);
     }
-    logger.error("Invalid HBase version:" + version);
-    return false;
-  }
+
+    static boolean hasVersionLessThan2(Logger logger) {
+        String version = VersionInfo.getVersion();
+        try {
+            if (getMajorVersion(version) < 2) {
+                return true;
+            }
+        } catch (NumberFormatException ex) {
+            logger.error(ex.getMessage());
+        }
+        logger.error("Invalid HBase version:" + version);
+        return false;
+    }
 }

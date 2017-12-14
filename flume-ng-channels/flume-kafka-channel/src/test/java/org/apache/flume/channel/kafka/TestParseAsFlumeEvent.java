@@ -38,95 +38,95 @@ import static org.apache.flume.channel.kafka.KafkaChannelConfiguration.KEY_HEADE
 
 public class TestParseAsFlumeEvent extends TestKafkaChannelBase {
 
-  @Test
-  public void testParseAsFlumeEventFalse() throws Exception {
-    doParseAsFlumeEventFalse(false);
-  }
-
-  @Test
-  public void testParseAsFlumeEventFalseCheckHeader() throws Exception {
-    doParseAsFlumeEventFalse(true);
-  }
-
-  @Test
-  public void testParseAsFlumeEventFalseAsSource() throws Exception {
-    doParseAsFlumeEventFalseAsSource(false);
-  }
-
-  @Test
-  public void testParseAsFlumeEventFalseAsSourceCheckHeader() throws Exception {
-    doParseAsFlumeEventFalseAsSource(true);
-  }
-
-  private void doParseAsFlumeEventFalse(Boolean checkHeaders) throws Exception {
-    final KafkaChannel channel = startChannel(false);
-    Properties props = channel.getProducerProps();
-    KafkaProducer<String, byte[]> producer = new KafkaProducer<>(props);
-
-    for (int i = 0; i < 50; i++) {
-      ProducerRecord<String, byte[]> data =
-          new ProducerRecord<>(topic, String.valueOf(i) + "-header",
-              String.valueOf(i).getBytes());
-      producer.send(data).get();
+    @Test
+    public void testParseAsFlumeEventFalse() throws Exception {
+        doParseAsFlumeEventFalse(false);
     }
-    ExecutorCompletionService<Void> submitterSvc = new
-        ExecutorCompletionService<>(Executors.newCachedThreadPool());
-    List<Event> events = pullEvents(channel, submitterSvc, 50, false, false);
-    wait(submitterSvc, 5);
-    Map<Integer, String> finals = new HashMap<>();
-    for (int i = 0; i < 50; i++) {
-      finals.put(Integer.parseInt(new String(events.get(i).getBody())),
-          events.get(i).getHeaders().get(KEY_HEADER));
-    }
-    for (int i = 0; i < 50; i++) {
-      Assert.assertTrue(finals.keySet().contains(i));
-      if (checkHeaders) {
-        Assert.assertTrue(finals.containsValue(String.valueOf(i) + "-header"));
-      }
-      finals.remove(i);
-    }
-    Assert.assertTrue(finals.isEmpty());
-    channel.stop();
-  }
 
-  /**
-   * Like the previous test but here we write to the channel like a Flume source would do
-   * to verify that the events are written as text and not as an Avro object
-   *
-   * @throws Exception
-   */
-  private void doParseAsFlumeEventFalseAsSource(Boolean checkHeaders) throws Exception {
-    final KafkaChannel channel = startChannel(false);
+    @Test
+    public void testParseAsFlumeEventFalseCheckHeader() throws Exception {
+        doParseAsFlumeEventFalse(true);
+    }
 
-    List<String> msgs = new ArrayList<>();
-    Map<String, String> headers = new HashMap<>();
-    for (int i = 0; i < 50; i++) {
-      msgs.add(String.valueOf(i));
+    @Test
+    public void testParseAsFlumeEventFalseAsSource() throws Exception {
+        doParseAsFlumeEventFalseAsSource(false);
     }
-    Transaction tx = channel.getTransaction();
-    tx.begin();
-    for (int i = 0; i < msgs.size(); i++) {
-      headers.put(KEY_HEADER, String.valueOf(i) + "-header");
-      channel.put(EventBuilder.withBody(msgs.get(i).getBytes(), headers));
+
+    @Test
+    public void testParseAsFlumeEventFalseAsSourceCheckHeader() throws Exception {
+        doParseAsFlumeEventFalseAsSource(true);
     }
-    tx.commit();
-    ExecutorCompletionService<Void> submitterSvc =
-        new ExecutorCompletionService<>(Executors.newCachedThreadPool());
-    List<Event> events = pullEvents(channel, submitterSvc, 50, false, false);
-    wait(submitterSvc, 5);
-    Map<Integer, String> finals = new HashMap<>();
-    for (int i = 0; i < 50; i++) {
-      finals.put(Integer.parseInt(new String(events.get(i).getBody())),
-          events.get(i).getHeaders().get(KEY_HEADER));
+
+    private void doParseAsFlumeEventFalse(Boolean checkHeaders) throws Exception {
+        final KafkaChannel channel = startChannel(false);
+        Properties props = channel.getProducerProps();
+        KafkaProducer<String, byte[]> producer = new KafkaProducer<>(props);
+
+        for (int i = 0; i < 50; i++) {
+            ProducerRecord<String, byte[]> data =
+                    new ProducerRecord<>(topic, String.valueOf(i) + "-header",
+                            String.valueOf(i).getBytes());
+            producer.send(data).get();
+        }
+        ExecutorCompletionService<Void> submitterSvc = new
+                ExecutorCompletionService<>(Executors.newCachedThreadPool());
+        List<Event> events = pullEvents(channel, submitterSvc, 50, false, false);
+        wait(submitterSvc, 5);
+        Map<Integer, String> finals = new HashMap<>();
+        for (int i = 0; i < 50; i++) {
+            finals.put(Integer.parseInt(new String(events.get(i).getBody())),
+                    events.get(i).getHeaders().get(KEY_HEADER));
+        }
+        for (int i = 0; i < 50; i++) {
+            Assert.assertTrue(finals.keySet().contains(i));
+            if (checkHeaders) {
+                Assert.assertTrue(finals.containsValue(String.valueOf(i) + "-header"));
+            }
+            finals.remove(i);
+        }
+        Assert.assertTrue(finals.isEmpty());
+        channel.stop();
     }
-    for (int i = 0; i < 50; i++) {
-      Assert.assertTrue(finals.keySet().contains(i));
-      if (checkHeaders) {
-        Assert.assertTrue(finals.containsValue(String.valueOf(i) + "-header"));
-      }
-      finals.remove(i);
+
+    /**
+     * Like the previous test but here we write to the channel like a Flume source would do
+     * to verify that the events are written as text and not as an Avro object
+     *
+     * @throws Exception
+     */
+    private void doParseAsFlumeEventFalseAsSource(Boolean checkHeaders) throws Exception {
+        final KafkaChannel channel = startChannel(false);
+
+        List<String> msgs = new ArrayList<>();
+        Map<String, String> headers = new HashMap<>();
+        for (int i = 0; i < 50; i++) {
+            msgs.add(String.valueOf(i));
+        }
+        Transaction tx = channel.getTransaction();
+        tx.begin();
+        for (int i = 0; i < msgs.size(); i++) {
+            headers.put(KEY_HEADER, String.valueOf(i) + "-header");
+            channel.put(EventBuilder.withBody(msgs.get(i).getBytes(), headers));
+        }
+        tx.commit();
+        ExecutorCompletionService<Void> submitterSvc =
+                new ExecutorCompletionService<>(Executors.newCachedThreadPool());
+        List<Event> events = pullEvents(channel, submitterSvc, 50, false, false);
+        wait(submitterSvc, 5);
+        Map<Integer, String> finals = new HashMap<>();
+        for (int i = 0; i < 50; i++) {
+            finals.put(Integer.parseInt(new String(events.get(i).getBody())),
+                    events.get(i).getHeaders().get(KEY_HEADER));
+        }
+        for (int i = 0; i < 50; i++) {
+            Assert.assertTrue(finals.keySet().contains(i));
+            if (checkHeaders) {
+                Assert.assertTrue(finals.containsValue(String.valueOf(i) + "-header"));
+            }
+            finals.remove(i);
+        }
+        Assert.assertTrue(finals.isEmpty());
+        channel.stop();
     }
-    Assert.assertTrue(finals.isEmpty());
-    channel.stop();
-  }
 }

@@ -24,40 +24,40 @@ import org.apache.flume.lifecycle.LifecycleState;
 
 public class MockSource implements Source {
 
-  private String name;
+    private String name;
 
-  public MockSource() {
-  }
+    public MockSource() {
+    }
 
-  @Override
-  public void start() {
-  }
+    @Override
+    public void start() {
+    }
 
-  @Override
-  public void stop() {
-  }
+    @Override
+    public void stop() {
+    }
 
-  @Override
-  public LifecycleState getLifecycleState() {
-    return null;
-  }
+    @Override
+    public LifecycleState getLifecycleState() {
+        return null;
+    }
 
-  @Override
-  public void setChannelProcessor(ChannelProcessor cp) {
-  }
+    @Override
+    public void setChannelProcessor(ChannelProcessor cp) {
+    }
 
-  @Override
-  public void setName(String name) {
-    this.name = name;
-  }
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
 
-  @Override
-  public String getName() {
-    return name;
-  }
+    @Override
+    public String getName() {
+        return name;
+    }
 
-  @Override
-  public ChannelProcessor getChannelProcessor() {
-    return null;
-  }
+    @Override
+    public ChannelProcessor getChannelProcessor() {
+        return null;
+    }
 }

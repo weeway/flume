@@ -28,19 +28,19 @@ import java.util.UUID;
  */
 public class SimpleRowKeyGenerator {
 
-  public static byte[] getUUIDKey(String prefix) throws UnsupportedEncodingException {
-    return (prefix + UUID.randomUUID().toString()).getBytes("UTF8");
-  }
+    public static byte[] getUUIDKey(String prefix) throws UnsupportedEncodingException {
+        return (prefix + UUID.randomUUID().toString()).getBytes("UTF8");
+    }
 
-  public static byte[] getRandomKey(String prefix) throws UnsupportedEncodingException {
-    return (prefix + String.valueOf(new Random().nextLong())).getBytes("UTF8");
-  }
+    public static byte[] getRandomKey(String prefix) throws UnsupportedEncodingException {
+        return (prefix + String.valueOf(new Random().nextLong())).getBytes("UTF8");
+    }
 
-  public static byte[] getTimestampKey(String prefix) throws UnsupportedEncodingException {
-    return (prefix + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
-  }
+    public static byte[] getTimestampKey(String prefix) throws UnsupportedEncodingException {
+        return (prefix + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
+    }
 
-  public static byte[] getNanoTimestampKey(String prefix) throws UnsupportedEncodingException {
-    return (prefix + String.valueOf(System.nanoTime())).getBytes("UTF8");
-  }
+    public static byte[] getNanoTimestampKey(String prefix) throws UnsupportedEncodingException {
+        return (prefix + String.valueOf(System.nanoTime())).getBytes("UTF8");
+    }
 }

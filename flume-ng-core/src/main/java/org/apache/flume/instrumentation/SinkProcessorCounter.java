@@ -20,8 +20,8 @@ package org.apache.flume.instrumentation;
 
 public class SinkProcessorCounter extends MonitoredCounterGroup {
 
-  protected SinkProcessorCounter(String name) {
-    super(MonitoredCounterGroup.Type.SINK_PROCESSOR, name);
-  }
+    protected SinkProcessorCounter(String name) {
+        super(MonitoredCounterGroup.Type.SINK_PROCESSOR, name);
+    }
 
 }

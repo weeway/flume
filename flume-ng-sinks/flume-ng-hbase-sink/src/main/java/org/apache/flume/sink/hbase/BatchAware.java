@@ -24,5 +24,5 @@ package org.apache.flume.sink.hbase;
  * by the sink.
  */
 public interface BatchAware {
-  public void onBatchStart();
+    public void onBatchStart();
 }

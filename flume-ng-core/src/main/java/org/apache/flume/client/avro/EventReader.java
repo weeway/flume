@@ -35,24 +35,24 @@ import java.util.List;
 @InterfaceStability.Evolving
 public interface EventReader extends Closeable {
 
-  /**
-   * Get the next line associated with the input stream. If this returns
-   * {@code null}, the input underlying input source is considered finished.
-   * Note that this is allowed to block for indefinite amounts of time waiting
-   * to generate a new line.
-   */
-  public Event readEvent() throws IOException;
+    /**
+     * Get the next line associated with the input stream. If this returns
+     * {@code null}, the input underlying input source is considered finished.
+     * Note that this is allowed to block for indefinite amounts of time waiting
+     * to generate a new line.
+     */
+    public Event readEvent() throws IOException;
 
-  /**
-   * Get up to {@code n} lines associated with the input stream. If this returns
-   * less than n lines, the input underlying input source is considered
-   * finished. Note that this is allowed to block for indefinite amounts of
-   * time waiting to generate a new line.
-   */
-  public List<Event> readEvents(int n) throws IOException;
+    /**
+     * Get up to {@code n} lines associated with the input stream. If this returns
+     * less than n lines, the input underlying input source is considered
+     * finished. Note that this is allowed to block for indefinite amounts of
+     * time waiting to generate a new line.
+     */
+    public List<Event> readEvents(int n) throws IOException;
 
-  /**
-   * Clean-up any state associated with this reader.
-   */
-  public void close() throws IOException;
+    /**
+     * Clean-up any state associated with this reader.
+     */
+    public void close() throws IOException;
 }

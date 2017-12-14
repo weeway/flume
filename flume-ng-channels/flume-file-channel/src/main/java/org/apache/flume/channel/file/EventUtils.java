@@ -26,16 +26,16 @@ import org.apache.flume.Event;
  */
 public class EventUtils {
 
-  /**
-   * Returns the Event encapsulated by a Put wrapper
-   *
-   * @param transactionEventRecord TransactionEvent
-   * @return Event if Put instance is present, null otherwise
-   */
-  public static Event getEventFromTransactionEvent(TransactionEventRecord transactionEventRecord) {
-    if (transactionEventRecord instanceof Put) {
-      return ((Put)transactionEventRecord).getEvent();
+    /**
+     * Returns the Event encapsulated by a Put wrapper
+     *
+     * @param transactionEventRecord TransactionEvent
+     * @return Event if Put instance is present, null otherwise
+     */
+    public static Event getEventFromTransactionEvent(TransactionEventRecord transactionEventRecord) {
+        if (transactionEventRecord instanceof Put) {
+            return ((Put) transactionEventRecord).getEvent();
+        }
+        return null;
     }
-    return null;
-  }
 }

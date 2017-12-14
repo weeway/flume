@@ -25,16 +25,17 @@ import java.util.Properties;
  */
 public class SecureRpcClientFactory {
 
-  /**
-   * Return a secure {@linkplain org.apache.flume.api.RpcClient} that uses Thrift for communicating
-   * with the next hop.
-   * @param props
-   * @return - An {@linkplain org.apache.flume.api.RpcClient} which uses thrift configured with the
-   * given parameters.
-   */
-  public static RpcClient getThriftInstance(Properties props) {
-    ThriftRpcClient client = new SecureThriftRpcClient();
-    client.configure(props);
-    return client;
-  }
+    /**
+     * Return a secure {@linkplain org.apache.flume.api.RpcClient} that uses Thrift for communicating
+     * with the next hop.
+     *
+     * @param props
+     * @return - An {@linkplain org.apache.flume.api.RpcClient} which uses thrift configured with the
+     * given parameters.
+     */
+    public static RpcClient getThriftInstance(Properties props) {
+        ThriftRpcClient client = new SecureThriftRpcClient();
+        client.configure(props);
+        return client;
+    }
 }

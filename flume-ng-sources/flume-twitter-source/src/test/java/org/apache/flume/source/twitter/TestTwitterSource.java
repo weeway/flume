@@ -44,69 +44,69 @@ import org.junit.Test;
 
 public class TestTwitterSource extends Assert {
 
-  @BeforeClass
-  public static void setUp() {
-    try {
-      Assume.assumeNotNull(InetAddress.getByName("stream.twitter.com"));
-    } catch (UnknownHostException e) {
-      Assume.assumeTrue(false); // ignore Test if twitter is unreachable
+    @BeforeClass
+    public static void setUp() {
+        try {
+            Assume.assumeNotNull(InetAddress.getByName("stream.twitter.com"));
+        } catch (UnknownHostException e) {
+            Assume.assumeTrue(false); // ignore Test if twitter is unreachable
+        }
     }
-  }
-  
-  @Test
-  public void testBasic() throws Exception {
-    String consumerKey = System.getProperty("twitter.consumerKey");
-    Assume.assumeNotNull(consumerKey);
 
-    String consumerSecret = System.getProperty("twitter.consumerSecret");
-    Assume.assumeNotNull(consumerSecret);
+    @Test
+    public void testBasic() throws Exception {
+        String consumerKey = System.getProperty("twitter.consumerKey");
+        Assume.assumeNotNull(consumerKey);
 
-    String accessToken = System.getProperty("twitter.accessToken");
-    Assume.assumeNotNull(accessToken);
+        String consumerSecret = System.getProperty("twitter.consumerSecret");
+        Assume.assumeNotNull(consumerSecret);
 
-    String accessTokenSecret = System.getProperty("twitter.accessTokenSecret");
-    Assume.assumeNotNull(accessTokenSecret);
+        String accessToken = System.getProperty("twitter.accessToken");
+        Assume.assumeNotNull(accessToken);
 
-    Context context = new Context();
-    context.put("consumerKey", consumerKey);
-    context.put("consumerSecret", consumerSecret);
-    context.put("accessToken", accessToken);
-    context.put("accessTokenSecret", accessTokenSecret);
-    context.put("maxBatchDurationMillis", "1000");
+        String accessTokenSecret = System.getProperty("twitter.accessTokenSecret");
+        Assume.assumeNotNull(accessTokenSecret);
 
-    TwitterSource source = new TwitterSource();
-    source.configure(context);
+        Context context = new Context();
+        context.put("consumerKey", consumerKey);
+        context.put("consumerSecret", consumerSecret);
+        context.put("accessToken", accessToken);
+        context.put("accessTokenSecret", accessTokenSecret);
+        context.put("maxBatchDurationMillis", "1000");
 
-    Map<String, String> channelContext = new HashMap();
-    channelContext.put("capacity", "1000000");
-    channelContext.put("keep-alive", "0"); // for faster tests
-    Channel channel = new MemoryChannel();
-    Configurables.configure(channel, new Context(channelContext));
+        TwitterSource source = new TwitterSource();
+        source.configure(context);
 
-    Sink sink = new LoggerSink();
-    sink.setChannel(channel);
-    sink.start();
-    DefaultSinkProcessor proc = new DefaultSinkProcessor();
-    proc.setSinks(Collections.singletonList(sink));
-    SinkRunner sinkRunner = new SinkRunner(proc);
-    sinkRunner.start();
+        Map<String, String> channelContext = new HashMap();
+        channelContext.put("capacity", "1000000");
+        channelContext.put("keep-alive", "0"); // for faster tests
+        Channel channel = new MemoryChannel();
+        Configurables.configure(channel, new Context(channelContext));
 
-    ChannelSelector rcs = new ReplicatingChannelSelector();
-    rcs.setChannels(Collections.singletonList(channel));
-    ChannelProcessor chp = new ChannelProcessor(rcs);
-    source.setChannelProcessor(chp);
-    source.start();
+        Sink sink = new LoggerSink();
+        sink.setChannel(channel);
+        sink.start();
+        DefaultSinkProcessor proc = new DefaultSinkProcessor();
+        proc.setSinks(Collections.singletonList(sink));
+        SinkRunner sinkRunner = new SinkRunner(proc);
+        sinkRunner.start();
 
-    Thread.sleep(5000);
-    source.stop();
-    sinkRunner.stop();
-    sink.stop();
-  }
+        ChannelSelector rcs = new ReplicatingChannelSelector();
+        rcs.setChannels(Collections.singletonList(channel));
+        ChannelProcessor chp = new ChannelProcessor(rcs);
+        source.setChannelProcessor(chp);
+        source.start();
 
-  @Test
-  public void testCarrotDateFormatBug() throws Exception {
-    SimpleDateFormat formatterFrom = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
-    formatterFrom.parse("Fri Oct 26 22:53:55 +0000 2012");
-  }
+        Thread.sleep(5000);
+        source.stop();
+        sinkRunner.stop();
+        sink.stop();
+    }
+
+    @Test
+    public void testCarrotDateFormatBug() throws Exception {
+        SimpleDateFormat formatterFrom = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
+        formatterFrom.parse("Fri Oct 26 22:53:55 +0000 2012");
+    }
 
 }

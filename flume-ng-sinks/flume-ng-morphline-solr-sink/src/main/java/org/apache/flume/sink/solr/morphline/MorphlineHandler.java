@@ -26,37 +26,41 @@ import org.apache.flume.conf.Configurable;
  */
 public interface MorphlineHandler extends Configurable {
 
-  /** Begins a transaction */
-  public void beginTransaction();
+    /**
+     * Begins a transaction
+     */
+    public void beginTransaction();
 
-  /** Loads the given event into Solr */
-  public void process(Event event);
+    /**
+     * Loads the given event into Solr
+     */
+    public void process(Event event);
 
-  /**
-   * Sends any outstanding documents to Solr and waits for a positive
-   * or negative ack (i.e. exception). Depending on the outcome the caller
-   * should then commit or rollback the current flume transaction
-   * correspondingly.
-   * 
-   * @throws IOException
-   *           If there is a low-level I/O error.
-   */
-  public void commitTransaction();
+    /**
+     * Sends any outstanding documents to Solr and waits for a positive
+     * or negative ack (i.e. exception). Depending on the outcome the caller
+     * should then commit or rollback the current flume transaction
+     * correspondingly.
+     *
+     * @throws IOException If there is a low-level I/O error.
+     */
+    public void commitTransaction();
 
-  /**
-   * Performs a rollback of all non-committed documents pending.
-   * <p>
-   * Note that this is not a true rollback as in databases. Content you have previously added to
-   * Solr may have already been committed due to autoCommit, buffer full, other client performing a
-   * commit etc. So this is only a best-effort rollback.
-   * 
-   * @throws IOException
-   *           If there is a low-level I/O error.
-   */
-  public void rollbackTransaction();
+    /**
+     * Performs a rollback of all non-committed documents pending.
+     * <p>
+     * Note that this is not a true rollback as in databases. Content you have previously added to
+     * Solr may have already been committed due to autoCommit, buffer full, other client performing a
+     * commit etc. So this is only a best-effort rollback.
+     *
+     * @throws IOException If there is a low-level I/O error.
+     */
+    public void rollbackTransaction();
 
-  /** Releases allocated resources */
-  public void stop();
+    /**
+     * Releases allocated resources
+     */
+    public void stop();
 
 
 }

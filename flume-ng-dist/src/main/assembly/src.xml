@@ -18,34 +18,34 @@
 -->
 
 <assembly
-  xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+        xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
 
-  <id>src</id>
+    <id>src</id>
 
-  <formats>
-    <format>dir</format>
-    <format>tar.gz</format>
-  </formats>
+    <formats>
+        <format>dir</format>
+        <format>tar.gz</format>
+    </formats>
 
-  <baseDirectory>apache-flume-${project.version}-src</baseDirectory>
+    <baseDirectory>apache-flume-${project.version}-src</baseDirectory>
 
-   <fileSets>
-    <fileSet>
-      <directory>../</directory>
+    <fileSets>
+        <fileSet>
+            <directory>../</directory>
 
-      <excludes>
-        <exclude>**/target/**</exclude>
-        <exclude>**/.classpath</exclude>
-        <exclude>**/.project</exclude>
-        <exclude>**/.idea/**</exclude>
-        <exclude>**/*.iml</exclude>
-        <exclude>**/.settings/**</exclude>
-        <exclude>lib/**</exclude>
-        <exclude>**/.DS_Store</exclude>
-      </excludes>
-    </fileSet>
-  </fileSets>
+            <excludes>
+                <exclude>**/target/**</exclude>
+                <exclude>**/.classpath</exclude>
+                <exclude>**/.project</exclude>
+                <exclude>**/.idea/**</exclude>
+                <exclude>**/*.iml</exclude>
+                <exclude>**/.settings/**</exclude>
+                <exclude>lib/**</exclude>
+                <exclude>**/.DS_Store</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
 
 </assembly>

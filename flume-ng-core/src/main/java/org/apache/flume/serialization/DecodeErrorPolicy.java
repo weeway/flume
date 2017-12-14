@@ -25,7 +25,7 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceAudience.Private
 @InterfaceStability.Evolving
 public enum DecodeErrorPolicy {
-  FAIL,
-  REPLACE,
-  IGNORE
+    FAIL,
+    REPLACE,
+    IGNORE
 }

@@ -69,143 +69,143 @@ import static org.apache.flume.serialization.AvroEventSerializerConfigurationCon
  */
 public class AvroEventSerializer implements EventSerializer, Configurable {
 
-  private static final Logger logger =
-      LoggerFactory.getLogger(AvroEventSerializer.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(AvroEventSerializer.class);
 
-  public static final String AVRO_SCHEMA_LITERAL_HEADER = "flume.avro.schema.literal";
-  public static final String AVRO_SCHEMA_URL_HEADER = "flume.avro.schema.url";
+    public static final String AVRO_SCHEMA_LITERAL_HEADER = "flume.avro.schema.literal";
+    public static final String AVRO_SCHEMA_URL_HEADER = "flume.avro.schema.url";
 
-  private final OutputStream out;
-  private DatumWriter<Object> writer = null;
-  private DataFileWriter<Object> dataFileWriter = null;
+    private final OutputStream out;
+    private DatumWriter<Object> writer = null;
+    private DataFileWriter<Object> dataFileWriter = null;
 
-  private int syncIntervalBytes;
-  private String compressionCodec;
-  private Map<String, Schema> schemaCache = new HashMap<String, Schema>();
-  private String staticSchemaURL;
+    private int syncIntervalBytes;
+    private String compressionCodec;
+    private Map<String, Schema> schemaCache = new HashMap<String, Schema>();
+    private String staticSchemaURL;
 
-  private AvroEventSerializer(OutputStream out) {
-    this.out = out;
-  }
-
-  @Override
-  public void configure(Context context) {
-    syncIntervalBytes =
-        context.getInteger(SYNC_INTERVAL_BYTES, DEFAULT_SYNC_INTERVAL_BYTES);
-    compressionCodec =
-        context.getString(COMPRESSION_CODEC, DEFAULT_COMPRESSION_CODEC);
-    staticSchemaURL = context.getString(STATIC_SCHEMA_URL, DEFAULT_STATIC_SCHEMA_URL);
-  }
-
-  @Override
-  public void afterCreate() throws IOException {
-    // no-op
-  }
-
-  @Override
-  public void afterReopen() throws IOException {
-    // impossible to initialize DataFileWriter without writing the schema?
-    throw new UnsupportedOperationException("Avro API doesn't support append");
-  }
-
-  @Override
-  public void write(Event event) throws IOException {
-    if (dataFileWriter == null) {
-      initialize(event);
+    private AvroEventSerializer(OutputStream out) {
+        this.out = out;
     }
-    dataFileWriter.appendEncoded(ByteBuffer.wrap(event.getBody()));
-  }
-
-  private void initialize(Event event) throws IOException {
-    Schema schema = null;
-    String schemaUrl = event.getHeaders().get(AVRO_SCHEMA_URL_HEADER);
-    String schemaString = event.getHeaders().get(AVRO_SCHEMA_LITERAL_HEADER);
-
-    if (schemaUrl != null) { // if URL_HEADER is there then use it
-      schema = schemaCache.get(schemaUrl);
-      if (schema == null) {
-        schema = loadFromUrl(schemaUrl);
-        schemaCache.put(schemaUrl, schema);
-      }
-    } else if (schemaString != null) { // fallback to LITERAL_HEADER if it was there
-      schema = new Schema.Parser().parse(schemaString);
-    } else if (staticSchemaURL != null) {   // fallback to static url if it was there
-      schema = schemaCache.get(staticSchemaURL);
-      if (schema == null) {
-        schema = loadFromUrl(staticSchemaURL);
-        schemaCache.put(staticSchemaURL, schema);
-      }
-    } else { // no other options so giving up
-      throw new FlumeException("Could not find schema for event " + event);
-    }
-
-    writer = new GenericDatumWriter<Object>(schema);
-    dataFileWriter = new DataFileWriter<Object>(writer);
-
-    dataFileWriter.setSyncInterval(syncIntervalBytes);
-
-    try {
-      CodecFactory codecFactory = CodecFactory.fromString(compressionCodec);
-      dataFileWriter.setCodec(codecFactory);
-    } catch (AvroRuntimeException e) {
-      logger.warn("Unable to instantiate avro codec with name (" +
-          compressionCodec + "). Compression disabled. Exception follows.", e);
-    }
-
-    dataFileWriter.create(schema, out);
-  }
-
-  private Schema loadFromUrl(String schemaUrl) throws IOException {
-    Configuration conf = new Configuration();
-    Schema.Parser parser = new Schema.Parser();
-    if (schemaUrl.toLowerCase(Locale.ENGLISH).startsWith("hdfs://")) {
-      FileSystem fs = FileSystem.get(conf);
-      FSDataInputStream input = null;
-      try {
-        input = fs.open(new Path(schemaUrl));
-        return parser.parse(input);
-      } finally {
-        if (input != null) {
-          input.close();
-        }
-      }
-    } else {
-      InputStream is = null;
-      try {
-        is = new URL(schemaUrl).openStream();
-        return parser.parse(is);
-      } finally {
-        if (is != null) {
-          is.close();
-        }
-      }
-    }
-  }
-
-  @Override
-  public void flush() throws IOException {
-    dataFileWriter.flush();
-  }
-
-  @Override
-  public void beforeClose() throws IOException {
-    // no-op
-  }
-
-  @Override
-  public boolean supportsReopen() {
-    return false;
-  }
-
-  public static class Builder implements EventSerializer.Builder {
 
     @Override
-    public EventSerializer build(Context context, OutputStream out) {
-      AvroEventSerializer writer = new AvroEventSerializer(out);
-      writer.configure(context);
-      return writer;
+    public void configure(Context context) {
+        syncIntervalBytes =
+                context.getInteger(SYNC_INTERVAL_BYTES, DEFAULT_SYNC_INTERVAL_BYTES);
+        compressionCodec =
+                context.getString(COMPRESSION_CODEC, DEFAULT_COMPRESSION_CODEC);
+        staticSchemaURL = context.getString(STATIC_SCHEMA_URL, DEFAULT_STATIC_SCHEMA_URL);
     }
 
-  }
+    @Override
+    public void afterCreate() throws IOException {
+        // no-op
+    }
+
+    @Override
+    public void afterReopen() throws IOException {
+        // impossible to initialize DataFileWriter without writing the schema?
+        throw new UnsupportedOperationException("Avro API doesn't support append");
+    }
+
+    @Override
+    public void write(Event event) throws IOException {
+        if (dataFileWriter == null) {
+            initialize(event);
+        }
+        dataFileWriter.appendEncoded(ByteBuffer.wrap(event.getBody()));
+    }
+
+    private void initialize(Event event) throws IOException {
+        Schema schema = null;
+        String schemaUrl = event.getHeaders().get(AVRO_SCHEMA_URL_HEADER);
+        String schemaString = event.getHeaders().get(AVRO_SCHEMA_LITERAL_HEADER);
+
+        if (schemaUrl != null) { // if URL_HEADER is there then use it
+            schema = schemaCache.get(schemaUrl);
+            if (schema == null) {
+                schema = loadFromUrl(schemaUrl);
+                schemaCache.put(schemaUrl, schema);
+            }
+        } else if (schemaString != null) { // fallback to LITERAL_HEADER if it was there
+            schema = new Schema.Parser().parse(schemaString);
+        } else if (staticSchemaURL != null) {   // fallback to static url if it was there
+            schema = schemaCache.get(staticSchemaURL);
+            if (schema == null) {
+                schema = loadFromUrl(staticSchemaURL);
+                schemaCache.put(staticSchemaURL, schema);
+            }
+        } else { // no other options so giving up
+            throw new FlumeException("Could not find schema for event " + event);
+        }
+
+        writer = new GenericDatumWriter<Object>(schema);
+        dataFileWriter = new DataFileWriter<Object>(writer);
+
+        dataFileWriter.setSyncInterval(syncIntervalBytes);
+
+        try {
+            CodecFactory codecFactory = CodecFactory.fromString(compressionCodec);
+            dataFileWriter.setCodec(codecFactory);
+        } catch (AvroRuntimeException e) {
+            logger.warn("Unable to instantiate avro codec with name (" +
+                    compressionCodec + "). Compression disabled. Exception follows.", e);
+        }
+
+        dataFileWriter.create(schema, out);
+    }
+
+    private Schema loadFromUrl(String schemaUrl) throws IOException {
+        Configuration conf = new Configuration();
+        Schema.Parser parser = new Schema.Parser();
+        if (schemaUrl.toLowerCase(Locale.ENGLISH).startsWith("hdfs://")) {
+            FileSystem fs = FileSystem.get(conf);
+            FSDataInputStream input = null;
+            try {
+                input = fs.open(new Path(schemaUrl));
+                return parser.parse(input);
+            } finally {
+                if (input != null) {
+                    input.close();
+                }
+            }
+        } else {
+            InputStream is = null;
+            try {
+                is = new URL(schemaUrl).openStream();
+                return parser.parse(is);
+            } finally {
+                if (is != null) {
+                    is.close();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        dataFileWriter.flush();
+    }
+
+    @Override
+    public void beforeClose() throws IOException {
+        // no-op
+    }
+
+    @Override
+    public boolean supportsReopen() {
+        return false;
+    }
+
+    public static class Builder implements EventSerializer.Builder {
+
+        @Override
+        public EventSerializer build(Context context, OutputStream out) {
+            AvroEventSerializer writer = new AvroEventSerializer(out);
+            writer.configure(context);
+            return writer;
+        }
+
+    }
 
 }

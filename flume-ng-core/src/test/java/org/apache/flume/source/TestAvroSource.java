@@ -69,513 +69,513 @@ import org.slf4j.LoggerFactory;
 
 public class TestAvroSource {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(TestAvroSource.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(TestAvroSource.class);
 
-  private int selectedPort;
-  private AvroSource source;
-  private Channel channel;
-  private InetAddress localhost;
+    private int selectedPort;
+    private AvroSource source;
+    private Channel channel;
+    private InetAddress localhost;
 
-  @Before
-  public void setUp() throws UnknownHostException {
-    localhost = InetAddress.getByName("127.0.0.1");
-    source = new AvroSource();
-    channel = new MemoryChannel();
+    @Before
+    public void setUp() throws UnknownHostException {
+        localhost = InetAddress.getByName("127.0.0.1");
+        source = new AvroSource();
+        channel = new MemoryChannel();
 
-    Configurables.configure(channel, new Context());
+        Configurables.configure(channel, new Context());
 
-    List<Channel> channels = new ArrayList<Channel>();
-    channels.add(channel);
+        List<Channel> channels = new ArrayList<Channel>();
+        channels.add(channel);
 
-    ChannelSelector rcs = new ReplicatingChannelSelector();
-    rcs.setChannels(channels);
+        ChannelSelector rcs = new ReplicatingChannelSelector();
+        rcs.setChannels(channels);
 
-    source.setChannelProcessor(new ChannelProcessor(rcs));
-  }
+        source.setChannelProcessor(new ChannelProcessor(rcs));
+    }
 
-  @Test
-  public void testLifecycle() throws InterruptedException, IOException {
+    @Test
+    public void testLifecycle() throws InterruptedException, IOException {
 
-    Context context = new Context();
+        Context context = new Context();
 
-    context.put("port", String.valueOf(selectedPort = getFreePort()));
-    context.put("bind", "0.0.0.0");
+        context.put("port", String.valueOf(selectedPort = getFreePort()));
+        context.put("bind", "0.0.0.0");
 
-    Configurables.configure(source, context);
+        Configurables.configure(source, context);
 
-    source.start();
-
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
-
-    source.stop();
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
-
-  @Test
-  public void testSourceStoppedOnFlumeExceptionIfPortUsed()
-      throws InterruptedException, IOException {
-    final String loopbackIPv4 = "127.0.0.1";
-    final int port = 10500;
-
-    // create a dummy socket bound to a known port.
-    try (ServerSocketChannel dummyServerSocket = ServerSocketChannel.open()) {
-      dummyServerSocket.socket().setReuseAddress(true);
-      dummyServerSocket.socket().bind(new InetSocketAddress(loopbackIPv4, port));
-
-      Context context = new Context();
-      context.put("port", String.valueOf(port));
-      context.put("bind", loopbackIPv4);
-      Configurables.configure(source, context);
-      try {
         source.start();
-        Assert.fail("Expected an exception during startup caused by binding on a used port");
-      } catch (FlumeException e) {
-        logger.info("Received an expected exception.", e);
-        Assert.assertTrue("Expected a server socket setup related root cause",
-            e.getMessage().contains("server socket"));
-      }
-    }
-    // As port is already in use, an exception is thrown and the source is stopped
-    // cleaning up the opened sockets during source.start().
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-            source.getLifecycleState());
-  }
 
-  @Test
-  public void testInvalidAddress()
-      throws InterruptedException, IOException {
-    final String invalidHost = "invalid.host";
-    final int port = 10501;
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
 
-    Context context = new Context();
-    context.put("port", String.valueOf(port));
-    context.put("bind", invalidHost);
-    Configurables.configure(source, context);
-
-    try {
-      source.start();
-      Assert.fail("Expected an exception during startup caused by binding on a invalid host");
-    } catch (FlumeException e) {
-      logger.info("Received an expected exception.", e);
-      Assert.assertTrue("Expected a server socket setup related root cause",
-          e.getMessage().contains("server socket"));
+        source.stop();
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
     }
 
-    // As port is already in use, an exception is thrown and the source is stopped
-    // cleaning up the opened sockets during source.start().
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
+    @Test
+    public void testSourceStoppedOnFlumeExceptionIfPortUsed()
+            throws InterruptedException, IOException {
+        final String loopbackIPv4 = "127.0.0.1";
+        final int port = 10500;
 
-  @Test
-  public void testRequestWithNoCompression() throws InterruptedException, IOException {
+        // create a dummy socket bound to a known port.
+        try (ServerSocketChannel dummyServerSocket = ServerSocketChannel.open()) {
+            dummyServerSocket.socket().setReuseAddress(true);
+            dummyServerSocket.socket().bind(new InetSocketAddress(loopbackIPv4, port));
 
-    doRequest(false, false, 6);
-  }
-
-  @Test
-  public void testRequestWithCompressionOnClientAndServerOnLevel0()
-      throws InterruptedException, IOException {
-
-    doRequest(true, true, 0);
-  }
-
-  @Test
-  public void testRequestWithCompressionOnClientAndServerOnLevel1()
-      throws InterruptedException, IOException {
-
-    doRequest(true, true, 1);
-  }
-
-  @Test
-  public void testRequestWithCompressionOnClientAndServerOnLevel6()
-      throws InterruptedException, IOException {
-
-    doRequest(true, true, 6);
-  }
-
-  @Test
-  public void testRequestWithCompressionOnClientAndServerOnLevel9()
-      throws InterruptedException, IOException {
-
-    doRequest(true, true, 9);
-  }
-
-  @Test(expected = org.apache.avro.AvroRemoteException.class)
-  public void testRequestWithCompressionOnServerOnly() throws InterruptedException, IOException {
-    //This will fail because both client and server need compression on
-    doRequest(true, false, 6);
-  }
-
-  @Test(expected = org.apache.avro.AvroRemoteException.class)
-  public void testRequestWithCompressionOnClientOnly() throws InterruptedException, IOException {
-    //This will fail because both client and server need compression on
-    doRequest(false, true, 6);
-  }
-
-  private void doRequest(boolean serverEnableCompression, boolean clientEnableCompression,
-                         int compressionLevel) throws InterruptedException, IOException {
-
-    Context context = new Context();
-    context.put("port", String.valueOf(selectedPort = getFreePort()));
-    context.put("bind", "0.0.0.0");
-    context.put("threads", "50");
-    if (serverEnableCompression) {
-      context.put("compression-type", "deflate");
-    } else {
-      context.put("compression-type", "none");
+            Context context = new Context();
+            context.put("port", String.valueOf(port));
+            context.put("bind", loopbackIPv4);
+            Configurables.configure(source, context);
+            try {
+                source.start();
+                Assert.fail("Expected an exception during startup caused by binding on a used port");
+            } catch (FlumeException e) {
+                logger.info("Received an expected exception.", e);
+                Assert.assertTrue("Expected a server socket setup related root cause",
+                        e.getMessage().contains("server socket"));
+            }
+        }
+        // As port is already in use, an exception is thrown and the source is stopped
+        // cleaning up the opened sockets during source.start().
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
     }
 
-    Configurables.configure(source, context);
+    @Test
+    public void testInvalidAddress()
+            throws InterruptedException, IOException {
+        final String invalidHost = "invalid.host";
+        final int port = 10501;
 
-    source.start();
+        Context context = new Context();
+        context.put("port", String.valueOf(port));
+        context.put("bind", invalidHost);
+        Configurables.configure(source, context);
 
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
+        try {
+            source.start();
+            Assert.fail("Expected an exception during startup caused by binding on a invalid host");
+        } catch (FlumeException e) {
+            logger.info("Received an expected exception.", e);
+            Assert.assertTrue("Expected a server socket setup related root cause",
+                    e.getMessage().contains("server socket"));
+        }
 
-    AvroSourceProtocol client;
-    NettyTransceiver nettyTransceiver;
-    if (clientEnableCompression) {
-
-      nettyTransceiver = new NettyTransceiver(new InetSocketAddress(
-          selectedPort), new CompressionChannelFactory(compressionLevel));
-
-      client = SpecificRequestor.getClient(
-          AvroSourceProtocol.class, nettyTransceiver);
-    } else {
-      nettyTransceiver = new NettyTransceiver(new InetSocketAddress(selectedPort));
-
-      client = SpecificRequestor.getClient(
-          AvroSourceProtocol.class, nettyTransceiver);
+        // As port is already in use, an exception is thrown and the source is stopped
+        // cleaning up the opened sockets during source.start().
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
     }
 
-    AvroFlumeEvent avroEvent = new AvroFlumeEvent();
+    @Test
+    public void testRequestWithNoCompression() throws InterruptedException, IOException {
 
-    avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
-    avroEvent.setBody(ByteBuffer.wrap("Hello avro".getBytes()));
-
-    Status status = client.append(avroEvent);
-
-    Assert.assertEquals(Status.OK, status);
-
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Channel contained our event", "Hello avro",
-        new String(event.getBody()));
-    transaction.commit();
-    transaction.close();
-
-    logger.debug("Round trip event:{}", event);
-
-
-    nettyTransceiver.close();
-    source.stop();
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
-
-  private static int getFreePort() throws IOException {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      return socket.getLocalPort();
-    }
-  }
-
-  private static class CompressionChannelFactory extends
-      NioClientSocketChannelFactory {
-    private int compressionLevel;
-
-    public CompressionChannelFactory( int compressionLevel) {
-      super();
-      this.compressionLevel = compressionLevel;
+        doRequest(false, false, 6);
     }
 
-    @Override
-    public SocketChannel newChannel(ChannelPipeline pipeline) {
-      try {
+    @Test
+    public void testRequestWithCompressionOnClientAndServerOnLevel0()
+            throws InterruptedException, IOException {
 
-        ZlibEncoder encoder = new ZlibEncoder(compressionLevel);
-        pipeline.addFirst("deflater", encoder);
-        pipeline.addFirst("inflater", new ZlibDecoder());
-        return super.newChannel(pipeline);
-      } catch (Exception ex) {
-        throw new RuntimeException("Cannot create Compression channel", ex);
-      }
-    }
-  }
-
-  @Test
-  public void testSslRequest() throws InterruptedException, IOException {
-
-    Context context = new Context();
-
-    context.put("port", String.valueOf(selectedPort = getFreePort()));
-    context.put("bind", "0.0.0.0");
-    context.put("ssl", "true");
-    context.put("keystore", "src/test/resources/server.p12");
-    context.put("keystore-password", "password");
-    context.put("keystore-type", "PKCS12");
-    Configurables.configure(source, context);
-    source.start();
-
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
-
-    AvroSourceProtocol client = SpecificRequestor.getClient(
-        AvroSourceProtocol.class, new NettyTransceiver(new InetSocketAddress(
-        selectedPort), new SSLChannelFactory()));
-
-    AvroFlumeEvent avroEvent = new AvroFlumeEvent();
-
-    avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
-    avroEvent.setBody(ByteBuffer.wrap("Hello avro ssl".getBytes()));
-
-    Status status = client.append(avroEvent);
-
-    Assert.assertEquals(Status.OK, status);
-
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Channel contained our event", "Hello avro ssl",
-        new String(event.getBody()));
-    transaction.commit();
-    transaction.close();
-
-    logger.debug("Round trip event:{}", event);
-
-    source.stop();
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
-
-  /**
-   * Factory of SSL-enabled client channels
-   * Copied from Avro's org.apache.avro.ipc.TestNettyServerWithSSL test
-   */
-  private static class SSLChannelFactory extends NioClientSocketChannelFactory {
-    public SSLChannelFactory() {
-      super(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
+        doRequest(true, true, 0);
     }
 
-    @Override
-    public SocketChannel newChannel(ChannelPipeline pipeline) {
-      try {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, new TrustManager[]{new PermissiveTrustManager()},
-                        null);
-        SSLEngine sslEngine = sslContext.createSSLEngine();
-        sslEngine.setUseClientMode(true);
-        // addFirst() will make SSL handling the first stage of decoding
-        // and the last stage of encoding
-        pipeline.addFirst("ssl", new SslHandler(sslEngine));
-        return super.newChannel(pipeline);
-      } catch (Exception ex) {
-        throw new RuntimeException("Cannot create SSL channel", ex);
-      }
-    }
-  }
+    @Test
+    public void testRequestWithCompressionOnClientAndServerOnLevel1()
+            throws InterruptedException, IOException {
 
-  /**
-   * Bogus trust manager accepting any certificate
-   */
-  private static class PermissiveTrustManager implements X509TrustManager {
-    @Override
-    public void checkClientTrusted(X509Certificate[] certs, String s) {
-      // nothing
+        doRequest(true, true, 1);
     }
 
-    @Override
-    public void checkServerTrusted(X509Certificate[] certs, String s) {
-      // nothing
+    @Test
+    public void testRequestWithCompressionOnClientAndServerOnLevel6()
+            throws InterruptedException, IOException {
+
+        doRequest(true, true, 6);
     }
 
-    @Override
-    public X509Certificate[] getAcceptedIssuers() {
-      return new X509Certificate[0];
-    }
-  }
+    @Test
+    public void testRequestWithCompressionOnClientAndServerOnLevel9()
+            throws InterruptedException, IOException {
 
-  @Test
-  public void testValidIpFilterAllows()
-      throws InterruptedException, IOException {
-    doIpFilterTest(localhost, "allow:name:localhost,deny:ip:*", true, false);
-    doIpFilterTest(localhost, "allow:ip:" + localhost.getHostAddress() +
-        ",deny:ip:*", true, false);
-    doIpFilterTest(localhost, "allow:ip:*", true, false);
-    doIpFilterTest(localhost, "allow:ip:" +
-        localhost.getHostAddress().substring(0, 3) +
-        "*,deny:ip:*", true, false);
-    doIpFilterTest(localhost, "allow:ip:127.0.0.2,allow:ip:" +
-        localhost.getHostAddress().substring(0, 3) +
-        "*,deny:ip:*", true, false);
-    doIpFilterTest(localhost, "allow:name:localhost,deny:ip:*", true, true);
-    doIpFilterTest(localhost, "allow:ip:*", true, true);
-  }
-
-  @Test
-  public void testValidIpFilterDenys()
-      throws InterruptedException, IOException {
-    doIpFilterTest(localhost, "deny:ip:*", false, false);
-    doIpFilterTest(localhost, "deny:name:localhost", false, false);
-    doIpFilterTest(localhost, "deny:ip:" + localhost.getHostAddress() +
-        ",allow:ip:*", false, false);
-    doIpFilterTest(localhost, "deny:ip:*", false, false);
-    doIpFilterTest(localhost, "allow:ip:45.2.2.2,deny:ip:*", false, false);
-    doIpFilterTest(localhost, "deny:ip:" +
-        localhost.getHostAddress().substring(0, 3) +
-        "*,allow:ip:*", false, false);
-    doIpFilterTest(localhost, "deny:ip:*", false, true);
-  }
-
-  @Test
-  public void testInvalidIpFilter() throws InterruptedException, IOException {
-    doIpFilterTest(localhost, "deny:ip:*", false, false);
-    doIpFilterTest(localhost, "allow:name:localhost", true, false);
-    doIpFilterTest(localhost, "deny:ip:127.0.0.2,allow:ip:*,deny:ip:" +
-        localhost.getHostAddress(), true, false);
-    doIpFilterTest(localhost, "deny:ip:" +
-        localhost.getHostAddress().substring(0, 3) + "*,allow:ip:*",
-        false, false);
-
-    // Private lambda expression to check the received FlumeException within this test
-    Consumer<Exception> exceptionChecker = (Exception ex) -> {
-      logger.info("Received an expected exception", ex);
-      //covers all ipFilter related exceptions
-      Assert.assertTrue("Expected an ipFilterRules related exception",
-          ex.getMessage().contains("ipFilter"));
-    };
-
-    try {
-      doIpFilterTest(localhost, null, false, false);
-      Assert.fail("The null ipFilterRules config should have thrown an exception.");
-    } catch (FlumeException e) {
-      exceptionChecker.accept(e);
+        doRequest(true, true, 9);
     }
 
-    try {
-      doIpFilterTest(localhost, "", true, false);
-      Assert.fail("The empty string ipFilterRules config should have thrown "
-          + "an exception");
-    } catch (FlumeException e) {
-      exceptionChecker.accept(e);
+    @Test(expected = org.apache.avro.AvroRemoteException.class)
+    public void testRequestWithCompressionOnServerOnly() throws InterruptedException, IOException {
+        //This will fail because both client and server need compression on
+        doRequest(true, false, 6);
     }
 
-    try {
-      doIpFilterTest(localhost, "homer:ip:45.4.23.1", true, false);
-      Assert.fail("Bad ipFilterRules config should have thrown an exception.");
-    } catch (FlumeException e) {
-      exceptionChecker.accept(e);
+    @Test(expected = org.apache.avro.AvroRemoteException.class)
+    public void testRequestWithCompressionOnClientOnly() throws InterruptedException, IOException {
+        //This will fail because both client and server need compression on
+        doRequest(false, true, 6);
     }
 
-    try {
-      doIpFilterTest(localhost, "allow:sleeps:45.4.23.1", true, false);
-      Assert.fail("Bad ipFilterRules config should have thrown an exception.");
-    } catch (FlumeException e) {
-      exceptionChecker.accept(e);
-    }
-  }
+    private void doRequest(boolean serverEnableCompression, boolean clientEnableCompression,
+                           int compressionLevel) throws InterruptedException, IOException {
 
-  public void doIpFilterTest(InetAddress dest, String ruleDefinition,
-      boolean eventShouldBeAllowed, boolean testWithSSL)
-      throws InterruptedException, IOException {
-    Context context = new Context();
-    context.put("port", String.valueOf(selectedPort = getFreePort()));
-    context.put("bind", "0.0.0.0");
-    context.put("ipFilter", "true");
-    if (ruleDefinition != null) {
-      context.put("ipFilterRules", ruleDefinition);
-    }
-    if (testWithSSL) {
-      logger.info("Client testWithSSL" + testWithSSL);
-      context.put("ssl", "true");
-      context.put("keystore", "src/test/resources/server.p12");
-      context.put("keystore-password", "password");
-      context.put("keystore-type", "PKCS12");
-    }
-    // Invalid configuration may result in a FlumeException
-    Configurables.configure(source, context);
-    source.start();
+        Context context = new Context();
+        context.put("port", String.valueOf(selectedPort = getFreePort()));
+        context.put("bind", "0.0.0.0");
+        context.put("threads", "50");
+        if (serverEnableCompression) {
+            context.put("compression-type", "deflate");
+        } else {
+            context.put("compression-type", "none");
+        }
 
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
+        Configurables.configure(source, context);
 
-    AvroSourceProtocol client;
-    NettyTransceiver nettyTransceiver = null;
-    try {
-      if (testWithSSL) {
-        nettyTransceiver = new NettyTransceiver(
-            new InetSocketAddress(dest, selectedPort),
-            new SSLChannelFactory());
-        client = SpecificRequestor.getClient(
-            AvroSourceProtocol.class, nettyTransceiver);
-      } else {
-        nettyTransceiver = new NettyTransceiver(
-            new InetSocketAddress(dest, selectedPort));
-        client = SpecificRequestor.getClient(
-            AvroSourceProtocol.class, nettyTransceiver);
-      }
+        source.start();
 
-      AvroFlumeEvent avroEvent = new AvroFlumeEvent();
-      avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
-      avroEvent.setBody(ByteBuffer.wrap("Hello avro ipFilter".getBytes()));
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
 
-      logger.info("Client about to append");
-      Status status = client.append(avroEvent);
-      logger.info("Client appended");
-      Assert.assertEquals(Status.OK, status);
-    } catch (IOException e) {
-      Assert.assertTrue("Should have been allowed: " + ruleDefinition,
-          !eventShouldBeAllowed);
-      return;
-    } finally {
-      if (nettyTransceiver != null) {
+        AvroSourceProtocol client;
+        NettyTransceiver nettyTransceiver;
+        if (clientEnableCompression) {
+
+            nettyTransceiver = new NettyTransceiver(new InetSocketAddress(
+                    selectedPort), new CompressionChannelFactory(compressionLevel));
+
+            client = SpecificRequestor.getClient(
+                    AvroSourceProtocol.class, nettyTransceiver);
+        } else {
+            nettyTransceiver = new NettyTransceiver(new InetSocketAddress(selectedPort));
+
+            client = SpecificRequestor.getClient(
+                    AvroSourceProtocol.class, nettyTransceiver);
+        }
+
+        AvroFlumeEvent avroEvent = new AvroFlumeEvent();
+
+        avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
+        avroEvent.setBody(ByteBuffer.wrap("Hello avro".getBytes()));
+
+        Status status = client.append(avroEvent);
+
+        Assert.assertEquals(Status.OK, status);
+
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Channel contained our event", "Hello avro",
+                new String(event.getBody()));
+        transaction.commit();
+        transaction.close();
+
+        logger.debug("Round trip event:{}", event);
+
+
         nettyTransceiver.close();
-      }
-      source.stop();
+        source.stop();
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
     }
-    Assert.assertTrue("Should have been denied: " + ruleDefinition,
-        eventShouldBeAllowed);
 
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
+    private static int getFreePort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
+    }
 
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Channel contained our event", "Hello avro ipFilter",
-        new String(event.getBody()));
-    transaction.commit();
-    transaction.close();
-    logger.debug("Round trip event:{}", event);
+    private static class CompressionChannelFactory extends
+            NioClientSocketChannelFactory {
+        private int compressionLevel;
 
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
+        public CompressionChannelFactory(int compressionLevel) {
+            super();
+            this.compressionLevel = compressionLevel;
+        }
+
+        @Override
+        public SocketChannel newChannel(ChannelPipeline pipeline) {
+            try {
+
+                ZlibEncoder encoder = new ZlibEncoder(compressionLevel);
+                pipeline.addFirst("deflater", encoder);
+                pipeline.addFirst("inflater", new ZlibDecoder());
+                return super.newChannel(pipeline);
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot create Compression channel", ex);
+            }
+        }
+    }
+
+    @Test
+    public void testSslRequest() throws InterruptedException, IOException {
+
+        Context context = new Context();
+
+        context.put("port", String.valueOf(selectedPort = getFreePort()));
+        context.put("bind", "0.0.0.0");
+        context.put("ssl", "true");
+        context.put("keystore", "src/test/resources/server.p12");
+        context.put("keystore-password", "password");
+        context.put("keystore-type", "PKCS12");
+        Configurables.configure(source, context);
+        source.start();
+
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
+
+        AvroSourceProtocol client = SpecificRequestor.getClient(
+                AvroSourceProtocol.class, new NettyTransceiver(new InetSocketAddress(
+                        selectedPort), new SSLChannelFactory()));
+
+        AvroFlumeEvent avroEvent = new AvroFlumeEvent();
+
+        avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
+        avroEvent.setBody(ByteBuffer.wrap("Hello avro ssl".getBytes()));
+
+        Status status = client.append(avroEvent);
+
+        Assert.assertEquals(Status.OK, status);
+
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Channel contained our event", "Hello avro ssl",
+                new String(event.getBody()));
+        transaction.commit();
+        transaction.close();
+
+        logger.debug("Round trip event:{}", event);
+
+        source.stop();
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
+    }
+
+    /**
+     * Factory of SSL-enabled client channels
+     * Copied from Avro's org.apache.avro.ipc.TestNettyServerWithSSL test
+     */
+    private static class SSLChannelFactory extends NioClientSocketChannelFactory {
+        public SSLChannelFactory() {
+            super(Executors.newCachedThreadPool(), Executors.newCachedThreadPool());
+        }
+
+        @Override
+        public SocketChannel newChannel(ChannelPipeline pipeline) {
+            try {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, new TrustManager[]{new PermissiveTrustManager()},
+                        null);
+                SSLEngine sslEngine = sslContext.createSSLEngine();
+                sslEngine.setUseClientMode(true);
+                // addFirst() will make SSL handling the first stage of decoding
+                // and the last stage of encoding
+                pipeline.addFirst("ssl", new SslHandler(sslEngine));
+                return super.newChannel(pipeline);
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot create SSL channel", ex);
+            }
+        }
+    }
+
+    /**
+     * Bogus trust manager accepting any certificate
+     */
+    private static class PermissiveTrustManager implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] certs, String s) {
+            // nothing
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] certs, String s) {
+            // nothing
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];
+        }
+    }
+
+    @Test
+    public void testValidIpFilterAllows()
+            throws InterruptedException, IOException {
+        doIpFilterTest(localhost, "allow:name:localhost,deny:ip:*", true, false);
+        doIpFilterTest(localhost, "allow:ip:" + localhost.getHostAddress() +
+                ",deny:ip:*", true, false);
+        doIpFilterTest(localhost, "allow:ip:*", true, false);
+        doIpFilterTest(localhost, "allow:ip:" +
+                localhost.getHostAddress().substring(0, 3) +
+                "*,deny:ip:*", true, false);
+        doIpFilterTest(localhost, "allow:ip:127.0.0.2,allow:ip:" +
+                localhost.getHostAddress().substring(0, 3) +
+                "*,deny:ip:*", true, false);
+        doIpFilterTest(localhost, "allow:name:localhost,deny:ip:*", true, true);
+        doIpFilterTest(localhost, "allow:ip:*", true, true);
+    }
+
+    @Test
+    public void testValidIpFilterDenys()
+            throws InterruptedException, IOException {
+        doIpFilterTest(localhost, "deny:ip:*", false, false);
+        doIpFilterTest(localhost, "deny:name:localhost", false, false);
+        doIpFilterTest(localhost, "deny:ip:" + localhost.getHostAddress() +
+                ",allow:ip:*", false, false);
+        doIpFilterTest(localhost, "deny:ip:*", false, false);
+        doIpFilterTest(localhost, "allow:ip:45.2.2.2,deny:ip:*", false, false);
+        doIpFilterTest(localhost, "deny:ip:" +
+                localhost.getHostAddress().substring(0, 3) +
+                "*,allow:ip:*", false, false);
+        doIpFilterTest(localhost, "deny:ip:*", false, true);
+    }
+
+    @Test
+    public void testInvalidIpFilter() throws InterruptedException, IOException {
+        doIpFilterTest(localhost, "deny:ip:*", false, false);
+        doIpFilterTest(localhost, "allow:name:localhost", true, false);
+        doIpFilterTest(localhost, "deny:ip:127.0.0.2,allow:ip:*,deny:ip:" +
+                localhost.getHostAddress(), true, false);
+        doIpFilterTest(localhost, "deny:ip:" +
+                        localhost.getHostAddress().substring(0, 3) + "*,allow:ip:*",
+                false, false);
+
+        // Private lambda expression to check the received FlumeException within this test
+        Consumer<Exception> exceptionChecker = (Exception ex) -> {
+            logger.info("Received an expected exception", ex);
+            //covers all ipFilter related exceptions
+            Assert.assertTrue("Expected an ipFilterRules related exception",
+                    ex.getMessage().contains("ipFilter"));
+        };
+
+        try {
+            doIpFilterTest(localhost, null, false, false);
+            Assert.fail("The null ipFilterRules config should have thrown an exception.");
+        } catch (FlumeException e) {
+            exceptionChecker.accept(e);
+        }
+
+        try {
+            doIpFilterTest(localhost, "", true, false);
+            Assert.fail("The empty string ipFilterRules config should have thrown "
+                    + "an exception");
+        } catch (FlumeException e) {
+            exceptionChecker.accept(e);
+        }
+
+        try {
+            doIpFilterTest(localhost, "homer:ip:45.4.23.1", true, false);
+            Assert.fail("Bad ipFilterRules config should have thrown an exception.");
+        } catch (FlumeException e) {
+            exceptionChecker.accept(e);
+        }
+
+        try {
+            doIpFilterTest(localhost, "allow:sleeps:45.4.23.1", true, false);
+            Assert.fail("Bad ipFilterRules config should have thrown an exception.");
+        } catch (FlumeException e) {
+            exceptionChecker.accept(e);
+        }
+    }
+
+    public void doIpFilterTest(InetAddress dest, String ruleDefinition,
+                               boolean eventShouldBeAllowed, boolean testWithSSL)
+            throws InterruptedException, IOException {
+        Context context = new Context();
+        context.put("port", String.valueOf(selectedPort = getFreePort()));
+        context.put("bind", "0.0.0.0");
+        context.put("ipFilter", "true");
+        if (ruleDefinition != null) {
+            context.put("ipFilterRules", ruleDefinition);
+        }
+        if (testWithSSL) {
+            logger.info("Client testWithSSL" + testWithSSL);
+            context.put("ssl", "true");
+            context.put("keystore", "src/test/resources/server.p12");
+            context.put("keystore-password", "password");
+            context.put("keystore-type", "PKCS12");
+        }
+        // Invalid configuration may result in a FlumeException
+        Configurables.configure(source, context);
+        source.start();
+
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
+
+        AvroSourceProtocol client;
+        NettyTransceiver nettyTransceiver = null;
+        try {
+            if (testWithSSL) {
+                nettyTransceiver = new NettyTransceiver(
+                        new InetSocketAddress(dest, selectedPort),
+                        new SSLChannelFactory());
+                client = SpecificRequestor.getClient(
+                        AvroSourceProtocol.class, nettyTransceiver);
+            } else {
+                nettyTransceiver = new NettyTransceiver(
+                        new InetSocketAddress(dest, selectedPort));
+                client = SpecificRequestor.getClient(
+                        AvroSourceProtocol.class, nettyTransceiver);
+            }
+
+            AvroFlumeEvent avroEvent = new AvroFlumeEvent();
+            avroEvent.setHeaders(new HashMap<CharSequence, CharSequence>());
+            avroEvent.setBody(ByteBuffer.wrap("Hello avro ipFilter".getBytes()));
+
+            logger.info("Client about to append");
+            Status status = client.append(avroEvent);
+            logger.info("Client appended");
+            Assert.assertEquals(Status.OK, status);
+        } catch (IOException e) {
+            Assert.assertTrue("Should have been allowed: " + ruleDefinition,
+                    !eventShouldBeAllowed);
+            return;
+        } finally {
+            if (nettyTransceiver != null) {
+                nettyTransceiver.close();
+            }
+            source.stop();
+        }
+        Assert.assertTrue("Should have been denied: " + ruleDefinition,
+                eventShouldBeAllowed);
+
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Channel contained our event", "Hello avro ipFilter",
+                new String(event.getBody()));
+        transaction.commit();
+        transaction.close();
+        logger.debug("Round trip event:{}", event);
+
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
+    }
 }

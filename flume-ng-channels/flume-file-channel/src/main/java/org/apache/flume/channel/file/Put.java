@@ -38,107 +38,109 @@ import com.google.protobuf.ByteString;
  * Represents a Put on disk
  */
 class Put extends TransactionEventRecord {
-  private FlumeEvent event;
-  // Should we move this to a higher level to not make multiple instances?
-  // Doing that might cause performance issues, since access to this would
-  // need to be synchronized (the whole reset-update-getValue cycle would
-  // need to be).
-  private final Checksum checksum = new CRC32();
+    private FlumeEvent event;
+    // Should we move this to a higher level to not make multiple instances?
+    // Doing that might cause performance issues, since access to this would
+    // need to be synchronized (the whole reset-update-getValue cycle would
+    // need to be).
+    private final Checksum checksum = new CRC32();
 
-  @VisibleForTesting
-  Put(Long transactionID, Long logWriteOrderID) {
-    this(transactionID, logWriteOrderID, null);
-  }
+    @VisibleForTesting
+    Put(Long transactionID, Long logWriteOrderID) {
+        this(transactionID, logWriteOrderID, null);
+    }
 
-  Put(Long transactionID, Long logWriteOrderID, FlumeEvent event) {
-    super(transactionID, logWriteOrderID);
-    this.event = event;
-  }
+    Put(Long transactionID, Long logWriteOrderID, FlumeEvent event) {
+        super(transactionID, logWriteOrderID);
+        this.event = event;
+    }
 
-  FlumeEvent getEvent() {
-    return event;
-  }
+    FlumeEvent getEvent() {
+        return event;
+    }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    super.readFields(in);
-    event = FlumeEvent.from(in);
-  }
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        super.readFields(in);
+        event = FlumeEvent.from(in);
+    }
 
-  @Override
-  public void write(DataOutput out) throws IOException {
-    super.write(out);
-    event.write(out);
-  }
-  @Override
-  void writeProtos(OutputStream out) throws IOException {
-    ProtosFactory.Put.Builder putBuilder = ProtosFactory.Put.newBuilder();
-    ProtosFactory.FlumeEvent.Builder eventBuilder =
-        ProtosFactory.FlumeEvent.newBuilder();
-    Map<String, String> headers = event.getHeaders();
-    ProtosFactory.FlumeEventHeader.Builder headerBuilder =
-        ProtosFactory.FlumeEventHeader.newBuilder();
-    if (headers != null) {
-      for (String key : headers.keySet()) {
-        String value = headers.get(key);
-        headerBuilder.clear();
-        headerBuilder.setKey(key);
-        if (value != null) {
-          headerBuilder.setValue(value);
+    @Override
+    public void write(DataOutput out) throws IOException {
+        super.write(out);
+        event.write(out);
+    }
+
+    @Override
+    void writeProtos(OutputStream out) throws IOException {
+        ProtosFactory.Put.Builder putBuilder = ProtosFactory.Put.newBuilder();
+        ProtosFactory.FlumeEvent.Builder eventBuilder =
+                ProtosFactory.FlumeEvent.newBuilder();
+        Map<String, String> headers = event.getHeaders();
+        ProtosFactory.FlumeEventHeader.Builder headerBuilder =
+                ProtosFactory.FlumeEventHeader.newBuilder();
+        if (headers != null) {
+            for (String key : headers.keySet()) {
+                String value = headers.get(key);
+                headerBuilder.clear();
+                headerBuilder.setKey(key);
+                if (value != null) {
+                    headerBuilder.setValue(value);
+                }
+                eventBuilder.addHeaders(headerBuilder.build());
+            }
         }
-        eventBuilder.addHeaders(headerBuilder.build());
-      }
+        eventBuilder.setBody(ByteString.copyFrom(event.getBody()));
+        ProtosFactory.FlumeEvent protoEvent = eventBuilder.build();
+        putBuilder.setEvent(protoEvent);
+        putBuilder.setChecksum(calculateChecksum(event.getBody()));
+        putBuilder.build().writeDelimitedTo(out);
     }
-    eventBuilder.setBody(ByteString.copyFrom(event.getBody()));
-    ProtosFactory.FlumeEvent protoEvent = eventBuilder.build();
-    putBuilder.setEvent(protoEvent);
-    putBuilder.setChecksum(calculateChecksum(event.getBody()));
-    putBuilder.build().writeDelimitedTo(out);
-  }
-  @Override
-  void readProtos(InputStream in) throws IOException, CorruptEventException {
-    ProtosFactory.Put put = Preconditions.checkNotNull(
-        ProtosFactory.Put.parseDelimitedFrom(in), "Put cannot be null");
-    Map<String, String> headers = Maps.newHashMap();
-    ProtosFactory.FlumeEvent protosEvent = put.getEvent();
-    for (ProtosFactory.FlumeEventHeader header : protosEvent.getHeadersList()) {
-      headers.put(header.getKey(), header.getValue());
+
+    @Override
+    void readProtos(InputStream in) throws IOException, CorruptEventException {
+        ProtosFactory.Put put = Preconditions.checkNotNull(
+                ProtosFactory.Put.parseDelimitedFrom(in), "Put cannot be null");
+        Map<String, String> headers = Maps.newHashMap();
+        ProtosFactory.FlumeEvent protosEvent = put.getEvent();
+        for (ProtosFactory.FlumeEventHeader header : protosEvent.getHeadersList()) {
+            headers.put(header.getKey(), header.getValue());
+        }
+        byte[] eventBody = protosEvent.getBody().toByteArray();
+
+        if (put.hasChecksum()) {
+            long eventBodyChecksum = calculateChecksum(eventBody);
+            if (eventBodyChecksum != put.getChecksum()) {
+                throw new CorruptEventException("Expected checksum for event was " +
+                        eventBodyChecksum + " but the checksum of the event is " + put.getChecksum());
+            }
+        }
+        // TODO when we remove v2, remove FlumeEvent and use EventBuilder here
+        event = new FlumeEvent(headers, eventBody);
     }
-    byte[] eventBody = protosEvent.getBody().toByteArray();
 
-    if (put.hasChecksum()) {
-      long eventBodyChecksum = calculateChecksum(eventBody);
-      if (eventBodyChecksum != put.getChecksum()) {
-        throw new CorruptEventException("Expected checksum for event was " +
-          eventBodyChecksum + " but the checksum of the event is " + put.getChecksum());
-      }
+    protected long calculateChecksum(byte[] body) {
+        checksum.reset();
+        checksum.update(body, 0, body.length);
+        return checksum.getValue();
     }
-    // TODO when we remove v2, remove FlumeEvent and use EventBuilder here
-    event = new FlumeEvent(headers, eventBody);
-  }
 
-  protected long calculateChecksum(byte[] body) {
-    checksum.reset();
-    checksum.update(body, 0, body.length);
-    return checksum.getValue();
-  }
+    @Override
+    public short getRecordType() {
+        return Type.PUT.get();
+    }
 
-  @Override
-  public short getRecordType() {
-    return Type.PUT.get();
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Put [event=");
-    builder.append(event);
-    builder.append(", getLogWriteOrderID()=");
-    builder.append(getLogWriteOrderID());
-    builder.append(", getTransactionID()=");
-    builder.append(getTransactionID());
-    builder.append("]");
-    return builder.toString();
-  }
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Put [event=");
+        builder.append(event);
+        builder.append(", getLogWriteOrderID()=");
+        builder.append(getLogWriteOrderID());
+        builder.append(", getTransactionID()=");
+        builder.append(getTransactionID());
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

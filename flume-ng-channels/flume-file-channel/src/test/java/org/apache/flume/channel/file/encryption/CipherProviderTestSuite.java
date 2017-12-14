@@ -24,51 +24,51 @@ import com.google.common.base.Charsets;
 
 public class CipherProviderTestSuite {
 
-  private final CipherProvider.Encryptor encryptor;
-  private final CipherProvider.Decryptor decryptor;
+    private final CipherProvider.Encryptor encryptor;
+    private final CipherProvider.Decryptor decryptor;
 
-  public CipherProviderTestSuite(CipherProvider.Encryptor encryptor,
-      CipherProvider.Decryptor decryptor) {
-    this.encryptor = encryptor;
-    this.decryptor = decryptor;
-  }
-
-  public void test() throws Exception {
-    testBasic();
-    testEmpty();
-    testNullPlainText();
-    testNullCipherText();
-  }
-
-  public void testBasic() throws Exception {
-    String expected = "mn state fair is the place to be";
-    byte[] cipherText = encryptor.encrypt(expected.getBytes(Charsets.UTF_8));
-    byte[] clearText = decryptor.decrypt(cipherText);
-    Assert.assertEquals(expected, new String(clearText, Charsets.UTF_8));
-  }
-
-  public void testEmpty() throws Exception {
-    String expected = "";
-    byte[] cipherText = encryptor.encrypt(new byte[]{});
-    byte[] clearText = decryptor.decrypt(cipherText);
-    Assert.assertEquals(expected, new String(clearText));
-  }
-
-  public void testNullPlainText() throws Exception {
-    try {
-      encryptor.encrypt(null);
-      Assert.fail();
-    } catch (NullPointerException e) {
-      // expected
+    public CipherProviderTestSuite(CipherProvider.Encryptor encryptor,
+                                   CipherProvider.Decryptor decryptor) {
+        this.encryptor = encryptor;
+        this.decryptor = decryptor;
     }
-  }
 
-  public void testNullCipherText() throws Exception {
-    try {
-      decryptor.decrypt(null);
-      Assert.fail();
-    } catch (NullPointerException e) {
-      // expected
+    public void test() throws Exception {
+        testBasic();
+        testEmpty();
+        testNullPlainText();
+        testNullCipherText();
     }
-  }
+
+    public void testBasic() throws Exception {
+        String expected = "mn state fair is the place to be";
+        byte[] cipherText = encryptor.encrypt(expected.getBytes(Charsets.UTF_8));
+        byte[] clearText = decryptor.decrypt(cipherText);
+        Assert.assertEquals(expected, new String(clearText, Charsets.UTF_8));
+    }
+
+    public void testEmpty() throws Exception {
+        String expected = "";
+        byte[] cipherText = encryptor.encrypt(new byte[]{});
+        byte[] clearText = decryptor.decrypt(cipherText);
+        Assert.assertEquals(expected, new String(clearText));
+    }
+
+    public void testNullPlainText() throws Exception {
+        try {
+            encryptor.encrypt(null);
+            Assert.fail();
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
+
+    public void testNullCipherText() throws Exception {
+        try {
+            decryptor.decrypt(null);
+            Assert.fail();
+        } catch (NullPointerException e) {
+            // expected
+        }
+    }
 }

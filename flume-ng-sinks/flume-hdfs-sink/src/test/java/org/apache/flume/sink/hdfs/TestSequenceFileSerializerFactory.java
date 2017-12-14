@@ -25,34 +25,34 @@ import static org.junit.Assert.assertTrue;
 
 public class TestSequenceFileSerializerFactory {
 
-  @Test
-  public void getTextFormatter() {
-    SequenceFileSerializer formatter =
-        SequenceFileSerializerFactory.getSerializer("Text", new Context());
+    @Test
+    public void getTextFormatter() {
+        SequenceFileSerializer formatter =
+                SequenceFileSerializerFactory.getSerializer("Text", new Context());
 
-    assertTrue(formatter != null);
-    assertTrue(formatter.getClass().getName(),
-        formatter instanceof HDFSTextSerializer);
-  }
+        assertTrue(formatter != null);
+        assertTrue(formatter.getClass().getName(),
+                formatter instanceof HDFSTextSerializer);
+    }
 
-  @Test
-  public void getWritableFormatter() {
-    SequenceFileSerializer formatter =
-        SequenceFileSerializerFactory.getSerializer("Writable", new Context());
+    @Test
+    public void getWritableFormatter() {
+        SequenceFileSerializer formatter =
+                SequenceFileSerializerFactory.getSerializer("Writable", new Context());
 
-    assertTrue(formatter != null);
-    assertTrue(formatter.getClass().getName(),
-        formatter instanceof HDFSWritableSerializer);
-  }
+        assertTrue(formatter != null);
+        assertTrue(formatter.getClass().getName(),
+                formatter instanceof HDFSWritableSerializer);
+    }
 
-  @Test
-  public void getCustomFormatter() {
-    SequenceFileSerializer formatter = SequenceFileSerializerFactory.getSerializer(
-        "org.apache.flume.sink.hdfs.MyCustomSerializer$Builder", new Context());
+    @Test
+    public void getCustomFormatter() {
+        SequenceFileSerializer formatter = SequenceFileSerializerFactory.getSerializer(
+                "org.apache.flume.sink.hdfs.MyCustomSerializer$Builder", new Context());
 
-    assertTrue(formatter != null);
-    assertTrue(formatter.getClass().getName(),
-        formatter instanceof MyCustomSerializer);
-  }
+        assertTrue(formatter != null);
+        assertTrue(formatter.getClass().getName(),
+                formatter instanceof MyCustomSerializer);
+    }
 
 }

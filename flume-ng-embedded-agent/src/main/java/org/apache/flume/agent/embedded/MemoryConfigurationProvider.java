@@ -33,16 +33,16 @@ import org.apache.flume.node.AbstractConfigurationProvider;
 @InterfaceAudience.Private
 @InterfaceStability.Unstable
 class MemoryConfigurationProvider extends AbstractConfigurationProvider {
-  private final Map<String, String> properties;
+    private final Map<String, String> properties;
 
-  MemoryConfigurationProvider(String name, Map<String, String> properties) {
-    super(name);
-    this.properties = properties;
-  }
+    MemoryConfigurationProvider(String name, Map<String, String> properties) {
+        super(name);
+        this.properties = properties;
+    }
 
-  @Override
-  protected FlumeConfiguration getFlumeConfiguration() {
-    return new FlumeConfiguration(properties);
-  }
+    @Override
+    protected FlumeConfiguration getFlumeConfiguration() {
+        return new FlumeConfiguration(properties);
+    }
 
 }

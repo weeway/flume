@@ -119,11 +119,11 @@ import com.google.common.collect.Lists;
  */
 public class AvroSink extends AbstractRpcSink {
 
-  private static final Logger logger = LoggerFactory.getLogger(AvroSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(AvroSink.class);
 
-  @Override
-  protected RpcClient initializeRpcClient(Properties props) {
-    logger.info("Attempting to create Avro Rpc client.");
-    return RpcClientFactory.getInstance(props);
-  }
+    @Override
+    protected RpcClient initializeRpcClient(Properties props) {
+        logger.info("Attempting to create Avro Rpc client.");
+        return RpcClientFactory.getInstance(props);
+    }
 }

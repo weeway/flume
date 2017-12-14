@@ -28,22 +28,24 @@ import org.kitesdk.morphline.base.FaultTolerance;
  */
 public class MorphlineSolrSink extends MorphlineSink {
 
-  public MorphlineSolrSink() {
-    super();
-  }
-  
-  /** For testing only */
-  protected MorphlineSolrSink(MorphlineHandler handler) {
-    super(handler);
-  }
-
-  @Override
-  public void configure(Context context) {
-    if (context.getString(FaultTolerance.RECOVERABLE_EXCEPTION_CLASSES) == null) {
-      context.put(FaultTolerance.RECOVERABLE_EXCEPTION_CLASSES, 
-          "org.apache.solr.client.solrj.SolrServerException");      
+    public MorphlineSolrSink() {
+        super();
     }
-    super.configure(context);
-  }
+
+    /**
+     * For testing only
+     */
+    protected MorphlineSolrSink(MorphlineHandler handler) {
+        super(handler);
+    }
+
+    @Override
+    public void configure(Context context) {
+        if (context.getString(FaultTolerance.RECOVERABLE_EXCEPTION_CLASSES) == null) {
+            context.put(FaultTolerance.RECOVERABLE_EXCEPTION_CLASSES,
+                    "org.apache.solr.client.solrj.SolrServerException");
+        }
+        super.configure(context);
+    }
 
 }

@@ -20,5 +20,5 @@ package org.apache.flume.tools;
 
 public interface FlumeTool {
 
-  public void run(String[] args) throws Exception;
+    public void run(String[] args) throws Exception;
 }

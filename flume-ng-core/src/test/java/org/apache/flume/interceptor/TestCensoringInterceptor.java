@@ -21,7 +21,9 @@ package org.apache.flume.interceptor;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import java.util.Map;
+
 import org.apache.flume.Channel;
 import org.apache.flume.ChannelSelector;
 import org.apache.flume.Context;
@@ -38,49 +40,49 @@ import org.slf4j.LoggerFactory;
 
 public class TestCensoringInterceptor {
 
-  Logger logger =
-      LoggerFactory.getLogger(TestCensoringInterceptor.class);
+    Logger logger =
+            LoggerFactory.getLogger(TestCensoringInterceptor.class);
 
-  @Test
-  public void testCensor() {
+    @Test
+    public void testCensor() {
 
-    MemoryChannel memCh = new MemoryChannel();
-    memCh.configure(new Context());
-    memCh.start();
+        MemoryChannel memCh = new MemoryChannel();
+        memCh.configure(new Context());
+        memCh.start();
 
-    ChannelSelector cs = new ReplicatingChannelSelector();
-    cs.setChannels(Lists.<Channel>newArrayList(memCh));
-    ChannelProcessor cp = new ChannelProcessor(cs);
+        ChannelSelector cs = new ReplicatingChannelSelector();
+        cs.setChannels(Lists.<Channel>newArrayList(memCh));
+        ChannelProcessor cp = new ChannelProcessor(cs);
 
-    // source config
-    Map<String, String> cfgMap = Maps.newHashMap();
-    cfgMap.put("interceptors", "a");
-    String builderClass = CensoringInterceptor.Builder.class.getName();
-    cfgMap.put("interceptors.a.type", builderClass);
-    Context ctx = new Context(cfgMap);
+        // source config
+        Map<String, String> cfgMap = Maps.newHashMap();
+        cfgMap.put("interceptors", "a");
+        String builderClass = CensoringInterceptor.Builder.class.getName();
+        cfgMap.put("interceptors.a.type", builderClass);
+        Context ctx = new Context(cfgMap);
 
-    // setup
-    cp.configure(ctx);
-    cp.initialize();
+        // setup
+        cp.configure(ctx);
+        cp.initialize();
 
-    Map<String, String> headers = Maps.newHashMap();
-    String badWord = "scribe";
-    headers.put("Bad-Words", badWord);
-    Event event1 = EventBuilder.withBody("test", Charsets.UTF_8, headers);
-    Assert.assertEquals(badWord, event1.getHeaders().get("Bad-Words"));
-    cp.processEvent(event1);
+        Map<String, String> headers = Maps.newHashMap();
+        String badWord = "scribe";
+        headers.put("Bad-Words", badWord);
+        Event event1 = EventBuilder.withBody("test", Charsets.UTF_8, headers);
+        Assert.assertEquals(badWord, event1.getHeaders().get("Bad-Words"));
+        cp.processEvent(event1);
 
-    Transaction tx = memCh.getTransaction();
-    tx.begin();
+        Transaction tx = memCh.getTransaction();
+        tx.begin();
 
-    Event event1a = memCh.take();
-    Assert.assertNull(event1a.getHeaders().get("Bad-Words"));
+        Event event1a = memCh.take();
+        Assert.assertNull(event1a.getHeaders().get("Bad-Words"));
 
-    tx.commit();
-    tx.close();
+        tx.commit();
+        tx.close();
 
-    // cleanup / shutdown
-    cp.close();
-    memCh.stop();
-  }
+        // cleanup / shutdown
+        cp.close();
+        memCh.stop();
+    }
 }

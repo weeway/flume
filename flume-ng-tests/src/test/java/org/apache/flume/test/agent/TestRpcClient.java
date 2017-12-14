@@ -28,29 +28,29 @@ import org.junit.Test;
 
 public class TestRpcClient {
 
-  public static final String CONFIG_FILE_PRCCLIENT_TEST =
-      "rpc-client-test.properties";
-  private int port;
+    public static final String CONFIG_FILE_PRCCLIENT_TEST =
+            "rpc-client-test.properties";
+    private int port;
 
-  @Before
-  public void setUp() throws Exception {
-    port = StagedInstall.getInstance().startAgent(
-        "rpccagent", CONFIG_FILE_PRCCLIENT_TEST);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    StagedInstall.getInstance().stopAgent();
-  }
-
-  @Test
-  public void testRpcClient() throws Exception {
-    StagedInstall.waitUntilPortOpens("localhost", port, 20000);
-    RpcClient client = RpcClientFactory.getDefaultInstance("localhost", port);
-    String[] text = {"foo", "bar", "xyz", "abc"};
-    for (String str : text) {
-      client.append(EventBuilder.withBody(str.getBytes()));
+    @Before
+    public void setUp() throws Exception {
+        port = StagedInstall.getInstance().startAgent(
+                "rpccagent", CONFIG_FILE_PRCCLIENT_TEST);
     }
-  }
+
+    @After
+    public void tearDown() throws Exception {
+        StagedInstall.getInstance().stopAgent();
+    }
+
+    @Test
+    public void testRpcClient() throws Exception {
+        StagedInstall.waitUntilPortOpens("localhost", port, 20000);
+        RpcClient client = RpcClientFactory.getDefaultInstance("localhost", port);
+        String[] text = {"foo", "bar", "xyz", "abc"};
+        for (String str : text) {
+            client.append(EventBuilder.withBody(str.getBytes()));
+        }
+    }
 
 }

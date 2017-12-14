@@ -25,41 +25,41 @@ import org.apache.flume.Event;
 
 public class MockEvent implements Event {
 
-  private Map<String, String> headers;
+    private Map<String, String> headers;
 
-  private byte[] body;
+    private byte[] body;
 
-  public MockEvent() {
-    this(new HashMap<String, String>(), new byte[0]);
-  }
+    public MockEvent() {
+        this(new HashMap<String, String>(), new byte[0]);
+    }
 
-  public MockEvent(Map<String, String> headers, byte[] body) {
-    this.headers = new HashMap<String, String>();
-    this.headers.putAll(headers);
+    public MockEvent(Map<String, String> headers, byte[] body) {
+        this.headers = new HashMap<String, String>();
+        this.headers.putAll(headers);
 
-    this.body = new byte[body.length];
-    System.arraycopy(body, 0, this.body, 0, body.length);
-  }
+        this.body = new byte[body.length];
+        System.arraycopy(body, 0, this.body, 0, body.length);
+    }
 
-  @Override
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
+    @Override
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
-  @Override
-  public void setHeaders(Map<String, String> headers) {
-    this.headers = new HashMap<String, String>();
-    this.headers.putAll(headers);
-  }
+    @Override
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = new HashMap<String, String>();
+        this.headers.putAll(headers);
+    }
 
-  @Override
-  public byte[] getBody() {
-    return body;
-  }
+    @Override
+    public byte[] getBody() {
+        return body;
+    }
 
-  @Override
-  public void setBody(byte[] body) {
-    this.body = new byte[body.length];
-    System.arraycopy(body, 0, this.body, 0, body.length);
-  }
+    @Override
+    public void setBody(byte[] body) {
+        this.body = new byte[body.length];
+        System.arraycopy(body, 0, this.body, 0, body.length);
+    }
 }

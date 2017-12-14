@@ -30,9 +30,9 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public abstract class AbstractEventDrivenSource
-    extends BasicSourceSemantics
-    implements EventDrivenSource {
-  public AbstractEventDrivenSource() {
-    super();
-  }
+        extends BasicSourceSemantics
+        implements EventDrivenSource {
+    public AbstractEventDrivenSource() {
+        super();
+    }
 }

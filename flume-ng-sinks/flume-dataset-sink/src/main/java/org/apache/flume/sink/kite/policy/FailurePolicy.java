@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,57 +49,57 @@ import org.kitesdk.data.Syncable;
  */
 public interface FailurePolicy {
 
-  /**
-   * Handle a non-recoverable event.
-   *
-   * @param event The event
-   * @param cause The cause of the failure
-   * @throws EventDeliveryException The policy failed to handle the event. When
-   *                                this is thrown, the Flume transaction will
-   *                                be rolled back and the event will be retried
-   *                                along with the rest of the batch.
-   */
-  public void handle(Event event, Throwable cause)
-      throws EventDeliveryException;
-
-  /**
-   * Ensure any handled events are on stable storage.
-   *
-   * This allows the policy implementation to sync any data that it may not
-   * have fully handled.
-   *
-   * See {@link Syncable#sync()}.
-   *
-   * @throws EventDeliveryException The policy failed while syncing data.
-   *                                When this is thrown, the Flume transaction
-   *                                will be rolled back and the batch will be
-   *                                retried.
-   */
-  public void sync() throws EventDeliveryException;
-
-  /**
-   * Close this FailurePolicy and release any resources.
-   *
-   * @throws EventDeliveryException The policy failed while closing resources.
-   *                                When this is thrown, the Flume transaction
-   *                                will be rolled back and the batch will be
-   *                                retried.
-   */
-  public void close() throws EventDeliveryException;
-
-  /**
-   * Knows how to build {@code FailurePolicy}s. Implementers must provide a
-   * no-arg constructor.
-   */
-  public static interface Builder {
+    /**
+     * Handle a non-recoverable event.
+     *
+     * @param event The event
+     * @param cause The cause of the failure
+     * @throws EventDeliveryException The policy failed to handle the event. When
+     *                                this is thrown, the Flume transaction will
+     *                                be rolled back and the event will be retried
+     *                                along with the rest of the batch.
+     */
+    public void handle(Event event, Throwable cause)
+            throws EventDeliveryException;
 
     /**
-     * Build a new {@code FailurePolicy}
+     * Ensure any handled events are on stable storage.
      *
-     * @param config The Flume configuration context
-     * @return The {@code FailurePolicy}
+     * This allows the policy implementation to sync any data that it may not
+     * have fully handled.
+     *
+     * See {@link Syncable#sync()}.
+     *
+     * @throws EventDeliveryException The policy failed while syncing data.
+     *                                When this is thrown, the Flume transaction
+     *                                will be rolled back and the batch will be
+     *                                retried.
      */
-    FailurePolicy build(Context config);
-  }
+    public void sync() throws EventDeliveryException;
+
+    /**
+     * Close this FailurePolicy and release any resources.
+     *
+     * @throws EventDeliveryException The policy failed while closing resources.
+     *                                When this is thrown, the Flume transaction
+     *                                will be rolled back and the batch will be
+     *                                retried.
+     */
+    public void close() throws EventDeliveryException;
+
+    /**
+     * Knows how to build {@code FailurePolicy}s. Implementers must provide a
+     * no-arg constructor.
+     */
+    public static interface Builder {
+
+        /**
+         * Build a new {@code FailurePolicy}
+         *
+         * @param config The Flume configuration context
+         * @return The {@code FailurePolicy}
+         */
+        FailurePolicy build(Context config);
+    }
 
 }

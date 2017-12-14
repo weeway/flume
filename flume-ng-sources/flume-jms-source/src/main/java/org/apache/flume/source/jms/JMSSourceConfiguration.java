@@ -19,51 +19,51 @@ package org.apache.flume.source.jms;
 
 public class JMSSourceConfiguration {
 
-  public static final String INITIAL_CONTEXT_FACTORY = "initialContextFactory";
+    public static final String INITIAL_CONTEXT_FACTORY = "initialContextFactory";
 
-  public static final String CONNECTION_FACTORY = "connectionFactory";
-  public static final String CONNECTION_FACTORY_DEFAULT = "ConnectionFactory";
+    public static final String CONNECTION_FACTORY = "connectionFactory";
+    public static final String CONNECTION_FACTORY_DEFAULT = "ConnectionFactory";
 
-  public static final String PROVIDER_URL = "providerURL";
+    public static final String PROVIDER_URL = "providerURL";
 
-  public static final String DESTINATION_NAME = "destinationName";
+    public static final String DESTINATION_NAME = "destinationName";
 
-  public static final String DESTINATION_TYPE = "destinationType";
-  public static final String DESTINATION_LOCATOR = "destinationLocator";
-  public static final String DESTINATION_LOCATOR_DEFAULT = "CDI";
+    public static final String DESTINATION_TYPE = "destinationType";
+    public static final String DESTINATION_LOCATOR = "destinationLocator";
+    public static final String DESTINATION_LOCATOR_DEFAULT = "CDI";
 
-  public static final String DESTINATION_TYPE_QUEUE = "queue";
-  public static final String DESTINATION_TYPE_TOPIC = "topic";
+    public static final String DESTINATION_TYPE_QUEUE = "queue";
+    public static final String DESTINATION_TYPE_TOPIC = "topic";
 
-  public static final String MESSAGE_SELECTOR = "messageSelector";
+    public static final String MESSAGE_SELECTOR = "messageSelector";
 
-  public static final String CLIENT_ID = "clientId";
+    public static final String CLIENT_ID = "clientId";
 
-  public static final String USERNAME = "userName";
+    public static final String USERNAME = "userName";
 
-  public static final String PASSWORD_FILE = "passwordFile";
+    public static final String PASSWORD_FILE = "passwordFile";
 
-  public static final String BATCH_SIZE = "batchSize";
-  public static final int BATCH_SIZE_DEFAULT = 100;
+    public static final String BATCH_SIZE = "batchSize";
+    public static final int BATCH_SIZE_DEFAULT = 100;
 
-  public static final String ERROR_THRESHOLD = "errorThreshold";
-  public static final int ERROR_THRESHOLD_DEFAULT = 10;
+    public static final String ERROR_THRESHOLD = "errorThreshold";
+    public static final int ERROR_THRESHOLD_DEFAULT = 10;
 
-  public static final String POLL_TIMEOUT = "pollTimeout";
-  public static final long POLL_TIMEOUT_DEFAULT = 1000L;
+    public static final String POLL_TIMEOUT = "pollTimeout";
+    public static final long POLL_TIMEOUT_DEFAULT = 1000L;
 
-  public static final String CONVERTER = "converter";
+    public static final String CONVERTER = "converter";
 
-  public static final String CONVERTER_TYPE = CONVERTER + ".type";
-  public static final String CONVERTER_TYPE_DEFAULT = "DEFAULT";
+    public static final String CONVERTER_TYPE = CONVERTER + ".type";
+    public static final String CONVERTER_TYPE_DEFAULT = "DEFAULT";
 
-  public static final String CONVERTER_CHARSET = CONVERTER + ".charset";
-  public static final String CONVERTER_CHARSET_DEFAULT = "UTF-8";
+    public static final String CONVERTER_CHARSET = CONVERTER + ".charset";
+    public static final String CONVERTER_CHARSET_DEFAULT = "UTF-8";
 
-  public static final String CREATE_DURABLE_SUBSCRIPTION = "createDurableSubscription";
-  public static final boolean DEFAULT_CREATE_DURABLE_SUBSCRIPTION = false;
+    public static final String CREATE_DURABLE_SUBSCRIPTION = "createDurableSubscription";
+    public static final boolean DEFAULT_CREATE_DURABLE_SUBSCRIPTION = false;
 
-  public static final String DURABLE_SUBSCRIPTION_NAME = "durableSubscriptionName";
-  public static final String DEFAULT_DURABLE_SUBSCRIPTION_NAME = "";
+    public static final String DURABLE_SUBSCRIPTION_NAME = "durableSubscriptionName";
+    public static final String DEFAULT_DURABLE_SUBSCRIPTION_NAME = "";
 
 }

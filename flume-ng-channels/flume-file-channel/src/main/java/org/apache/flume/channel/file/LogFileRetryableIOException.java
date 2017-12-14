@@ -21,17 +21,17 @@ package org.apache.flume.channel.file;
 import java.io.IOException;
 
 public class LogFileRetryableIOException extends IOException {
-  private static final long serialVersionUID = -2747112999806160431L;
+    private static final long serialVersionUID = -2747112999806160431L;
 
-  public LogFileRetryableIOException() {
-    super();
-  }
+    public LogFileRetryableIOException() {
+        super();
+    }
 
-  public LogFileRetryableIOException(String msg) {
-    super(msg);
-  }
+    public LogFileRetryableIOException(String msg) {
+        super(msg);
+    }
 
-  public LogFileRetryableIOException(String msg, Throwable t) {
-    super(msg, t);
-  }
+    public LogFileRetryableIOException(String msg, Throwable t) {
+        super(msg, t);
+    }
 }

@@ -17,15 +17,15 @@
 
 -->
 <Configuration status="OFF">
-  <Appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d (%t) [%p - %l] %m%n" />
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Root level="INFO">
-      <Logger name="org.apache.flume" level="DEBUG"/>
-      <AppenderRef ref="Console" />
-    </Root>
-  </Loggers>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d (%t) [%p - %l] %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <Logger name="org.apache.flume" level="DEBUG"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
 </Configuration>

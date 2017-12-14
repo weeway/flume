@@ -28,46 +28,46 @@ import org.apache.flume.Transaction;
 
 public class MockChannel extends AbstractChannel {
 
-  private List<Event> events = new ArrayList<Event>();
+    private List<Event> events = new ArrayList<Event>();
 
-  public static Channel createMockChannel(String name) {
-    Channel ch = new MockChannel();
-    ch.setName(name);
-    return ch;
-  }
-
-  @Override
-  public void put(Event event) throws ChannelException {
-    events.add(event);
-  }
-
-  @Override
-  public Event take() throws ChannelException {
-    return (events.size() > 0) ? events.get(0) : null;
-  }
-
-  @Override
-  public Transaction getTransaction() {
-    return new MockTransaction();
-  }
-
-  private static class MockTransaction implements Transaction {
-
-    @Override
-    public void begin() {
+    public static Channel createMockChannel(String name) {
+        Channel ch = new MockChannel();
+        ch.setName(name);
+        return ch;
     }
 
     @Override
-    public void commit() {
+    public void put(Event event) throws ChannelException {
+        events.add(event);
     }
 
     @Override
-    public void rollback() {
+    public Event take() throws ChannelException {
+        return (events.size() > 0) ? events.get(0) : null;
     }
 
     @Override
-    public void close() {
+    public Transaction getTransaction() {
+        return new MockTransaction();
     }
-  }
+
+    private static class MockTransaction implements Transaction {
+
+        @Override
+        public void begin() {
+        }
+
+        @Override
+        public void commit() {
+        }
+
+        @Override
+        public void rollback() {
+        }
+
+        @Override
+        public void close() {
+        }
+    }
 
 }

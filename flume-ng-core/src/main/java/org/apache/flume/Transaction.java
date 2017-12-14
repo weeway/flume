@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,40 +52,40 @@ import org.apache.flume.channel.BasicTransactionSemantics;
  */
 public interface Transaction {
 
-  enum TransactionState { Started, Committed, RolledBack, Closed }
+    enum TransactionState {Started, Committed, RolledBack, Closed}
 
-  /**
-   * <p>Starts a transaction boundary for the current channel operation. If a
-   * transaction is already in progress, this method will join that transaction
-   * using reference counting.</p>
-   * <p><strong>Note</strong>: For every invocation of this method there must
-   * be a corresponding invocation of {@linkplain #close()} method. Failure
-   * to ensure this can lead to dangling transactions and unpredictable results.
-   * </p>
-   */
-  void begin();
+    /**
+     * <p>Starts a transaction boundary for the current channel operation. If a
+     * transaction is already in progress, this method will join that transaction
+     * using reference counting.</p>
+     * <p><strong>Note</strong>: For every invocation of this method there must
+     * be a corresponding invocation of {@linkplain #close()} method. Failure
+     * to ensure this can lead to dangling transactions and unpredictable results.
+     * </p>
+     */
+    void begin();
 
-  /**
-   * Indicates that the transaction can be successfully committed. It is
-   * required that a transaction be in progress when this method is invoked.
-   */
-  void commit();
+    /**
+     * Indicates that the transaction can be successfully committed. It is
+     * required that a transaction be in progress when this method is invoked.
+     */
+    void commit();
 
-  /**
-   * Indicates that the transaction can must be aborted. It is
-   * required that a transaction be in progress when this method is invoked.
-   */
-  void rollback();
+    /**
+     * Indicates that the transaction can must be aborted. It is
+     * required that a transaction be in progress when this method is invoked.
+     */
+    void rollback();
 
-  /**
-   * <p>Ends a transaction boundary for the current channel operation. If a
-   * transaction is already in progress, this method will join that transaction
-   * using reference counting. The transaction is completed only if there
-   * are no more references left for this transaction.</p>
-   * <p><strong>Note</strong>: For every invocation of this method there must
-   * be a corresponding invocation of {@linkplain #begin()} method. Failure
-   * to ensure this can lead to dangling transactions and unpredictable results.
-   * </p>
-   */
-  void close();
+    /**
+     * <p>Ends a transaction boundary for the current channel operation. If a
+     * transaction is already in progress, this method will join that transaction
+     * using reference counting. The transaction is completed only if there
+     * are no more references left for this transaction.</p>
+     * <p><strong>Note</strong>: For every invocation of this method there must
+     * be a corresponding invocation of {@linkplain #begin()} method. Failure
+     * to ensure this can lead to dangling transactions and unpredictable results.
+     * </p>
+     */
+    void close();
 }

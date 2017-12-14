@@ -44,107 +44,109 @@ import java.util.Map;
 
 public class TestHTTPMetricsServer {
 
-  Channel memChannel = new MemoryChannel();
-  Channel pmemChannel = new PseudoTxnMemoryChannel();
-  Type mapType = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-  Gson gson = new Gson();
+    Channel memChannel = new MemoryChannel();
+    Channel pmemChannel = new PseudoTxnMemoryChannel();
+    Type mapType = new TypeToken<Map<String, Map<String, String>>>() {
+    }.getType();
+    Gson gson = new Gson();
 
-  private static int getFreePort() throws Exception {
-    try (ServerSocket socket = new ServerSocket(0)) {
-      return socket.getLocalPort();
+    private static int getFreePort() throws Exception {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        }
     }
-  }
 
-  @Test
-  public void testJSON() throws Exception {
-    memChannel.setName("memChannel");
-    pmemChannel.setName("pmemChannel");
-    Context c = new Context();
-    Configurables.configure(memChannel, c);
-    Configurables.configure(pmemChannel, c);
-    memChannel.start();
-    pmemChannel.start();
-    Transaction txn = memChannel.getTransaction();
-    txn.begin();
-    memChannel.put(EventBuilder.withBody("blah".getBytes()));
-    memChannel.put(EventBuilder.withBody("blah".getBytes()));
-    txn.commit();
-    txn.close();
+    @Test
+    public void testJSON() throws Exception {
+        memChannel.setName("memChannel");
+        pmemChannel.setName("pmemChannel");
+        Context c = new Context();
+        Configurables.configure(memChannel, c);
+        Configurables.configure(pmemChannel, c);
+        memChannel.start();
+        pmemChannel.start();
+        Transaction txn = memChannel.getTransaction();
+        txn.begin();
+        memChannel.put(EventBuilder.withBody("blah".getBytes()));
+        memChannel.put(EventBuilder.withBody("blah".getBytes()));
+        txn.commit();
+        txn.close();
 
-    txn = memChannel.getTransaction();
-    txn.begin();
-    memChannel.take();
-    txn.commit();
-    txn.close();
+        txn = memChannel.getTransaction();
+        txn.begin();
+        memChannel.take();
+        txn.commit();
+        txn.close();
 
 
-    Transaction txn2 = pmemChannel.getTransaction();
-    txn2.begin();
-    pmemChannel.put(EventBuilder.withBody("blah".getBytes()));
-    pmemChannel.put(EventBuilder.withBody("blah".getBytes()));
-    txn2.commit();
-    txn2.close();
+        Transaction txn2 = pmemChannel.getTransaction();
+        txn2.begin();
+        pmemChannel.put(EventBuilder.withBody("blah".getBytes()));
+        pmemChannel.put(EventBuilder.withBody("blah".getBytes()));
+        txn2.commit();
+        txn2.close();
 
-    txn2 = pmemChannel.getTransaction();
-    txn2.begin();
-    pmemChannel.take();
-    txn2.commit();
-    txn2.close();
+        txn2 = pmemChannel.getTransaction();
+        txn2.begin();
+        pmemChannel.take();
+        txn2.commit();
+        txn2.close();
 
-    testWithPort(getFreePort());
-    memChannel.stop();
-    pmemChannel.stop();
-  }
-
-  private void testWithPort(int port) throws Exception {
-    MonitorService srv = new HTTPMetricsServer();
-    Context context = new Context();
-    context.put(HTTPMetricsServer.CONFIG_PORT, String.valueOf(port));
-    srv.configure(context);
-    srv.start();
-    Thread.sleep(1000);
-    URL url = new URL("http://0.0.0.0:" + String.valueOf(port) + "/metrics");
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.setRequestMethod("GET");
-    BufferedReader reader = new BufferedReader(
-            new InputStreamReader(conn.getInputStream()));
-    String line;
-    String result = "";
-    while ((line = reader.readLine()) != null) {
-      result += line;
+        testWithPort(getFreePort());
+        memChannel.stop();
+        pmemChannel.stop();
     }
-    reader.close();
-    Map<String, Map<String, String>> mbeans = gson.fromJson(result, mapType);
-    Assert.assertNotNull(mbeans);
-    Map<String, String> memBean = mbeans.get("CHANNEL.memChannel");
-    Assert.assertNotNull(memBean);
-    JMXTestUtils.checkChannelCounterParams(memBean);
-    Map<String, String> pmemBean = mbeans.get("CHANNEL.pmemChannel");
-    Assert.assertNotNull(pmemBean);
-    JMXTestUtils.checkChannelCounterParams(pmemBean);
-    srv.stop();
-  }
 
-  @Test
-  public void testTrace() throws Exception {
-    doTestForbiddenMethods(getFreePort(),"TRACE");
-  }
-  @Test
-  public void testOptions() throws Exception {
-    doTestForbiddenMethods(getFreePort(),"OPTIONS");
-  }
+    private void testWithPort(int port) throws Exception {
+        MonitorService srv = new HTTPMetricsServer();
+        Context context = new Context();
+        context.put(HTTPMetricsServer.CONFIG_PORT, String.valueOf(port));
+        srv.configure(context);
+        srv.start();
+        Thread.sleep(1000);
+        URL url = new URL("http://0.0.0.0:" + String.valueOf(port) + "/metrics");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream()));
+        String line;
+        String result = "";
+        while ((line = reader.readLine()) != null) {
+            result += line;
+        }
+        reader.close();
+        Map<String, Map<String, String>> mbeans = gson.fromJson(result, mapType);
+        Assert.assertNotNull(mbeans);
+        Map<String, String> memBean = mbeans.get("CHANNEL.memChannel");
+        Assert.assertNotNull(memBean);
+        JMXTestUtils.checkChannelCounterParams(memBean);
+        Map<String, String> pmemBean = mbeans.get("CHANNEL.pmemChannel");
+        Assert.assertNotNull(pmemBean);
+        JMXTestUtils.checkChannelCounterParams(pmemBean);
+        srv.stop();
+    }
 
-  public void doTestForbiddenMethods(int port, String method) throws Exception {
-    MonitorService srv = new HTTPMetricsServer();
-    Context context = new Context();
-    context.put(HTTPMetricsServer.CONFIG_PORT, String.valueOf(port));
-    srv.configure(context);
-    srv.start();
-    Thread.sleep(1000);
-    URL url = new URL("http://0.0.0.0:" + String.valueOf(port) + "/metrics");
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.setRequestMethod(method);
-    Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, conn.getResponseCode());
-    srv.stop();
-  }
+    @Test
+    public void testTrace() throws Exception {
+        doTestForbiddenMethods(getFreePort(), "TRACE");
+    }
+
+    @Test
+    public void testOptions() throws Exception {
+        doTestForbiddenMethods(getFreePort(), "OPTIONS");
+    }
+
+    public void doTestForbiddenMethods(int port, String method) throws Exception {
+        MonitorService srv = new HTTPMetricsServer();
+        Context context = new Context();
+        context.put(HTTPMetricsServer.CONFIG_PORT, String.valueOf(port));
+        srv.configure(context);
+        srv.start();
+        Thread.sleep(1000);
+        URL url = new URL("http://0.0.0.0:" + String.valueOf(port) + "/metrics");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod(method);
+        Assert.assertEquals(HttpServletResponse.SC_FORBIDDEN, conn.getResponseCode());
+        srv.stop();
+    }
 }

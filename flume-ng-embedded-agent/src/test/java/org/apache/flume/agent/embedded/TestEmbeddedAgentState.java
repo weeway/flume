@@ -27,99 +27,99 @@ import org.junit.Test;
 import java.util.Map;
 
 public class TestEmbeddedAgentState {
-  private static final String HOSTNAME = "localhost";
-  private EmbeddedAgent agent;
-  private Map<String, String> properties;
+    private static final String HOSTNAME = "localhost";
+    private EmbeddedAgent agent;
+    private Map<String, String> properties;
 
-  @Before
-  public void setUp() throws Exception {
-    agent = new EmbeddedAgent("dummy");
-    properties = Maps.newHashMap();
-    properties.put("source.type", EmbeddedAgentConfiguration.SOURCE_TYPE_EMBEDDED);
-    properties.put("channel.type", "memory");
-    properties.put("sinks", "sink1 sink2");
-    properties.put("sink1.type", "avro");
-    properties.put("sink2.type", "avro");
-    properties.put("sink1.hostname", HOSTNAME);
-    properties.put("sink1.port", "0");
-    properties.put("sink2.hostname", HOSTNAME);
-    properties.put("sink2.port", "0");
-    properties.put("processor.type", "load_balance");
-  }
-
-  @Test(expected = FlumeException.class)
-  public void testConfigureWithBadSourceType() {
-    properties.put(EmbeddedAgentConfiguration.SOURCE_TYPE, "bad");
-    agent.configure(properties);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testConfigureWhileStarted() {
-    try {
-      agent.configure(properties);
-      agent.start();
-    } catch (Exception e) {
-      Throwables.propagate(e);
+    @Before
+    public void setUp() throws Exception {
+        agent = new EmbeddedAgent("dummy");
+        properties = Maps.newHashMap();
+        properties.put("source.type", EmbeddedAgentConfiguration.SOURCE_TYPE_EMBEDDED);
+        properties.put("channel.type", "memory");
+        properties.put("sinks", "sink1 sink2");
+        properties.put("sink1.type", "avro");
+        properties.put("sink2.type", "avro");
+        properties.put("sink1.hostname", HOSTNAME);
+        properties.put("sink1.port", "0");
+        properties.put("sink2.hostname", HOSTNAME);
+        properties.put("sink2.port", "0");
+        properties.put("processor.type", "load_balance");
     }
-    agent.configure(properties);
-  }
 
-  @Test
-  public void testConfigureMultipleTimes() {
-    agent.configure(properties);
-    agent.configure(properties);
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testStartWhileStarted() {
-    try {
-      agent.configure(properties);
-      agent.start();
-    } catch (Exception e) {
-      Throwables.propagate(e);
+    @Test(expected = FlumeException.class)
+    public void testConfigureWithBadSourceType() {
+        properties.put(EmbeddedAgentConfiguration.SOURCE_TYPE, "bad");
+        agent.configure(properties);
     }
-    agent.start();
-  }
 
-  @Test(expected = IllegalStateException.class)
-  public void testStartUnconfigured() {
-    agent.start();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testStopBeforeConfigure() {
-    agent.stop();
-  }
-
-  @Test(expected = IllegalStateException.class)
-  public void testStoppedWhileStopped() {
-    try {
-      agent.configure(properties);
-    } catch (Exception e) {
-      Throwables.propagate(e);
+    @Test(expected = IllegalStateException.class)
+    public void testConfigureWhileStarted() {
+        try {
+            agent.configure(properties);
+            agent.start();
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        agent.configure(properties);
     }
-    agent.stop();
-  }
 
-  @Test(expected = IllegalStateException.class)
-  public void testStopAfterStop() {
-    try {
-      agent.configure(properties);
-      agent.start();
-      agent.stop();
-    } catch (Exception e) {
-      Throwables.propagate(e);
+    @Test
+    public void testConfigureMultipleTimes() {
+        agent.configure(properties);
+        agent.configure(properties);
     }
-    agent.stop();
-  }
 
-  @Test(expected = IllegalStateException.class)
-  public void testStopAfterConfigure() {
-    try {
-      agent.configure(properties);
-    } catch (Exception e) {
-      Throwables.propagate(e);
+    @Test(expected = IllegalStateException.class)
+    public void testStartWhileStarted() {
+        try {
+            agent.configure(properties);
+            agent.start();
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        agent.start();
     }
-    agent.stop();
-  }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStartUnconfigured() {
+        agent.start();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStopBeforeConfigure() {
+        agent.stop();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStoppedWhileStopped() {
+        try {
+            agent.configure(properties);
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        agent.stop();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStopAfterStop() {
+        try {
+            agent.configure(properties);
+            agent.start();
+            agent.stop();
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        agent.stop();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testStopAfterConfigure() {
+        try {
+            agent.configure(properties);
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        agent.stop();
+    }
 }

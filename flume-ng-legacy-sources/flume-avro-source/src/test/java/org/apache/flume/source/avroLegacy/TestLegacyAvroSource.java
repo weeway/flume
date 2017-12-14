@@ -52,106 +52,106 @@ import java.util.List;
 
 public class TestLegacyAvroSource {
 
-  @SuppressWarnings("unused")
-  private static final Logger logger = LoggerFactory
-      .getLogger(TestLegacyAvroSource.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger = LoggerFactory
+            .getLogger(TestLegacyAvroSource.class);
 
-  private int selectedPort;
-  private AvroLegacySource source;
-  private Channel channel;
+    private int selectedPort;
+    private AvroLegacySource source;
+    private Channel channel;
 
-  @Before
-  public void setUp() throws Exception {
-    source = new AvroLegacySource();
-    channel = new MemoryChannel();
+    @Before
+    public void setUp() throws Exception {
+        source = new AvroLegacySource();
+        channel = new MemoryChannel();
 
-    Configurables.configure(channel, new Context());
+        Configurables.configure(channel, new Context());
 
-    List<Channel> channels = new ArrayList<Channel>();
-    channels.add(channel);
+        List<Channel> channels = new ArrayList<Channel>();
+        channels.add(channel);
 
-    ChannelSelector rcs = new ReplicatingChannelSelector();
-    rcs.setChannels(channels);
+        ChannelSelector rcs = new ReplicatingChannelSelector();
+        rcs.setChannels(channels);
 
-    source.setChannelProcessor(new ChannelProcessor(rcs));
+        source.setChannelProcessor(new ChannelProcessor(rcs));
 
-    try (ServerSocket socket = new ServerSocket(0)) {
-      selectedPort = socket.getLocalPort();
+        try (ServerSocket socket = new ServerSocket(0)) {
+            selectedPort = socket.getLocalPort();
+        }
+
     }
 
-  }
+    @Test
+    public void testLifecycle() throws InterruptedException {
+        Context context = new Context();
 
-  @Test
-  public void testLifecycle() throws InterruptedException {
-    Context context = new Context();
+        context.put("port", String.valueOf(selectedPort));
+        context.put("host", "0.0.0.0");
 
-    context.put("port", String.valueOf(selectedPort));
-    context.put("host", "0.0.0.0");
+        Configurables.configure(source, context);
 
-    Configurables.configure(source, context);
+        source.start();
 
-    source.start();
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
 
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
+        source.stop();
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
+    }
 
-    source.stop();
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
+    @Test
+    public void testRequest() throws InterruptedException, IOException {
+        Context context = new Context();
 
-  @Test
-  public void testRequest() throws InterruptedException, IOException {
-    Context context = new Context();
+        context.put("port", String.valueOf(selectedPort));
+        context.put("host", "0.0.0.0");
 
-    context.put("port", String.valueOf(selectedPort));
-    context.put("host", "0.0.0.0");
+        Configurables.configure(source, context);
 
-    Configurables.configure(source, context);
+        source.start();
 
-    source.start();
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
 
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-        source.getLifecycleState());
+        // setup a requester, to send a flume OG event
+        URL url = new URL("http", "0.0.0.0", selectedPort, "/");
+        Transceiver http = new HttpTransceiver(url);
+        FlumeOGEventAvroServer client = SpecificRequestor.getClient(
+                FlumeOGEventAvroServer.class, http);
 
-    // setup a requester, to send a flume OG event
-    URL url = new URL("http", "0.0.0.0", selectedPort, "/");
-    Transceiver http = new HttpTransceiver(url);
-    FlumeOGEventAvroServer client = SpecificRequestor.getClient(
-        FlumeOGEventAvroServer.class, http);
+        AvroFlumeOGEvent avroEvent = AvroFlumeOGEvent.newBuilder().setHost("foo")
+                .setPriority(Priority.INFO).setNanos(0).setTimestamp(1)
+                .setFields(new HashMap<CharSequence, ByteBuffer>())
+                .setBody(ByteBuffer.wrap("foo".getBytes())).build();
 
-    AvroFlumeOGEvent avroEvent = AvroFlumeOGEvent.newBuilder().setHost("foo")
-        .setPriority(Priority.INFO).setNanos(0).setTimestamp(1)
-        .setFields(new HashMap<CharSequence, ByteBuffer>())
-        .setBody(ByteBuffer.wrap("foo".getBytes())).build();
+        client.append(avroEvent);
 
-    client.append(avroEvent);
+        // check if the even has arrived in the channel through OG avro source
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
 
-    // check if the even has arrived in the channel through OG avro source
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Channel contained our event", "foo",
+                new String(event.getBody()));
+        transaction.commit();
+        transaction.close();
 
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Channel contained our event", "foo",
-        new String(event.getBody()));
-    transaction.commit();
-    transaction.close();
+        source.stop();
 
-    source.stop();
-
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
+    }
 
 }

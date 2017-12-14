@@ -26,13 +26,13 @@ import org.apache.hadoop.hbase.client.Row;
 
 class MockSimpleHbaseEventSerializer extends SimpleHbaseEventSerializer {
 
-  public static boolean throwException = false;
+    public static boolean throwException = false;
 
-  @Override
-  public List<Row> getActions() throws FlumeException {
-    if (throwException) {
-      throw new FlumeException("Exception for testing");
+    @Override
+    public List<Row> getActions() throws FlumeException {
+        if (throwException) {
+            throw new FlumeException("Exception for testing");
+        }
+        return super.getActions();
     }
-    return super.getActions();
-  }
 }

@@ -22,22 +22,22 @@ import org.apache.avro.file.CodecFactory;
 
 public class AvroEventSerializerConfigurationConstants {
 
-  /**
-   * Avro sync interval, in approximate bytes
-   */
-  public static final String SYNC_INTERVAL_BYTES = "syncIntervalBytes";
-  public static final int DEFAULT_SYNC_INTERVAL_BYTES = 2048000; // 2MB
+    /**
+     * Avro sync interval, in approximate bytes
+     */
+    public static final String SYNC_INTERVAL_BYTES = "syncIntervalBytes";
+    public static final int DEFAULT_SYNC_INTERVAL_BYTES = 2048000; // 2MB
 
-  /**
-   * Avro compression codec. For supported codecs, see Avro's
-   * {@link CodecFactory} class.
-   */
-  public static final String COMPRESSION_CODEC = "compressionCodec";
-  public static final String DEFAULT_COMPRESSION_CODEC = "null"; // no codec
+    /**
+     * Avro compression codec. For supported codecs, see Avro's
+     * {@link CodecFactory} class.
+     */
+    public static final String COMPRESSION_CODEC = "compressionCodec";
+    public static final String DEFAULT_COMPRESSION_CODEC = "null"; // no codec
 
-  /**
-   * Avro static Schema URL
-   */
-  public static final String STATIC_SCHEMA_URL = "schemaURL";
-  public static final String DEFAULT_STATIC_SCHEMA_URL = null;
+    /**
+     * Avro static Schema URL
+     */
+    public static final String STATIC_SCHEMA_URL = "schemaURL";
+    public static final String DEFAULT_STATIC_SCHEMA_URL = null;
 }

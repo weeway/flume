@@ -28,67 +28,67 @@ import org.apache.flume.channel.ReplicatingChannelSelector;
 import com.google.common.collect.Lists;
 
 public class CountingSourceRunner extends Thread {
-  private int count;
-  private final int until;
-  private final PollableSource source;
-  private volatile boolean run;
-  private final List<Exception> errors = Lists.newArrayList();
+    private int count;
+    private final int until;
+    private final PollableSource source;
+    private volatile boolean run;
+    private final List<Exception> errors = Lists.newArrayList();
 
-  public CountingSourceRunner(PollableSource source) {
-    this(source, Integer.MAX_VALUE);
-  }
-
-  public CountingSourceRunner(PollableSource source, int until) {
-    this(source, until, null);
-  }
-
-  public CountingSourceRunner(PollableSource source, Channel channel) {
-    this(source, Integer.MAX_VALUE, channel);
-  }
-
-  public CountingSourceRunner(PollableSource source, int until, Channel channel) {
-    this.source = source;
-    this.until = until;
-    if (channel != null) {
-      ReplicatingChannelSelector selector = new ReplicatingChannelSelector();
-      List<Channel> channels = Lists.newArrayList();
-      channels.add(channel);
-      selector.setChannels(channels);
-      this.source.setChannelProcessor(new ChannelProcessor(selector));
+    public CountingSourceRunner(PollableSource source) {
+        this(source, Integer.MAX_VALUE);
     }
-  }
 
-  @Override
-  public void run() {
-    run = true;
-    while (run && count < until) {
-      boolean error = true;
-      try {
-        if (PollableSource.Status.READY.equals(source.process())) {
-          count++;
-          error = false;
-        }
-      } catch (Exception ex) {
-        errors.add(ex);
-      }
-      if (error) {
-        try {
-          Thread.sleep(1000L);
-        } catch (InterruptedException e) {
-        }
-      }
+    public CountingSourceRunner(PollableSource source, int until) {
+        this(source, until, null);
     }
-  }
 
-  public void shutdown() {
-    run = false;
-  }
+    public CountingSourceRunner(PollableSource source, Channel channel) {
+        this(source, Integer.MAX_VALUE, channel);
+    }
 
-  public int getCount() {
-    return count;
-  }
+    public CountingSourceRunner(PollableSource source, int until, Channel channel) {
+        this.source = source;
+        this.until = until;
+        if (channel != null) {
+            ReplicatingChannelSelector selector = new ReplicatingChannelSelector();
+            List<Channel> channels = Lists.newArrayList();
+            channels.add(channel);
+            selector.setChannels(channels);
+            this.source.setChannelProcessor(new ChannelProcessor(selector));
+        }
+    }
 
-  public List<Exception> getErrors() {
-    return errors;
-  }
+    @Override
+    public void run() {
+        run = true;
+        while (run && count < until) {
+            boolean error = true;
+            try {
+                if (PollableSource.Status.READY.equals(source.process())) {
+                    count++;
+                    error = false;
+                }
+            } catch (Exception ex) {
+                errors.add(ex);
+            }
+            if (error) {
+                try {
+                    Thread.sleep(1000L);
+                } catch (InterruptedException e) {
+                }
+            }
+        }
+    }
+
+    public void shutdown() {
+        run = false;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public List<Exception> getErrors() {
+        return errors;
+    }
 }

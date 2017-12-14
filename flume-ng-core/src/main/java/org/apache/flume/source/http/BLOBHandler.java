@@ -37,68 +37,66 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 /**
- *
  * BLOBHandler for HTTPSource that accepts any binary stream of data as event.
- *
  */
 public class BLOBHandler implements HTTPSourceHandler {
 
-  private static final Logger LOG = LoggerFactory.getLogger(BLOBHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BLOBHandler.class);
 
-  private String commaSeparatedHeaders;
+    private String commaSeparatedHeaders;
 
-  private String[] mandatoryHeaders;
+    private String[] mandatoryHeaders;
 
-  public static final String MANDATORY_PARAMETERS = "mandatoryParameters";
+    public static final String MANDATORY_PARAMETERS = "mandatoryParameters";
 
-  public static final String DEFAULT_MANDATORY_PARAMETERS = "";
+    public static final String DEFAULT_MANDATORY_PARAMETERS = "";
 
-  public static final String PARAMETER_SEPARATOR = ",";
+    public static final String PARAMETER_SEPARATOR = ",";
 
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public List<Event> getEvents(HttpServletRequest request) throws Exception {
-    Map<String, String> headers = new HashMap<String, String>();
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<Event> getEvents(HttpServletRequest request) throws Exception {
+        Map<String, String> headers = new HashMap<String, String>();
 
-    InputStream inputStream = request.getInputStream();
+        InputStream inputStream = request.getInputStream();
 
-    Map<String, String[]> parameters = request.getParameterMap();
-    for (String parameter : parameters.keySet()) {
-      String value = parameters.get(parameter)[0];
-      if (LOG.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
-        LOG.debug("Setting Header [Key, Value] as [{},{}] ", parameter, value);
-      }
-      headers.put(parameter, value);
+        Map<String, String[]> parameters = request.getParameterMap();
+        for (String parameter : parameters.keySet()) {
+            String value = parameters.get(parameter)[0];
+            if (LOG.isDebugEnabled() && LogPrivacyUtil.allowLogRawData()) {
+                LOG.debug("Setting Header [Key, Value] as [{},{}] ", parameter, value);
+            }
+            headers.put(parameter, value);
+        }
+
+        for (String header : mandatoryHeaders) {
+            Preconditions.checkArgument(headers.containsKey(header),
+                    "Please specify " + header + " parameter in the request.");
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            IOUtils.copy(inputStream, outputStream);
+            LOG.debug("Building an Event with stream of size -- {}", outputStream.size());
+            Event event = EventBuilder.withBody(outputStream.toByteArray(), headers);
+            event.setHeaders(headers);
+            List<Event> eventList = new ArrayList<Event>();
+            eventList.add(event);
+            return eventList;
+        } finally {
+            outputStream.close();
+            inputStream.close();
+        }
     }
 
-    for (String header : mandatoryHeaders) {
-      Preconditions.checkArgument(headers.containsKey(header),
-          "Please specify " + header + " parameter in the request.");
+    @Override
+    public void configure(Context context) {
+        this.commaSeparatedHeaders = context.getString(MANDATORY_PARAMETERS,
+                DEFAULT_MANDATORY_PARAMETERS);
+        this.mandatoryHeaders = commaSeparatedHeaders.split(PARAMETER_SEPARATOR);
     }
-
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    try {
-      IOUtils.copy(inputStream, outputStream);
-      LOG.debug("Building an Event with stream of size -- {}", outputStream.size());
-      Event event = EventBuilder.withBody(outputStream.toByteArray(), headers);
-      event.setHeaders(headers);
-      List<Event> eventList = new ArrayList<Event>();
-      eventList.add(event);
-      return eventList;
-    } finally {
-      outputStream.close();
-      inputStream.close();
-    }
-  }
-
-  @Override
-  public void configure(Context context) {
-    this.commaSeparatedHeaders = context.getString(MANDATORY_PARAMETERS,
-                                                   DEFAULT_MANDATORY_PARAMETERS);
-    this.mandatoryHeaders = commaSeparatedHeaders.split(PARAMETER_SEPARATOR);
-  }
 
 }

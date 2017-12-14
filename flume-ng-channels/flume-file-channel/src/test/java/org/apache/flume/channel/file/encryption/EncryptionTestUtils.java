@@ -38,51 +38,51 @@ import java.util.Map;
 
 public class EncryptionTestUtils {
 
-  private static Key newKey() {
-    KeyGenerator keyGen;
-    try {
-      keyGen = KeyGenerator.getInstance("AES");
-      Key key = keyGen.generateKey();
-      return key;
-    } catch (Exception e) {
-      throw Throwables.propagate(e);
+    private static Key newKey() {
+        KeyGenerator keyGen;
+        try {
+            keyGen = KeyGenerator.getInstance("AES");
+            Key key = keyGen.generateKey();
+            return key;
+        } catch (Exception e) {
+            throw Throwables.propagate(e);
+        }
     }
-  }
 
-  public static void createKeyStore(File keyStoreFile, File keyStorePasswordFile,
-                                    Map<String, File> keyAliasPassword) throws Exception {
-    KeyStore ks = KeyStore.getInstance("jceks");
-    ks.load(null);
-    List<String> keysWithSeperatePasswords = Lists.newArrayList();
-    for (String alias : keyAliasPassword.keySet()) {
-      Key key = newKey();
-      char[] password = null;
-      File passwordFile = keyAliasPassword.get(alias);
-      if (passwordFile == null) {
-        password = Files.toString(keyStorePasswordFile, Charsets.UTF_8).toCharArray();
-      } else {
-        keysWithSeperatePasswords.add(alias);
-        password = Files.toString(passwordFile, Charsets.UTF_8).toCharArray();
-      }
-      ks.setKeyEntry(alias, key, password, null);
+    public static void createKeyStore(File keyStoreFile, File keyStorePasswordFile,
+                                      Map<String, File> keyAliasPassword) throws Exception {
+        KeyStore ks = KeyStore.getInstance("jceks");
+        ks.load(null);
+        List<String> keysWithSeperatePasswords = Lists.newArrayList();
+        for (String alias : keyAliasPassword.keySet()) {
+            Key key = newKey();
+            char[] password = null;
+            File passwordFile = keyAliasPassword.get(alias);
+            if (passwordFile == null) {
+                password = Files.toString(keyStorePasswordFile, Charsets.UTF_8).toCharArray();
+            } else {
+                keysWithSeperatePasswords.add(alias);
+                password = Files.toString(passwordFile, Charsets.UTF_8).toCharArray();
+            }
+            ks.setKeyEntry(alias, key, password, null);
+        }
+        char[] keyStorePassword = Files.toString(keyStorePasswordFile, Charsets.UTF_8).toCharArray();
+        FileOutputStream outputStream = new FileOutputStream(keyStoreFile);
+        ks.store(outputStream, keyStorePassword);
+        outputStream.close();
     }
-    char[] keyStorePassword = Files.toString(keyStorePasswordFile, Charsets.UTF_8).toCharArray();
-    FileOutputStream outputStream = new FileOutputStream(keyStoreFile);
-    ks.store(outputStream, keyStorePassword);
-    outputStream.close();
-  }
 
-  public static Map<String, File> configureTestKeyStore(File baseDir, File keyStoreFile)
-      throws IOException {
-    Map<String, File> result = Maps.newHashMap();
+    public static Map<String, File> configureTestKeyStore(File baseDir, File keyStoreFile)
+            throws IOException {
+        Map<String, File> result = Maps.newHashMap();
 
-    if (System.getProperty("java.vendor").contains("IBM")) {
-      Resources.copy(Resources.getResource("ibm-test.keystore"),
-          new FileOutputStream(keyStoreFile));
-    } else {
-      Resources.copy(Resources.getResource("sun-test.keystore"),
-          new FileOutputStream(keyStoreFile));
-    }
+        if (System.getProperty("java.vendor").contains("IBM")) {
+            Resources.copy(Resources.getResource("ibm-test.keystore"),
+                    new FileOutputStream(keyStoreFile));
+        } else {
+            Resources.copy(Resources.getResource("sun-test.keystore"),
+                    new FileOutputStream(keyStoreFile));
+        }
 
     /* Commands below:
      * keytool -genseckey -alias key-0 -keypass keyPassword -keyalg AES \
@@ -92,43 +92,43 @@ public class EncryptionTestUtils {
      *   -keystore src/test/resources/test.keystore -storetype jceks \
      *   -storepass keyStorePassword
      */
-    // key-0 has own password, key-1 used key store password
-    result.put("key-0", TestUtils.writeStringToFile(baseDir, "key-0", "keyPassword"));
-    result.put("key-1", null);
-    return result;
-  }
+        // key-0 has own password, key-1 used key store password
+        result.put("key-0", TestUtils.writeStringToFile(baseDir, "key-0", "keyPassword"));
+        result.put("key-1", null);
+        return result;
+    }
 
-  public static Map<String, String> configureForKeyStore(File keyStoreFile,
-                                                         File keyStorePasswordFile,
-                                                         Map<String, File> keyAliasPassword)
-      throws Exception {
-    Map<String, String> context = Maps.newHashMap();
-    List<String> keys = Lists.newArrayList();
-    Joiner joiner = Joiner.on(".");
-    for (String alias : keyAliasPassword.keySet()) {
-      File passwordFile = keyAliasPassword.get(alias);
-      if (passwordFile == null) {
-        keys.add(alias);
-      } else {
-        String propertyName = joiner.join(EncryptionConfiguration.KEY_PROVIDER,
-                                          EncryptionConfiguration.JCE_FILE_KEYS,
-                                          alias,
-                                          EncryptionConfiguration.JCE_FILE_KEY_PASSWORD_FILE);
-        keys.add(alias);
-        context.put(propertyName, passwordFile.getAbsolutePath());
-      }
-    }
-    context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
-                            EncryptionConfiguration.JCE_FILE_KEY_STORE_FILE),
+    public static Map<String, String> configureForKeyStore(File keyStoreFile,
+                                                           File keyStorePasswordFile,
+                                                           Map<String, File> keyAliasPassword)
+            throws Exception {
+        Map<String, String> context = Maps.newHashMap();
+        List<String> keys = Lists.newArrayList();
+        Joiner joiner = Joiner.on(".");
+        for (String alias : keyAliasPassword.keySet()) {
+            File passwordFile = keyAliasPassword.get(alias);
+            if (passwordFile == null) {
+                keys.add(alias);
+            } else {
+                String propertyName = joiner.join(EncryptionConfiguration.KEY_PROVIDER,
+                        EncryptionConfiguration.JCE_FILE_KEYS,
+                        alias,
+                        EncryptionConfiguration.JCE_FILE_KEY_PASSWORD_FILE);
+                keys.add(alias);
+                context.put(propertyName, passwordFile.getAbsolutePath());
+            }
+        }
+        context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
+                EncryptionConfiguration.JCE_FILE_KEY_STORE_FILE),
                 keyStoreFile.getAbsolutePath());
-    if (keyStorePasswordFile != null) {
-      context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
-                              EncryptionConfiguration.JCE_FILE_KEY_STORE_PASSWORD_FILE),
-                  keyStorePasswordFile.getAbsolutePath());
-    }
-    context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
-                            EncryptionConfiguration.JCE_FILE_KEYS),
+        if (keyStorePasswordFile != null) {
+            context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
+                    EncryptionConfiguration.JCE_FILE_KEY_STORE_PASSWORD_FILE),
+                    keyStorePasswordFile.getAbsolutePath());
+        }
+        context.put(joiner.join(EncryptionConfiguration.KEY_PROVIDER,
+                EncryptionConfiguration.JCE_FILE_KEYS),
                 Joiner.on(" ").join(keys));
-    return context;
-  }
+        return context;
+    }
 }

@@ -30,31 +30,32 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 
 public class HTTPServerConstraintUtil {
 
-  private HTTPServerConstraintUtil() {
+    private HTTPServerConstraintUtil() {
 
-  }
+    }
 
-  /**
-   * Generate constraints for the Flume HTTP Source
-   * @return ConstraintSecurityHandler for use with Jetty servlet
-   */
-  public static ConstraintSecurityHandler enforceConstraints() {
-    Constraint c = new Constraint();
-    c.setAuthenticate(true);
+    /**
+     * Generate constraints for the Flume HTTP Source
+     *
+     * @return ConstraintSecurityHandler for use with Jetty servlet
+     */
+    public static ConstraintSecurityHandler enforceConstraints() {
+        Constraint c = new Constraint();
+        c.setAuthenticate(true);
 
-    ConstraintMapping cmt = new ConstraintMapping();
-    cmt.setConstraint(c);
-    cmt.setMethod("TRACE");
-    cmt.setPathSpec("/*");
+        ConstraintMapping cmt = new ConstraintMapping();
+        cmt.setConstraint(c);
+        cmt.setMethod("TRACE");
+        cmt.setPathSpec("/*");
 
-    ConstraintMapping cmo = new ConstraintMapping();
-    cmo.setConstraint(c);
-    cmo.setMethod("OPTIONS");
-    cmo.setPathSpec("/*");
+        ConstraintMapping cmo = new ConstraintMapping();
+        cmo.setConstraint(c);
+        cmo.setMethod("OPTIONS");
+        cmo.setPathSpec("/*");
 
-    ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
-    sh.setConstraintMappings(new ConstraintMapping[]{cmt, cmo});
+        ConstraintSecurityHandler sh = new ConstraintSecurityHandler();
+        sh.setConstraintMappings(new ConstraintMapping[]{cmt, cmo});
 
-    return sh;
-  }
+        return sh;
+    }
 }

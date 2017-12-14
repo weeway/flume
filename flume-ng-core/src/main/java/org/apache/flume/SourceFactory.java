@@ -21,9 +21,9 @@ package org.apache.flume;
 
 public interface SourceFactory {
 
-  Source create(String sourceName, String type)
-      throws FlumeException;
+    Source create(String sourceName, String type)
+            throws FlumeException;
 
-  Class<? extends Source> getClass(String type)
-      throws FlumeException;
+    Class<? extends Source> getClass(String type)
+            throws FlumeException;
 }

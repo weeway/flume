@@ -25,13 +25,13 @@ import org.apache.flume.FlumeException;
  * read from the channel.
  */
 public class DecryptionFailureException extends FlumeException {
-  private static final long serialVersionUID = 6646810195384793646L;
+    private static final long serialVersionUID = 6646810195384793646L;
 
-  public DecryptionFailureException(String msg) {
-    super(msg);
-  }
+    public DecryptionFailureException(String msg) {
+        super(msg);
+    }
 
-  public DecryptionFailureException(String msg, Throwable th) {
-    super(msg, th);
-  }
+    public DecryptionFailureException(String msg, Throwable th) {
+        super(msg, th);
+    }
 }

@@ -19,5 +19,5 @@
 package org.apache.flume.source.jms;
 
 public enum JMSDestinationType {
-  QUEUE(), TOPIC(),
+    QUEUE(), TOPIC(),
 }

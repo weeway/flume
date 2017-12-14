@@ -53,136 +53,136 @@ import java.util.Map;
 
 public class TestThriftLegacySource {
 
-  private int selectedPort;
-  private ThriftLegacySource source;
-  private Channel channel;
+    private int selectedPort;
+    private ThriftLegacySource source;
+    private Channel channel;
 
-  public class FlumeClient {
-    private String host;
-    private int port;
+    public class FlumeClient {
+        private String host;
+        private int port;
 
-    public FlumeClient(String host, int port) {
-      this.host = host;
-      this.port = port;
+        public FlumeClient(String host, int port) {
+            this.host = host;
+            this.port = port;
+        }
+
+        public void append(ThriftFlumeEvent evt) {
+            TTransport transport;
+            try {
+                transport = new TSocket(host, port);
+                TProtocol protocol = new TBinaryProtocol(transport);
+                Client client = new Client(protocol);
+                transport.open();
+                client.append(evt);
+                transport.close();
+            } catch (TTransportException e) {
+                e.printStackTrace();
+            } catch (TException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void append(ThriftFlumeEvent evt) {
-      TTransport transport;
-      try {
-        transport = new TSocket(host, port);
-        TProtocol protocol = new TBinaryProtocol(transport);
-        Client client = new Client(protocol);
-        transport.open();
-        client.append(evt);
-        transport.close();
-      } catch (TTransportException e) {
-        e.printStackTrace();
-      } catch (TException e) {
-        e.printStackTrace();
-      }
+    @Before
+    public void setUp() throws Exception {
+        source = new ThriftLegacySource();
+        channel = new MemoryChannel();
+
+        Configurables.configure(channel, new Context());
+
+        List<Channel> channels = new ArrayList<Channel>();
+        channels.add(channel);
+
+        ChannelSelector rcs = new ReplicatingChannelSelector();
+        rcs.setChannels(channels);
+
+        source.setChannelProcessor(new ChannelProcessor(rcs));
+
+        try (ServerSocket socket = new ServerSocket(0)) {
+            selectedPort = socket.getLocalPort();
+        }
     }
-  }
 
-  @Before
-  public void setUp() throws Exception {
-    source = new ThriftLegacySource();
-    channel = new MemoryChannel();
+    private void bind() throws InterruptedException {
+        Context context = new Context();
 
-    Configurables.configure(channel, new Context());
+        context.put("port", String.valueOf(selectedPort));
+        context.put("host", "0.0.0.0");
 
-    List<Channel> channels = new ArrayList<Channel>();
-    channels.add(channel);
+        Configurables.configure(source, context);
 
-    ChannelSelector rcs = new ReplicatingChannelSelector();
-    rcs.setChannels(channels);
+        source.start();
 
-    source.setChannelProcessor(new ChannelProcessor(rcs));
-
-    try (ServerSocket socket = new ServerSocket(0)) {
-      selectedPort = socket.getLocalPort();
+        Assert
+                .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
+                        source, LifecycleState.START_OR_ERROR));
+        Assert.assertEquals("Server is started", LifecycleState.START,
+                source.getLifecycleState());
     }
-  }
 
-  private void bind() throws InterruptedException {
-    Context context = new Context();
+    private void stop() throws InterruptedException {
+        source.stop();
+        Assert.assertTrue("Reached stop or error",
+                LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
+        Assert.assertEquals("Server is stopped", LifecycleState.STOP,
+                source.getLifecycleState());
+    }
 
-    context.put("port", String.valueOf(selectedPort));
-    context.put("host", "0.0.0.0");
+    @Test
+    public void testLifecycle() throws InterruptedException {
+        bind();
+        stop();
+    }
 
-    Configurables.configure(source, context);
+    @Test
+    public void testRequest() throws InterruptedException, IOException {
+        bind();
 
-    source.start();
+        Map<String, ByteBuffer> flumeMap = new HashMap<>();
+        ThriftFlumeEvent thriftEvent = new ThriftFlumeEvent(
+                1, Priority.INFO, ByteBuffer.wrap("foo".getBytes()),
+                0, "fooHost", flumeMap);
+        FlumeClient fClient = new FlumeClient("0.0.0.0", selectedPort);
+        fClient.append(thriftEvent);
 
-    Assert
-        .assertTrue("Reached start or error", LifecycleController.waitForOneOf(
-            source, LifecycleState.START_OR_ERROR));
-    Assert.assertEquals("Server is started", LifecycleState.START,
-            source.getLifecycleState());
-  }
+        // check if the even has arrived in the channel through OG thrift source
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
 
-  private void stop() throws InterruptedException {
-    source.stop();
-    Assert.assertTrue("Reached stop or error",
-        LifecycleController.waitForOneOf(source, LifecycleState.STOP_OR_ERROR));
-    Assert.assertEquals("Server is stopped", LifecycleState.STOP,
-        source.getLifecycleState());
-  }
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Channel contained our event", "foo",
+                new String(event.getBody()));
+        transaction.commit();
+        transaction.close();
 
-  @Test
-  public void testLifecycle() throws InterruptedException {
-    bind();
-    stop();
-  }
+        stop();
+    }
 
-  @Test
-  public void testRequest() throws InterruptedException, IOException {
-    bind();
+    @Test
+    public void testHeaders() throws InterruptedException, IOException {
+        bind();
 
-    Map<String, ByteBuffer> flumeMap = new HashMap<>();
-    ThriftFlumeEvent thriftEvent =  new ThriftFlumeEvent(
-        1, Priority.INFO, ByteBuffer.wrap("foo".getBytes()),
-        0, "fooHost", flumeMap);
-    FlumeClient fClient = new FlumeClient("0.0.0.0", selectedPort);
-    fClient.append(thriftEvent);
+        Map<String, ByteBuffer> flumeHeaders = new HashMap<>();
+        flumeHeaders.put("hello", ByteBuffer.wrap("world".getBytes("UTF-8")));
+        ThriftFlumeEvent thriftEvent = new ThriftFlumeEvent(
+                1, Priority.INFO, ByteBuffer.wrap("foo".getBytes()),
+                0, "fooHost", flumeHeaders);
+        FlumeClient fClient = new FlumeClient("0.0.0.0", selectedPort);
+        fClient.append(thriftEvent);
 
-    // check if the even has arrived in the channel through OG thrift source
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
+        // check if the event has arrived in the channel through OG thrift source
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
 
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Channel contained our event", "foo",
-        new String(event.getBody()));
-    transaction.commit();
-    transaction.close();
+        Event event = channel.take();
+        Assert.assertNotNull(event);
+        Assert.assertEquals("Event in channel has our header", "world",
+                event.getHeaders().get("hello"));
+        transaction.commit();
+        transaction.close();
 
-    stop();
-  }
-
-  @Test
-  public void testHeaders() throws InterruptedException, IOException {
-    bind();
-
-    Map<String, ByteBuffer> flumeHeaders = new HashMap<>();
-    flumeHeaders.put("hello", ByteBuffer.wrap("world".getBytes("UTF-8")));
-    ThriftFlumeEvent thriftEvent =  new ThriftFlumeEvent(
-        1, Priority.INFO, ByteBuffer.wrap("foo".getBytes()),
-        0, "fooHost", flumeHeaders);
-    FlumeClient fClient = new FlumeClient("0.0.0.0", selectedPort);
-    fClient.append(thriftEvent);
-
-    // check if the event has arrived in the channel through OG thrift source
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-
-    Event event = channel.take();
-    Assert.assertNotNull(event);
-    Assert.assertEquals("Event in channel has our header", "world",
-        event.getHeaders().get("hello"));
-    transaction.commit();
-    transaction.close();
-
-    stop();
-  }
+        stop();
+    }
 
 }

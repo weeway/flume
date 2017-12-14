@@ -28,33 +28,33 @@ import org.junit.Test;
 
 public class TestBlobHandler extends Assert {
 
-  private HTTPSourceHandler handler;
+    private HTTPSourceHandler handler;
 
-  @Before
-  public void setUp() {
-    handler = new BlobHandler();
-  }
+    @Before
+    public void setUp() {
+        handler = new BlobHandler();
+    }
 
-  @Test
-  public void testSingleEvent() throws Exception {
-    byte[] json = "foo".getBytes("UTF-8");
-    HttpServletRequest req = new FlumeHttpServletRequestWrapper(json);
-    List<Event> deserialized = handler.getEvents(req);
-    assertEquals(1,  deserialized.size());
-    Event e = deserialized.get(0);
-    assertEquals(0, e.getHeaders().size());
-    assertEquals("foo", new String(e.getBody(),"UTF-8"));
-  }
+    @Test
+    public void testSingleEvent() throws Exception {
+        byte[] json = "foo".getBytes("UTF-8");
+        HttpServletRequest req = new FlumeHttpServletRequestWrapper(json);
+        List<Event> deserialized = handler.getEvents(req);
+        assertEquals(1, deserialized.size());
+        Event e = deserialized.get(0);
+        assertEquals(0, e.getHeaders().size());
+        assertEquals("foo", new String(e.getBody(), "UTF-8"));
+    }
 
-  @Test
-  public void testEmptyEvent() throws Exception {
-    byte[] json = "".getBytes("UTF-8");
-    HttpServletRequest req = new FlumeHttpServletRequestWrapper(json);
-    List<Event> deserialized = handler.getEvents(req);
-    assertEquals(1,  deserialized.size());
-    Event e = deserialized.get(0);
-    assertEquals(0, e.getHeaders().size());
-    assertEquals("", new String(e.getBody(),"UTF-8"));
-  }
+    @Test
+    public void testEmptyEvent() throws Exception {
+        byte[] json = "".getBytes("UTF-8");
+        HttpServletRequest req = new FlumeHttpServletRequestWrapper(json);
+        List<Event> deserialized = handler.getEvents(req);
+        assertEquals(1, deserialized.size());
+        Event e = deserialized.get(0);
+        assertEquals(0, e.getHeaders().size());
+        assertEquals("", new String(e.getBody(), "UTF-8"));
+    }
 
 }

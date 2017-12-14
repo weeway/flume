@@ -20,8 +20,8 @@ package org.apache.flume.instrumentation;
 
 public class ChannelProcessorCounter extends MonitoredCounterGroup {
 
-  protected ChannelProcessorCounter(String name) {
-    super(MonitoredCounterGroup.Type.CHANNEL_PROCESSOR, name);
-  }
+    protected ChannelProcessorCounter(String name) {
+        super(MonitoredCounterGroup.Type.CHANNEL_PROCESSOR, name);
+    }
 
 }

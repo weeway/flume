@@ -25,13 +25,13 @@ import org.apache.flume.FlumeException;
  * probably due to the channel stopping while the checkpoint was written.
  */
 public class BadCheckpointException extends FlumeException {
-  private static final long serialVersionUID = -5038652693746472779L;
+    private static final long serialVersionUID = -5038652693746472779L;
 
-  public BadCheckpointException(String msg) {
-    super(msg);
-  }
+    public BadCheckpointException(String msg) {
+        super(msg);
+    }
 
-  public BadCheckpointException(String msg, Throwable t) {
-    super(msg, t);
-  }
+    public BadCheckpointException(String msg, Throwable t) {
+        super(msg, t);
+    }
 }

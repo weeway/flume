@@ -19,17 +19,17 @@
 package org.apache.flume.channel.file;
 
 public class NoopRecordException extends Exception {
-  private static final long serialVersionUID = -7394180633208889738L;
+    private static final long serialVersionUID = -7394180633208889738L;
 
-  public NoopRecordException() {
-    super();
-  }
+    public NoopRecordException() {
+        super();
+    }
 
-  public NoopRecordException(String msg) {
-    super(msg);
-  }
+    public NoopRecordException(String msg) {
+        super(msg);
+    }
 
-  public NoopRecordException(String msg, Throwable th) {
-    super(msg, th);
-  }
+    public NoopRecordException(String msg, Throwable th) {
+        super(msg, th);
+    }
 }

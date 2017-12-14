@@ -44,99 +44,99 @@ import org.apache.flume.event.SimpleEvent;
  * to a Flume Event. All Message Property names are added
  * as headers to the Event. The conversion of the body is
  * as follows:</p>
- *
+ * <p>
  * <p><strong>BytesMessage:</strong> Body from message is
  * set as the body of the Event.</p>
  * <p><strong>TextMessage:</strong> String body converted to a byte
  * array byte getBytes(charset). Charset defaults to UTF-8 but can be
  * configured.</p>
  * <p><strong>ObjectMessage:</strong> Object is written to
- *  an ByteArrayOutputStream wrapped by an ObjectOutputStream
- *  and the resulting byte array is the body of the message.</p>
+ * an ByteArrayOutputStream wrapped by an ObjectOutputStream
+ * and the resulting byte array is the body of the message.</p>
  */
 public class DefaultJMSMessageConverter implements JMSMessageConverter {
 
-  private final Charset charset;
+    private final Charset charset;
 
-  private DefaultJMSMessageConverter(String charset) {
-    this.charset = Charset.forName(charset);
-  }
+    private DefaultJMSMessageConverter(String charset) {
+        this.charset = Charset.forName(charset);
+    }
 
-  public static class Builder implements JMSMessageConverter.Builder {
+    public static class Builder implements JMSMessageConverter.Builder {
+        @Override
+        public JMSMessageConverter build(Context context) {
+            return new DefaultJMSMessageConverter(context.getString(
+                    JMSSourceConfiguration.CONVERTER_CHARSET,
+                    JMSSourceConfiguration.CONVERTER_CHARSET_DEFAULT).trim());
+        }
+    }
+
     @Override
-    public JMSMessageConverter build(Context context) {
-      return new DefaultJMSMessageConverter(context.getString(
-          JMSSourceConfiguration.CONVERTER_CHARSET,
-          JMSSourceConfiguration.CONVERTER_CHARSET_DEFAULT).trim());
-    }
-  }
-
-  @Override
-  public List<Event> convert(Message message) throws JMSException {
-    Event event = new SimpleEvent();
-    Map<String, String> headers = event.getHeaders();
-    @SuppressWarnings("rawtypes")
-    Enumeration propertyNames = message.getPropertyNames();
-    while (propertyNames.hasMoreElements()) {
-      String name = propertyNames.nextElement().toString();
-      String value = message.getStringProperty(name);
-      headers.put(name, value);
-    }
-    if (message instanceof BytesMessage) {
-      BytesMessage bytesMessage = (BytesMessage)message;
-      long length = bytesMessage.getBodyLength();
-      if (length > 0L) {
-        if (length > Integer.MAX_VALUE) {
-          throw new JMSException("Unable to process message " + "of size "
-              + length);
+    public List<Event> convert(Message message) throws JMSException {
+        Event event = new SimpleEvent();
+        Map<String, String> headers = event.getHeaders();
+        @SuppressWarnings("rawtypes")
+        Enumeration propertyNames = message.getPropertyNames();
+        while (propertyNames.hasMoreElements()) {
+            String name = propertyNames.nextElement().toString();
+            String value = message.getStringProperty(name);
+            headers.put(name, value);
         }
-        byte[] body = new byte[(int)length];
-        int count = bytesMessage.readBytes(body);
-        if (count != length) {
-          throw new JMSException("Unable to read full message. " +
-              "Read " + count + " of total " + length);
-        }
-        event.setBody(body);
-      }
-    } else if (message instanceof TextMessage) {
-      TextMessage textMessage = (TextMessage)message;
-      String text = textMessage.getText();
-      if (text != null) {
-        event.setBody(text.getBytes(charset));
-      }
-    } else if (message instanceof ObjectMessage) {
-      ObjectMessage objectMessage = (ObjectMessage)message;
-      Object object = objectMessage.getObject();
-      if (object != null) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutput out = null;
-        try {
-          out = new ObjectOutputStream(bos);
-          out.writeObject(object);
-          event.setBody(bos.toByteArray());
-        } catch (IOException e) {
-          throw new FlumeException("Error serializing object", e);
-        } finally {
-          try {
-            if (out != null) {
-              out.close();
+        if (message instanceof BytesMessage) {
+            BytesMessage bytesMessage = (BytesMessage) message;
+            long length = bytesMessage.getBodyLength();
+            if (length > 0L) {
+                if (length > Integer.MAX_VALUE) {
+                    throw new JMSException("Unable to process message " + "of size "
+                            + length);
+                }
+                byte[] body = new byte[(int) length];
+                int count = bytesMessage.readBytes(body);
+                if (count != length) {
+                    throw new JMSException("Unable to read full message. " +
+                            "Read " + count + " of total " + length);
+                }
+                event.setBody(body);
             }
-          } catch (IOException e) {
-            throw new FlumeException("Error closing ObjectOutputStream", e);
-          }
-          try {
-            if (bos != null) {
-              bos.close();
+        } else if (message instanceof TextMessage) {
+            TextMessage textMessage = (TextMessage) message;
+            String text = textMessage.getText();
+            if (text != null) {
+                event.setBody(text.getBytes(charset));
             }
-          } catch (IOException e) {
-            throw new FlumeException("Error closing ByteArrayOutputStream", e);
-          }
-        }
-      }
+        } else if (message instanceof ObjectMessage) {
+            ObjectMessage objectMessage = (ObjectMessage) message;
+            Object object = objectMessage.getObject();
+            if (object != null) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                ObjectOutput out = null;
+                try {
+                    out = new ObjectOutputStream(bos);
+                    out.writeObject(object);
+                    event.setBody(bos.toByteArray());
+                } catch (IOException e) {
+                    throw new FlumeException("Error serializing object", e);
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        throw new FlumeException("Error closing ObjectOutputStream", e);
+                    }
+                    try {
+                        if (bos != null) {
+                            bos.close();
+                        }
+                    } catch (IOException e) {
+                        throw new FlumeException("Error closing ByteArrayOutputStream", e);
+                    }
+                }
+            }
 
+        }
+        List<Event> events = new ArrayList<Event>(1);
+        events.add(event);
+        return events;
     }
-    List<Event> events = new ArrayList<Event>(1);
-    events.add(event);
-    return events;
-  }
 }

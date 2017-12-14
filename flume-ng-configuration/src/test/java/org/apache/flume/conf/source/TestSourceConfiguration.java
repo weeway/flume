@@ -22,15 +22,15 @@ import org.junit.Test;
 
 public class TestSourceConfiguration {
 
-  /**
-   * Test fails without FLUME-1847
-   */
-  @Test(expected = ConfigurationException.class)
-  public void testFLUME1847() throws Exception {
-    Context context = new Context();
-    context.put("type", "something");
-    SourceConfiguration sourceConfig = new SourceConfiguration("src");
-    sourceConfig.configure(context);
+    /**
+     * Test fails without FLUME-1847
+     */
+    @Test(expected = ConfigurationException.class)
+    public void testFLUME1847() throws Exception {
+        Context context = new Context();
+        context.put("type", "something");
+        SourceConfiguration sourceConfig = new SourceConfiguration("src");
+        sourceConfig.configure(context);
 
-  }
+    }
 }

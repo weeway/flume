@@ -19,16 +19,16 @@
 package org.apache.flume.channel.file.encryption;
 
 public enum KeyProviderType {
-  JCEKSFILE(JCEFileKeyProvider.Builder.class),
-  OTHER(null);
+    JCEKSFILE(JCEFileKeyProvider.Builder.class),
+    OTHER(null);
 
-  private final Class<? extends KeyProvider.Builder> keyProviderClass;
+    private final Class<? extends KeyProvider.Builder> keyProviderClass;
 
-  KeyProviderType(Class<? extends KeyProvider.Builder> keyStoreProviderClass) {
-    this.keyProviderClass = keyStoreProviderClass;
-  }
+    KeyProviderType(Class<? extends KeyProvider.Builder> keyStoreProviderClass) {
+        this.keyProviderClass = keyStoreProviderClass;
+    }
 
-  public Class<? extends KeyProvider.Builder> getBuilderClass() {
-    return keyProviderClass;
-  }
+    public Class<? extends KeyProvider.Builder> getBuilderClass() {
+        return keyProviderClass;
+    }
 }

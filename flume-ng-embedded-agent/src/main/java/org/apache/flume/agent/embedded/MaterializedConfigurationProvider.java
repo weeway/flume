@@ -34,9 +34,9 @@ import org.apache.flume.node.MaterializedConfiguration;
 @InterfaceStability.Unstable
 class MaterializedConfigurationProvider {
 
-  MaterializedConfiguration get(String name, Map<String, String> properties) {
-    MemoryConfigurationProvider confProvider =
-        new MemoryConfigurationProvider(name, properties);
-    return confProvider.getConfiguration();
-  }
+    MaterializedConfiguration get(String name, Map<String, String> properties) {
+        MemoryConfigurationProvider confProvider =
+                new MemoryConfigurationProvider(name, properties);
+        return confProvider.getConfiguration();
+    }
 }

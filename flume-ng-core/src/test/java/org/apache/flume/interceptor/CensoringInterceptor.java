@@ -21,6 +21,7 @@ package org.apache.flume.interceptor;
 
 import java.util.List;
 import java.util.Map;
+
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 
@@ -29,49 +30,49 @@ import org.apache.flume.Event;
  */
 public class CensoringInterceptor implements Interceptor {
 
-  private CensoringInterceptor() {
-    // no-op
-  }
-
-  @Override
-  public void initialize() {
-    // no-op
-  }
-
-  @Override
-  public Event intercept(Event event) {
-    Map<String, String> headers = event.getHeaders();
-    if (headers.containsKey("Bad-Words")) {
-      headers.remove("Bad-Words");
-    }
-    return event;
-  }
-
-  @Override
-  public List<Event> intercept(List<Event> events) {
-    for (Event e : events) {
-      intercept(e);
-    }
-    return events;
-  }
-
-  @Override
-  public void close() {
-    // no-op
-  }
-
-  public static class Builder implements Interceptor.Builder {
-
-    @Override
-    public Interceptor build() {
-      return new CensoringInterceptor();
+    private CensoringInterceptor() {
+        // no-op
     }
 
     @Override
-    public void configure(Context context) {
-      // no-op
+    public void initialize() {
+        // no-op
     }
 
-  }
+    @Override
+    public Event intercept(Event event) {
+        Map<String, String> headers = event.getHeaders();
+        if (headers.containsKey("Bad-Words")) {
+            headers.remove("Bad-Words");
+        }
+        return event;
+    }
+
+    @Override
+    public List<Event> intercept(List<Event> events) {
+        for (Event e : events) {
+            intercept(e);
+        }
+        return events;
+    }
+
+    @Override
+    public void close() {
+        // no-op
+    }
+
+    public static class Builder implements Interceptor.Builder {
+
+        @Override
+        public Interceptor build() {
+            return new CensoringInterceptor();
+        }
+
+        @Override
+        public void configure(Context context) {
+            // no-op
+        }
+
+    }
 
 }

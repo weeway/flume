@@ -25,23 +25,23 @@ import java.io.IOException;
 
 /**
  * Defines methods for reading from or writing to streams <p>
- *
+ * <p>
  * Based on org.apache.hadoop.io.Writable
  */
 interface Writable {
-  /**
-   * Serialize the fields of this object to <code>out</code>
-   *
-   * @param out <code>DataOutput</code> to serialize this object into.
-   * @throws IOException
-   */
-  public void write(DataOutput out) throws IOException;
+    /**
+     * Serialize the fields of this object to <code>out</code>
+     *
+     * @param out <code>DataOutput</code> to serialize this object into.
+     * @throws IOException
+     */
+    public void write(DataOutput out) throws IOException;
 
-  /**
-   * Deserialize the fields of this object from <code>in</code>
-   *
-   * @param in <code>DataInput</code> to deserialize this object from.
-   * @throws IOException
-   */
-  public void readFields(DataInput in) throws IOException;
+    /**
+     * Deserialize the fields of this object from <code>in</code>
+     *
+     * @param in <code>DataInput</code> to deserialize this object from.
+     * @throws IOException
+     */
+    public void readFields(DataInput in) throws IOException;
 }

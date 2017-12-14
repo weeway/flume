@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@
 package org.apache.flume.serialization;
 
 import java.io.OutputStream;
+
 import org.apache.flume.Context;
 import org.apache.flume.annotations.InterfaceAudience;
 import org.apache.flume.annotations.InterfaceStability;
@@ -38,12 +39,12 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceStability.Unstable
 public interface EventSerDe extends EventSerializer, EventDeserializer {
 
-  /**
-   * Knows how to construct this serde.<br/>
-   * <b>Note: Implementations MUST provide a public a no-arg constructor.</b>
-   */
-  public interface Builder {
-    public EventSerDe build(Context context, ResettableInputStream in, OutputStream out);
-  }
+    /**
+     * Knows how to construct this serde.<br/>
+     * <b>Note: Implementations MUST provide a public a no-arg constructor.</b>
+     */
+    public interface Builder {
+        public EventSerDe build(Context context, ResettableInputStream in, OutputStream out);
+    }
 
 }

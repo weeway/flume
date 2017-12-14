@@ -24,45 +24,45 @@ import javax.sql.DataSource;
 
 public class MySQLSchemaHandler implements SchemaHandler {
 
-  private final DataSource dataSource;
+    private final DataSource dataSource;
 
-  protected MySQLSchemaHandler(DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
+    protected MySQLSchemaHandler(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-  @Override
-  public boolean schemaExists() {
-    // TODO Auto-generated method stub
-    return false;
-  }
+    @Override
+    public boolean schemaExists() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-  @Override
-  public void validateSchema() {
-    // TODO Auto-generated method stub
+    @Override
+    public void validateSchema() {
+        // TODO Auto-generated method stub
 
-  }
+    }
 
-  @Override
-  public void storeEvent(PersistableEvent pe, Connection connection) {
-    // TODO Auto-generated method stub
-  }
+    @Override
+    public void storeEvent(PersistableEvent pe, Connection connection) {
+        // TODO Auto-generated method stub
+    }
 
-  @Override
-  public PersistableEvent fetchAndDeleteEvent(String channel,
-      Connection connection) {
-    // TODO Auto-generated method stub
-    return null;
-  }
+    @Override
+    public PersistableEvent fetchAndDeleteEvent(String channel,
+                                                Connection connection) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-  @Override
-  public long getChannelSize(Connection connection) {
-    // TODO Auto-generated method stub
-    return 0;
-  }
+    @Override
+    public long getChannelSize(Connection connection) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-  @Override
-  public void createSchemaObjects(boolean createForeignKeys, boolean createIndex) {
-    // TODO Auto-generated method stub
+    @Override
+    public void createSchemaObjects(boolean createForeignKeys, boolean createIndex) {
+        // TODO Auto-generated method stub
 
-  }
+    }
 }

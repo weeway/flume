@@ -19,17 +19,17 @@
 package org.apache.flume.channel.file;
 
 public class CorruptEventException extends Exception {
-  private static final long serialVersionUID = -2986946303540798416L;
+    private static final long serialVersionUID = -2986946303540798416L;
 
-  public CorruptEventException() {
-    super();
-  }
+    public CorruptEventException() {
+        super();
+    }
 
-  public CorruptEventException(String msg) {
-    super(msg);
-  }
+    public CorruptEventException(String msg) {
+        super(msg);
+    }
 
-  public CorruptEventException(String msg, Throwable th) {
-    super(msg, th);
-  }
+    public CorruptEventException(String msg, Throwable th) {
+        super(msg, th);
+    }
 }

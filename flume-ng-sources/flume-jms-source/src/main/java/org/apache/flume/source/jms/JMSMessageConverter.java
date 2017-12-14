@@ -33,19 +33,18 @@ import org.apache.flume.annotations.InterfaceStability;
  * that sub-classes define a static sub-class of the
  * inner Builder class to handle configuration. Alternatively,
  * the sub-class can the Configurable interface.
- *
  */
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface JMSMessageConverter {
 
-  public List<Event> convert(Message message) throws JMSException;
+    public List<Event> convert(Message message) throws JMSException;
 
-  /**
-   * Implementors of JMSMessageConverter must either provide
-   * a suitable builder or implement the Configurable interface.
-   */
-  public interface Builder {
-    public JMSMessageConverter build(Context context);
-  }
+    /**
+     * Implementors of JMSMessageConverter must either provide
+     * a suitable builder or implement the Configurable interface.
+     */
+    public interface Builder {
+        public JMSMessageConverter build(Context context);
+    }
 }

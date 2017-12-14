@@ -39,116 +39,116 @@ import org.junit.Assert;
  */
 public class TestRpcClientFactory {
 
-  private static final String localhost = "localhost";
+    private static final String localhost = "localhost";
 
-  @Test
-  public void testTwoParamSimpleAppend() throws FlumeException,
-      EventDeliveryException {
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      client = RpcClientFactory.getDefaultInstance(localhost, server.getPort());
-      client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+    @Test
+    public void testTwoParamSimpleAppend() throws FlumeException,
+            EventDeliveryException {
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            client = RpcClientFactory.getDefaultInstance(localhost, server.getPort());
+            client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
-  // testing deprecated API
-  @Test
-  public void testTwoParamDeprecatedAppend() throws FlumeException,
-      EventDeliveryException {
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      client = RpcClientFactory.getInstance(localhost, server.getPort());
-      client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+    // testing deprecated API
+    @Test
+    public void testTwoParamDeprecatedAppend() throws FlumeException,
+            EventDeliveryException {
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            client = RpcClientFactory.getInstance(localhost, server.getPort());
+            client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
-  // testing deprecated API
-  @Test
-  public void testThreeParamDeprecatedAppend() throws FlumeException,
-      EventDeliveryException {
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      client = RpcClientFactory.getInstance(localhost, server.getPort(), 3);
-      Assert.assertEquals("Batch size was specified", 3, client.getBatchSize());
-      client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+    // testing deprecated API
+    @Test
+    public void testThreeParamDeprecatedAppend() throws FlumeException,
+            EventDeliveryException {
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            client = RpcClientFactory.getInstance(localhost, server.getPort(), 3);
+            Assert.assertEquals("Batch size was specified", 3, client.getBatchSize());
+            client.append(EventBuilder.withBody("wheee!!!", Charset.forName("UTF8")));
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
-  @Test
-  public void testThreeParamBatchAppend() throws FlumeException,
-      EventDeliveryException {
-    int batchSize = 7;
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      client = RpcClientFactory.getDefaultInstance(localhost, server.getPort(),
-          batchSize);
+    @Test
+    public void testThreeParamBatchAppend() throws FlumeException,
+            EventDeliveryException {
+        int batchSize = 7;
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            client = RpcClientFactory.getDefaultInstance(localhost, server.getPort(),
+                    batchSize);
 
-      List<Event> events = new ArrayList<Event>();
-      for (int i = 0; i < batchSize; i++) {
-        events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
-      }
-      client.appendBatch(events);
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+            List<Event> events = new ArrayList<Event>();
+            for (int i = 0; i < batchSize; i++) {
+                events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
+            }
+            client.appendBatch(events);
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
-  @Test
-  public void testPropertiesBatchAppend() throws FlumeException,
-      EventDeliveryException {
-    int batchSize = 7;
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      Properties p = new Properties();
-      p.put("hosts", "host1");
-      p.put("hosts.host1", localhost + ":" + String.valueOf(server.getPort()));
-      p.put("batch-size", String.valueOf(batchSize));
-      client = RpcClientFactory.getInstance(p);
-      List<Event> events = new ArrayList<Event>();
-      for (int i = 0; i < batchSize; i++) {
-        events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
-      }
-      client.appendBatch(events);
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+    @Test
+    public void testPropertiesBatchAppend() throws FlumeException,
+            EventDeliveryException {
+        int batchSize = 7;
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            Properties p = new Properties();
+            p.put("hosts", "host1");
+            p.put("hosts.host1", localhost + ":" + String.valueOf(server.getPort()));
+            p.put("batch-size", String.valueOf(batchSize));
+            client = RpcClientFactory.getInstance(p);
+            List<Event> events = new ArrayList<Event>();
+            for (int i = 0; i < batchSize; i++) {
+                events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
+            }
+            client.appendBatch(events);
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
-  // we are supposed to handle this gracefully
-  @Test
-  public void testTwoParamBatchAppendOverflow() throws FlumeException,
-      EventDeliveryException {
-    RpcClient client = null;
-    Server server = RpcTestUtils.startServer(new OKAvroHandler());
-    try {
-      client = RpcClientFactory.getDefaultInstance(localhost, server.getPort());
-      int batchSize = client.getBatchSize();
-      int moreThanBatch = batchSize + 1;
-      List<Event> events = new ArrayList<Event>();
-      for (int i = 0; i < moreThanBatch; i++) {
-        events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
-      }
-      client.appendBatch(events);
-    } finally {
-      RpcTestUtils.stopServer(server);
-      if (client != null) client.close();
+    // we are supposed to handle this gracefully
+    @Test
+    public void testTwoParamBatchAppendOverflow() throws FlumeException,
+            EventDeliveryException {
+        RpcClient client = null;
+        Server server = RpcTestUtils.startServer(new OKAvroHandler());
+        try {
+            client = RpcClientFactory.getDefaultInstance(localhost, server.getPort());
+            int batchSize = client.getBatchSize();
+            int moreThanBatch = batchSize + 1;
+            List<Event> events = new ArrayList<Event>();
+            for (int i = 0; i < moreThanBatch; i++) {
+                events.add(EventBuilder.withBody("evt: " + i, Charset.forName("UTF8")));
+            }
+            client.appendBatch(events);
+        } finally {
+            RpcTestUtils.stopServer(server);
+            if (client != null) client.close();
+        }
     }
-  }
 
 }

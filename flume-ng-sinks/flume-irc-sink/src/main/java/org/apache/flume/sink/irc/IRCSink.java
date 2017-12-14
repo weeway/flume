@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,228 +39,228 @@ import com.google.common.base.Preconditions;
 
 public class IRCSink extends AbstractSink implements Configurable {
 
-  private static final Logger logger = LoggerFactory.getLogger(IRCSink.class);
+    private static final Logger logger = LoggerFactory.getLogger(IRCSink.class);
 
-  private static final int DEFAULT_PORT = 6667;
-  private static final String DEFAULT_SPLIT_CHARS = "\n";
+    private static final int DEFAULT_PORT = 6667;
+    private static final String DEFAULT_SPLIT_CHARS = "\n";
 
-  private static final String IRC_CHANNEL_PREFIX = "#";
+    private static final String IRC_CHANNEL_PREFIX = "#";
 
-  private IRCConnection connection = null;
+    private IRCConnection connection = null;
 
-  private String hostname;
-  private Integer port;
-  private String nick;
-  private String password;
-  private String user;
-  private String name;
-  private String chan;
-  private Boolean splitLines;
-  private String splitChars;
-  
-  private CounterGroup counterGroup;
+    private String hostname;
+    private Integer port;
+    private String nick;
+    private String password;
+    private String user;
+    private String name;
+    private String chan;
+    private Boolean splitLines;
+    private String splitChars;
 
-  public static class IRCConnectionListener implements IRCEventListener {
+    private CounterGroup counterGroup;
 
-    public void onRegistered() {
+    public static class IRCConnectionListener implements IRCEventListener {
+
+        public void onRegistered() {
+        }
+
+        public void onDisconnected() {
+            logger.error("IRC sink disconnected");
+        }
+
+        public void onError(String msg) {
+            logger.error("IRC sink error: {}", msg);
+        }
+
+        public void onError(int num, String msg) {
+            logger.error("IRC sink error: {} - {}", num, msg);
+        }
+
+        public void onInvite(String chan, IRCUser u, String nickPass) {
+        }
+
+        public void onJoin(String chan, IRCUser u) {
+        }
+
+        public void onKick(String chan, IRCUser u, String nickPass, String msg) {
+        }
+
+        public void onMode(IRCUser u, String nickPass, String mode) {
+        }
+
+        public void onMode(String chan, IRCUser u, IRCModeParser mp) {
+        }
+
+        public void onNick(IRCUser u, String nickNew) {
+        }
+
+        public void onNotice(String target, IRCUser u, String msg) {
+        }
+
+        public void onPart(String chan, IRCUser u, String msg) {
+        }
+
+        public void onPrivmsg(String chan, IRCUser u, String msg) {
+        }
+
+        public void onQuit(IRCUser u, String msg) {
+        }
+
+        public void onReply(int num, String value, String msg) {
+        }
+
+        public void onTopic(String chan, IRCUser u, String topic) {
+        }
+
+        public void onPing(String p) {
+        }
+
+        public void unknown(String a, String b, String c, String d) {
+        }
     }
 
-    public void onDisconnected() {
-      logger.error("IRC sink disconnected");
+    public IRCSink() {
+        counterGroup = new CounterGroup();
     }
 
-    public void onError(String msg) {
-      logger.error("IRC sink error: {}", msg);
+    public void configure(Context context) {
+        hostname = context.getString("hostname");
+        String portStr = context.getString("port");
+        nick = context.getString("nick");
+        password = context.getString("password");
+        user = context.getString("user");
+        name = context.getString("name");
+        chan = context.getString("chan");
+        splitLines = context.getBoolean("splitlines", false);
+        splitChars = context.getString("splitchars");
+
+        if (portStr != null) {
+            port = Integer.parseInt(portStr);
+        } else {
+            port = DEFAULT_PORT;
+        }
+
+        if (splitChars == null) {
+            splitChars = DEFAULT_SPLIT_CHARS;
+        }
+
+        Preconditions.checkState(hostname != null, "No hostname specified");
+        Preconditions.checkState(nick != null, "No nick specified");
+        Preconditions.checkState(chan != null, "No chan specified");
     }
 
-    public void onError(int num, String msg) {
-      logger.error("IRC sink error: {} - {}", num, msg);
+    private void createConnection() throws IOException {
+        if (connection == null) {
+            logger.debug(
+                    "Creating new connection to hostname:{} port:{}",
+                    hostname, port);
+            connection = new IRCConnection(hostname, new int[]{port},
+                    password, nick, user, name);
+            connection.addIRCEventListener(new IRCConnectionListener());
+            connection.setEncoding("UTF-8");
+            connection.setPong(true);
+            connection.setDaemon(false);
+            connection.setColors(false);
+            connection.connect();
+            connection.send("join " + IRC_CHANNEL_PREFIX + chan);
+        }
     }
 
-    public void onInvite(String chan, IRCUser u, String nickPass) {
+    private void destroyConnection() {
+        if (connection != null) {
+            logger.debug("Destroying connection to: {}:{}", hostname, port);
+            connection.close();
+        }
+
+        connection = null;
     }
 
-    public void onJoin(String chan, IRCUser u) {
-    }
+    @Override
+    public void start() {
+        logger.info("IRC sink starting");
 
-    public void onKick(String chan, IRCUser u, String nickPass, String msg) {
-    }
-
-    public void onMode(IRCUser u, String nickPass, String mode) {
-    }
-
-    public void onMode(String chan, IRCUser u, IRCModeParser mp) {
-    }
-
-    public void onNick(IRCUser u, String nickNew) {
-    }
-
-    public void onNotice(String target, IRCUser u, String msg) {
-    }
-
-    public void onPart(String chan, IRCUser u, String msg) {
-    }
-
-    public void onPrivmsg(String chan, IRCUser u, String msg) {
-    }
-
-    public void onQuit(IRCUser u, String msg) {
-    }
-
-    public void onReply(int num, String value, String msg) {
-    }
-
-    public void onTopic(String chan, IRCUser u, String topic) {
-    }
-
-    public void onPing(String p) {
-    }
-
-    public void unknown(String a, String b, String c, String d) {
-    }
-  }
-
-  public IRCSink() {
-    counterGroup = new CounterGroup();
-  }
-
-  public void configure(Context context) {
-    hostname = context.getString("hostname");
-    String portStr = context.getString("port");
-    nick = context.getString("nick");
-    password = context.getString("password");
-    user = context.getString("user");
-    name = context.getString("name");
-    chan = context.getString("chan");
-    splitLines = context.getBoolean("splitlines", false);
-    splitChars = context.getString("splitchars");
-
-    if (portStr != null) {
-      port = Integer.parseInt(portStr);
-    } else {
-      port = DEFAULT_PORT;
-    }
-
-    if (splitChars == null) {
-      splitChars = DEFAULT_SPLIT_CHARS;
-    }
-    
-    Preconditions.checkState(hostname != null, "No hostname specified");
-    Preconditions.checkState(nick != null, "No nick specified");
-    Preconditions.checkState(chan != null, "No chan specified");
-  }
-
-  private void createConnection() throws IOException {
-    if (connection == null) {
-      logger.debug(
-          "Creating new connection to hostname:{} port:{}",
-          hostname, port);
-      connection = new IRCConnection(hostname, new int[] { port },
-          password, nick, user, name);
-      connection.addIRCEventListener(new IRCConnectionListener());
-      connection.setEncoding("UTF-8");
-      connection.setPong(true);
-      connection.setDaemon(false);
-      connection.setColors(false);
-      connection.connect();
-      connection.send("join " + IRC_CHANNEL_PREFIX + chan);
-    }
-  }
-
-  private void destroyConnection() {
-    if (connection != null) {
-      logger.debug("Destroying connection to: {}:{}", hostname, port);
-      connection.close();
-    }
-
-    connection = null;
-  }
-
-  @Override
-  public void start() {
-    logger.info("IRC sink starting");
-
-    try {
-      createConnection();
-    } catch (Exception e) {
-      logger.error("Unable to create irc client using hostname:"
-          + hostname + " port:" + port + ". Exception follows.", e);
+        try {
+            createConnection();
+        } catch (Exception e) {
+            logger.error("Unable to create irc client using hostname:"
+                    + hostname + " port:" + port + ". Exception follows.", e);
 
       /* Try to prevent leaking resources. */
-      destroyConnection();
+            destroyConnection();
 
       /* FIXME: Mark ourselves as failed. */
-      return;
+            return;
+        }
+
+        super.start();
+
+        logger.debug("IRC sink {} started", this.getName());
     }
 
-    super.start();
+    @Override
+    public void stop() {
+        logger.info("IRC sink {} stopping", this.getName());
 
-    logger.debug("IRC sink {} started", this.getName());
-  }
+        destroyConnection();
 
-  @Override
-  public void stop() {
-    logger.info("IRC sink {} stopping", this.getName());
+        super.stop();
 
-    destroyConnection();
-
-    super.stop();
-
-    logger.debug("IRC sink {} stopped. Metrics:{}", this.getName(), counterGroup);
-  }
-
-  private void sendLine(Event event) {
-    String body = new String(event.getBody());
-    
-    if (splitLines) {
-      String[] lines = body.split(splitChars);
-      for (String line: lines) {
-        connection.doPrivmsg(IRC_CHANNEL_PREFIX + this.chan, line);
-      }
-    } else {
-      connection.doPrivmsg(IRC_CHANNEL_PREFIX + this.chan, body);
-    }
-    
-  }
-  
-  @Override
-  public Status process() throws EventDeliveryException {
-    Status status = Status.READY;
-    Channel channel = getChannel();
-    Transaction transaction = channel.getTransaction();
-
-    try {
-      transaction.begin();
-      createConnection();
-
-      Event event = channel.take();
-
-      if (event == null) {
-        counterGroup.incrementAndGet("event.empty");
-        status = Status.BACKOFF;
-      } else {
-        sendLine(event);
-        counterGroup.incrementAndGet("event.irc");
-      }
-
-      transaction.commit();
-
-    } catch (ChannelException e) {
-      transaction.rollback();
-      logger.error(
-          "Unable to get event from channel. Exception follows.", e);
-      status = Status.BACKOFF;
-    } catch (Exception e) {
-      transaction.rollback();
-      logger.error(
-          "Unable to communicate with IRC server. Exception follows.",
-          e);
-      status = Status.BACKOFF;
-      destroyConnection();
-    } finally {
-      transaction.close();
+        logger.debug("IRC sink {} stopped. Metrics:{}", this.getName(), counterGroup);
     }
 
-    return status;
-  }
+    private void sendLine(Event event) {
+        String body = new String(event.getBody());
+
+        if (splitLines) {
+            String[] lines = body.split(splitChars);
+            for (String line : lines) {
+                connection.doPrivmsg(IRC_CHANNEL_PREFIX + this.chan, line);
+            }
+        } else {
+            connection.doPrivmsg(IRC_CHANNEL_PREFIX + this.chan, body);
+        }
+
+    }
+
+    @Override
+    public Status process() throws EventDeliveryException {
+        Status status = Status.READY;
+        Channel channel = getChannel();
+        Transaction transaction = channel.getTransaction();
+
+        try {
+            transaction.begin();
+            createConnection();
+
+            Event event = channel.take();
+
+            if (event == null) {
+                counterGroup.incrementAndGet("event.empty");
+                status = Status.BACKOFF;
+            } else {
+                sendLine(event);
+                counterGroup.incrementAndGet("event.irc");
+            }
+
+            transaction.commit();
+
+        } catch (ChannelException e) {
+            transaction.rollback();
+            logger.error(
+                    "Unable to get event from channel. Exception follows.", e);
+            status = Status.BACKOFF;
+        } catch (Exception e) {
+            transaction.rollback();
+            logger.error(
+                    "Unable to communicate with IRC server. Exception follows.",
+                    e);
+            status = Status.BACKOFF;
+            destroyConnection();
+        } finally {
+            transaction.close();
+        }
+
+        return status;
+    }
 }

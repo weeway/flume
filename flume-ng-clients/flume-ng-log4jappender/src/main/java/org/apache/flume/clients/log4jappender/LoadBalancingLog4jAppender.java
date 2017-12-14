@@ -29,7 +29,6 @@ import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.spi.LoggingEvent;
 
 /**
- *
  * Appends Log4j Events to an external Flume client which is decribed by the
  * Log4j configuration file. The appender takes the following required
  * parameters:
@@ -49,7 +48,7 @@ import org.apache.log4j.spi.LoggingEvent;
  * has failed to consume an event
  * </p>
  * A sample log4j properties file which appends to a source would look like:
- *
+ * <p>
  * <pre>
  * <p>
  * log4j.appender.out2 = org.apache.flume.clients.log4jappender.LoadBalancingLog4jAppender
@@ -71,110 +70,107 @@ import org.apache.log4j.spi.LoggingEvent;
  * the appending.For example if classes from the package com.bar.foo are
  * appending, the last line would be:</i>
  * </p>
- *
+ * <p>
  * <pre>
  * <p>log4j.logger.com.bar.foo = DEBUG,out2</p>
  * </pre>
- *
- *
  */
 public class LoadBalancingLog4jAppender extends Log4jAppender {
 
-  private String hosts;
-  private String selector;
-  private String maxBackoff;
-  private boolean configured = false;
+    private String hosts;
+    private String selector;
+    private String maxBackoff;
+    private boolean configured = false;
 
-  public void setHosts(String hostNames) {
-    this.hosts = hostNames;
-  }
-
-  public void setSelector(String selector) {
-    this.selector = selector;
-  }
-
-  public void setMaxBackoff(String maxBackoff) {
-    this.maxBackoff = maxBackoff;
-  }
-
-  @Override
-  public synchronized void append(LoggingEvent event) {
-    if (!configured) {
-      String errorMsg = "Flume Log4jAppender not configured correctly! Cannot" +
-          " send events to Flume.";
-      LogLog.error(errorMsg);
-      if (getUnsafeMode()) {
-        return;
-      }
-      throw new FlumeException(errorMsg);
-    }
-    super.append(event);
-  }
-
-  /**
-   * Activate the options set using <tt>setHosts()</tt>, <tt>setSelector</tt>
-   * and <tt>setMaxBackoff</tt>
-   *
-   * @throws FlumeException
-   *           if the LoadBalancingRpcClient cannot be instantiated.
-   */
-  @Override
-  public void activateOptions() throws FlumeException {
-    try {
-      final Properties properties = getProperties(hosts, selector, maxBackoff, getTimeout());
-      rpcClient = RpcClientFactory.getInstance(properties);
-      if (layout != null) {
-        layout.activateOptions();
-      }
-      configured = true;
-    } catch (Exception e) {
-      String errormsg = "RPC client creation failed! " + e.getMessage();
-      LogLog.error(errormsg);
-      if (getUnsafeMode()) {
-        return;
-      }
-      throw new FlumeException(e);
-    }
-    initializeClientAddress();
-  }
-
-  private Properties getProperties(String hosts, String selector,
-      String maxBackoff, long timeout) throws FlumeException {
-
-    if (StringUtils.isEmpty(hosts)) {
-      throw new FlumeException("hosts must not be null");
+    public void setHosts(String hostNames) {
+        this.hosts = hostNames;
     }
 
-    Properties props = new Properties();
-    String[] hostsAndPorts = hosts.split("\\s+");
-    StringBuilder names = new StringBuilder();
-    for (int i = 0; i < hostsAndPorts.length; i++) {
-      String hostAndPort = hostsAndPorts[i];
-      String name = "h" + i;
-      props.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + name,
-          hostAndPort);
-      names.append(name).append(" ");
-    }
-    props.put(RpcClientConfigurationConstants.CONFIG_HOSTS, names.toString());
-    props.put(RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
-        ClientType.DEFAULT_LOADBALANCE.toString());
-    if (!StringUtils.isEmpty(selector)) {
-      props.put(RpcClientConfigurationConstants.CONFIG_HOST_SELECTOR, selector);
+    public void setSelector(String selector) {
+        this.selector = selector;
     }
 
-    if (!StringUtils.isEmpty(maxBackoff)) {
-      long millis = Long.parseLong(maxBackoff.trim());
-      if (millis <= 0) {
-        throw new FlumeException(
-            "Misconfigured max backoff, value must be greater than 0");
-      }
-      props.put(RpcClientConfigurationConstants.CONFIG_BACKOFF, String.valueOf(true));
-      props.put(RpcClientConfigurationConstants.CONFIG_MAX_BACKOFF, maxBackoff);
+    public void setMaxBackoff(String maxBackoff) {
+        this.maxBackoff = maxBackoff;
     }
-    props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECT_TIMEOUT,
-                      String.valueOf(timeout));
-    props.setProperty(RpcClientConfigurationConstants.CONFIG_REQUEST_TIMEOUT,
-                      String.valueOf(timeout));
-    return props;
-  }
+
+    @Override
+    public synchronized void append(LoggingEvent event) {
+        if (!configured) {
+            String errorMsg = "Flume Log4jAppender not configured correctly! Cannot" +
+                    " send events to Flume.";
+            LogLog.error(errorMsg);
+            if (getUnsafeMode()) {
+                return;
+            }
+            throw new FlumeException(errorMsg);
+        }
+        super.append(event);
+    }
+
+    /**
+     * Activate the options set using <tt>setHosts()</tt>, <tt>setSelector</tt>
+     * and <tt>setMaxBackoff</tt>
+     *
+     * @throws FlumeException if the LoadBalancingRpcClient cannot be instantiated.
+     */
+    @Override
+    public void activateOptions() throws FlumeException {
+        try {
+            final Properties properties = getProperties(hosts, selector, maxBackoff, getTimeout());
+            rpcClient = RpcClientFactory.getInstance(properties);
+            if (layout != null) {
+                layout.activateOptions();
+            }
+            configured = true;
+        } catch (Exception e) {
+            String errormsg = "RPC client creation failed! " + e.getMessage();
+            LogLog.error(errormsg);
+            if (getUnsafeMode()) {
+                return;
+            }
+            throw new FlumeException(e);
+        }
+        initializeClientAddress();
+    }
+
+    private Properties getProperties(String hosts, String selector,
+                                     String maxBackoff, long timeout) throws FlumeException {
+
+        if (StringUtils.isEmpty(hosts)) {
+            throw new FlumeException("hosts must not be null");
+        }
+
+        Properties props = new Properties();
+        String[] hostsAndPorts = hosts.split("\\s+");
+        StringBuilder names = new StringBuilder();
+        for (int i = 0; i < hostsAndPorts.length; i++) {
+            String hostAndPort = hostsAndPorts[i];
+            String name = "h" + i;
+            props.setProperty(RpcClientConfigurationConstants.CONFIG_HOSTS_PREFIX + name,
+                    hostAndPort);
+            names.append(name).append(" ");
+        }
+        props.put(RpcClientConfigurationConstants.CONFIG_HOSTS, names.toString());
+        props.put(RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
+                ClientType.DEFAULT_LOADBALANCE.toString());
+        if (!StringUtils.isEmpty(selector)) {
+            props.put(RpcClientConfigurationConstants.CONFIG_HOST_SELECTOR, selector);
+        }
+
+        if (!StringUtils.isEmpty(maxBackoff)) {
+            long millis = Long.parseLong(maxBackoff.trim());
+            if (millis <= 0) {
+                throw new FlumeException(
+                        "Misconfigured max backoff, value must be greater than 0");
+            }
+            props.put(RpcClientConfigurationConstants.CONFIG_BACKOFF, String.valueOf(true));
+            props.put(RpcClientConfigurationConstants.CONFIG_MAX_BACKOFF, maxBackoff);
+        }
+        props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECT_TIMEOUT,
+                String.valueOf(timeout));
+        props.setProperty(RpcClientConfigurationConstants.CONFIG_REQUEST_TIMEOUT,
+                String.valueOf(timeout));
+        return props;
+    }
 }

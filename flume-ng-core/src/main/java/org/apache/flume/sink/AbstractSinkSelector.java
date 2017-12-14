@@ -28,48 +28,48 @@ import org.apache.flume.sink.LoadBalancingSinkProcessor.SinkSelector;
 
 public abstract class AbstractSinkSelector implements SinkSelector {
 
-  private LifecycleState state;
+    private LifecycleState state;
 
-  // List of sinks as specified
-  private List<Sink> sinkList;
+    // List of sinks as specified
+    private List<Sink> sinkList;
 
-  protected long maxTimeOut = 0;
+    protected long maxTimeOut = 0;
 
-  @Override
-  public void configure(Context context) {
-    Long timeOut = context.getLong("maxTimeOut");
-    if (timeOut != null) {
-      maxTimeOut = timeOut;
+    @Override
+    public void configure(Context context) {
+        Long timeOut = context.getLong("maxTimeOut");
+        if (timeOut != null) {
+            maxTimeOut = timeOut;
+        }
     }
-  }
 
-  @Override
-  public void start() {
-    state = LifecycleState.START;
-  }
+    @Override
+    public void start() {
+        state = LifecycleState.START;
+    }
 
-  @Override
-  public void stop() {
-    state = LifecycleState.STOP;
-  }
+    @Override
+    public void stop() {
+        state = LifecycleState.STOP;
+    }
 
-  @Override
-  public LifecycleState getLifecycleState() {
-    return state;
-  }
+    @Override
+    public LifecycleState getLifecycleState() {
+        return state;
+    }
 
-  @Override
-  public void setSinks(List<Sink> sinks) {
-    sinkList = new ArrayList<Sink>();
-    sinkList.addAll(sinks);
-  }
+    @Override
+    public void setSinks(List<Sink> sinks) {
+        sinkList = new ArrayList<Sink>();
+        sinkList.addAll(sinks);
+    }
 
-  protected List<Sink> getSinks() {
-    return sinkList;
-  }
+    protected List<Sink> getSinks() {
+        return sinkList;
+    }
 
-  @Override
-  public void informSinkFailed(Sink failedSink) {
-    // no-op
-  }
+    @Override
+    public void informSinkFailed(Sink failedSink) {
+        // no-op
+    }
 }

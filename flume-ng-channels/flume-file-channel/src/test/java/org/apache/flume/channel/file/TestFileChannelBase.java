@@ -33,69 +33,69 @@ import com.google.common.io.Files;
 
 public class TestFileChannelBase {
 
-  private final int dataDirCount;
-  protected FileChannel channel;
-  protected File baseDir;
-  protected File checkpointDir;
-  protected File[] dataDirs;
-  protected String dataDir;
-  protected File backupDir;
-  protected File uncompressedBackupCheckpoint;
-  protected File compressedBackupCheckpoint;
+    private final int dataDirCount;
+    protected FileChannel channel;
+    protected File baseDir;
+    protected File checkpointDir;
+    protected File[] dataDirs;
+    protected String dataDir;
+    protected File backupDir;
+    protected File uncompressedBackupCheckpoint;
+    protected File compressedBackupCheckpoint;
 
-  public TestFileChannelBase() {
-    this(3); // By default the tests run with multiple data directories
-  }
-
-  public TestFileChannelBase(int dataDirCount) {
-    Preconditions.checkArgument(dataDirCount > 0, "Invalid dataDirCount");
-    this.dataDirCount = dataDirCount;
-  }
-
-  @Before
-  public void setup() throws Exception {
-    baseDir = Files.createTempDir();
-    checkpointDir = new File(baseDir, "chkpt");
-    backupDir = new File(baseDir, "backup");
-    uncompressedBackupCheckpoint = new File(backupDir, "checkpoint");
-    compressedBackupCheckpoint = new File(backupDir,
-      "checkpoint.snappy");
-    Assert.assertTrue(checkpointDir.mkdirs() || checkpointDir.isDirectory());
-    Assert.assertTrue(backupDir.mkdirs() || backupDir.isDirectory());
-    dataDirs = new File[dataDirCount];
-    dataDir = "";
-    for (int i = 0; i < dataDirs.length; i++) {
-      dataDirs[i] = new File(baseDir, "data" + (i + 1));
-      Assert.assertTrue(dataDirs[i].mkdirs() || dataDirs[i].isDirectory());
-      dataDir += dataDirs[i].getAbsolutePath() + ",";
+    public TestFileChannelBase() {
+        this(3); // By default the tests run with multiple data directories
     }
-    dataDir = dataDir.substring(0, dataDir.length() - 1);
-    channel = createFileChannel();
-  }
 
-  @After
-  public void teardown() {
-    if (channel != null && channel.isOpen()) {
-      channel.stop();
+    public TestFileChannelBase(int dataDirCount) {
+        Preconditions.checkArgument(dataDirCount > 0, "Invalid dataDirCount");
+        this.dataDirCount = dataDirCount;
     }
-    FileUtils.deleteQuietly(baseDir);
-  }
 
-  protected Context createContext() {
-    return createContext(new HashMap<String, String>());
-  }
+    @Before
+    public void setup() throws Exception {
+        baseDir = Files.createTempDir();
+        checkpointDir = new File(baseDir, "chkpt");
+        backupDir = new File(baseDir, "backup");
+        uncompressedBackupCheckpoint = new File(backupDir, "checkpoint");
+        compressedBackupCheckpoint = new File(backupDir,
+                "checkpoint.snappy");
+        Assert.assertTrue(checkpointDir.mkdirs() || checkpointDir.isDirectory());
+        Assert.assertTrue(backupDir.mkdirs() || backupDir.isDirectory());
+        dataDirs = new File[dataDirCount];
+        dataDir = "";
+        for (int i = 0; i < dataDirs.length; i++) {
+            dataDirs[i] = new File(baseDir, "data" + (i + 1));
+            Assert.assertTrue(dataDirs[i].mkdirs() || dataDirs[i].isDirectory());
+            dataDir += dataDirs[i].getAbsolutePath() + ",";
+        }
+        dataDir = dataDir.substring(0, dataDir.length() - 1);
+        channel = createFileChannel();
+    }
 
-  protected Context createContext(Map<String, String> overrides) {
-    return TestUtils.createFileChannelContext(checkpointDir.getAbsolutePath(),
-        dataDir, backupDir.getAbsolutePath(), overrides);
-  }
+    @After
+    public void teardown() {
+        if (channel != null && channel.isOpen()) {
+            channel.stop();
+        }
+        FileUtils.deleteQuietly(baseDir);
+    }
 
-  protected FileChannel createFileChannel() {
-    return createFileChannel(new HashMap<String, String>());
-  }
+    protected Context createContext() {
+        return createContext(new HashMap<String, String>());
+    }
 
-  protected FileChannel createFileChannel(Map<String, String> overrides) {
-    return TestUtils.createFileChannel(checkpointDir.getAbsolutePath(),
-        dataDir, backupDir.getAbsolutePath(), overrides);
-  }
+    protected Context createContext(Map<String, String> overrides) {
+        return TestUtils.createFileChannelContext(checkpointDir.getAbsolutePath(),
+                dataDir, backupDir.getAbsolutePath(), overrides);
+    }
+
+    protected FileChannel createFileChannel() {
+        return createFileChannel(new HashMap<String, String>());
+    }
+
+    protected FileChannel createFileChannel(Map<String, String> overrides) {
+        return TestUtils.createFileChannel(checkpointDir.getAbsolutePath(),
+                dataDir, backupDir.getAbsolutePath(), overrides);
+    }
 }

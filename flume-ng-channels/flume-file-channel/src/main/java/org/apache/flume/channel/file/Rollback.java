@@ -32,47 +32,47 @@ import com.google.common.base.Preconditions;
  * Represents a Rollback on disk
  */
 class Rollback extends TransactionEventRecord {
-  Rollback(Long transactionID, Long logWriteOrderID) {
-    super(transactionID, logWriteOrderID);
-  }
+    Rollback(Long transactionID, Long logWriteOrderID) {
+        super(transactionID, logWriteOrderID);
+    }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    super.readFields(in);
-  }
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        super.readFields(in);
+    }
 
-  @Override
-  public void write(DataOutput out) throws IOException {
-    super.write(out);
-  }
+    @Override
+    public void write(DataOutput out) throws IOException {
+        super.write(out);
+    }
 
-  @Override
-  void writeProtos(OutputStream out) throws IOException {
-    ProtosFactory.Rollback.Builder rollbackBuilder =
-        ProtosFactory.Rollback.newBuilder();
-    rollbackBuilder.build().writeDelimitedTo(out);
-  }
+    @Override
+    void writeProtos(OutputStream out) throws IOException {
+        ProtosFactory.Rollback.Builder rollbackBuilder =
+                ProtosFactory.Rollback.newBuilder();
+        rollbackBuilder.build().writeDelimitedTo(out);
+    }
 
-  @Override
-  void readProtos(InputStream in) throws IOException {
-    @SuppressWarnings("unused")
-    ProtosFactory.Rollback rollback = Preconditions.checkNotNull(
-        ProtosFactory.Rollback.parseDelimitedFrom(in), "Rollback cannot be null");
-  }
+    @Override
+    void readProtos(InputStream in) throws IOException {
+        @SuppressWarnings("unused")
+        ProtosFactory.Rollback rollback = Preconditions.checkNotNull(
+                ProtosFactory.Rollback.parseDelimitedFrom(in), "Rollback cannot be null");
+    }
 
-  @Override
-  short getRecordType() {
-    return Type.ROLLBACK.get();
-  }
+    @Override
+    short getRecordType() {
+        return Type.ROLLBACK.get();
+    }
 
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Rollback [getLogWriteOrderID()=");
-    builder.append(getLogWriteOrderID());
-    builder.append(", getTransactionID()=");
-    builder.append(getTransactionID());
-    builder.append("]");
-    return builder.toString();
-  }
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Rollback [getLogWriteOrderID()=");
+        builder.append(getLogWriteOrderID());
+        builder.append(", getTransactionID()=");
+        builder.append(getTransactionID());
+        builder.append("]");
+        return builder.toString();
+    }
 }

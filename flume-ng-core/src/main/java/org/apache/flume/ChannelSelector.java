@@ -32,35 +32,37 @@ import org.apache.flume.conf.Configurable;
  */
 public interface ChannelSelector extends NamedComponent, Configurable {
 
-  /**
-   * @param channels all channels the selector could select from.
-   */
-  public void setChannels(List<Channel> channels);
+    /**
+     * @param channels all channels the selector could select from.
+     */
+    public void setChannels(List<Channel> channels);
 
-  /**
-   * Returns a list of required channels. A failure in writing the event to
-   * these channels must be communicated back to the source that received this
-   * event.
-   * @param event
-   * @return the list of required channels that this selector has selected for
-   * the given event.
-   */
-  public List<Channel> getRequiredChannels(Event event);
+    /**
+     * Returns a list of required channels. A failure in writing the event to
+     * these channels must be communicated back to the source that received this
+     * event.
+     *
+     * @param event
+     * @return the list of required channels that this selector has selected for
+     * the given event.
+     */
+    public List<Channel> getRequiredChannels(Event event);
 
 
-  /**
-   * Returns a list of optional channels. A failure in writing the event to
-   * these channels must be ignored.
-   * @param event
-   * @return the list of optional channels that this selector has selected for
-   * the given event.
-   */
-  public List<Channel> getOptionalChannels(Event event);
+    /**
+     * Returns a list of optional channels. A failure in writing the event to
+     * these channels must be ignored.
+     *
+     * @param event
+     * @return the list of optional channels that this selector has selected for
+     * the given event.
+     */
+    public List<Channel> getOptionalChannels(Event event);
 
-  /**
-   * @return the list of all channels that this selector is configured to work
-   * with.
-   */
-  public List<Channel> getAllChannels();
+    /**
+     * @return the list of all channels that this selector is configured to work
+     * with.
+     */
+    public List<Channel> getAllChannels();
 
 }

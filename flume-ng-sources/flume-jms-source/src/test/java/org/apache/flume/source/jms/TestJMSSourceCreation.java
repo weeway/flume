@@ -28,22 +28,22 @@ import org.junit.Test;
 
 public class TestJMSSourceCreation {
 
-  private SourceFactory sourceFactory;
+    private SourceFactory sourceFactory;
 
-  @Before
-  public void setUp() {
-    sourceFactory = new DefaultSourceFactory();
-  }
+    @Before
+    public void setUp() {
+        sourceFactory = new DefaultSourceFactory();
+    }
 
-  private void verifySourceCreation(String name, String type,
-      Class<?> typeClass) throws FlumeException {
-    Source src = sourceFactory.create(name, type);
-    Assert.assertNotNull(src);
-    Assert.assertTrue(typeClass.isInstance(src));
-  }
+    private void verifySourceCreation(String name, String type,
+                                      Class<?> typeClass) throws FlumeException {
+        Source src = sourceFactory.create(name, type);
+        Assert.assertNotNull(src);
+        Assert.assertTrue(typeClass.isInstance(src));
+    }
 
-  @Test
-  public void testJMSSourceCreation() {
-    verifySourceCreation("jms-src", "jms", JMSSource.class);
-  }
+    @Test
+    public void testJMSSourceCreation() {
+        verifySourceCreation("jms-src", "jms", JMSSource.class);
+    }
 }

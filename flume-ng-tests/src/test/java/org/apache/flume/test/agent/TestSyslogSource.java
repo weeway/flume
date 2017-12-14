@@ -33,65 +33,65 @@ import java.util.List;
 
 @RunWith(Parameterized.class)
 public class TestSyslogSource {
-  private static final Logger LOGGER = Logger.getLogger(TestSyslogSource.class);
+    private static final Logger LOGGER = Logger.getLogger(TestSyslogSource.class);
 
-  private SyslogAgent agent;
-  private SyslogAgent.SyslogSourceType sourceType;
+    private SyslogAgent agent;
+    private SyslogAgent.SyslogSourceType sourceType;
 
-  public TestSyslogSource(SyslogAgent.SyslogSourceType sourceType) {
-    this.sourceType = sourceType;
-  }
-
-  @Parameterized.Parameters
-  public static Collection syslogSourceTypes() {
-    List<Object[]> sourceTypes = new ArrayList<Object[]>();
-    for (SyslogAgent.SyslogSourceType sourceType : SyslogAgent.SyslogSourceType.values()) {
-      sourceTypes.add(new Object[]{sourceType});
+    public TestSyslogSource(SyslogAgent.SyslogSourceType sourceType) {
+        this.sourceType = sourceType;
     }
-    return sourceTypes;
-  }
 
-  @Before
-  public void setUp() throws Exception {
-    agent = new SyslogAgent();
-    agent.configure(sourceType);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (agent != null) {
-      agent.stop();
-      agent = null;
+    @Parameterized.Parameters
+    public static Collection syslogSourceTypes() {
+        List<Object[]> sourceTypes = new ArrayList<Object[]>();
+        for (SyslogAgent.SyslogSourceType sourceType : SyslogAgent.SyslogSourceType.values()) {
+            sourceTypes.add(new Object[]{sourceType});
+        }
+        return sourceTypes;
     }
-  }
 
-  @Test
-  public void testKeepFields() throws Exception {
-    LOGGER.debug("testKeepFields() started.");
+    @Before
+    public void setUp() throws Exception {
+        agent = new SyslogAgent();
+        agent.configure(sourceType);
+    }
 
-    agent.start("all");
-    agent.runKeepFieldsTest();
+    @After
+    public void tearDown() throws Exception {
+        if (agent != null) {
+            agent.stop();
+            agent = null;
+        }
+    }
 
-    LOGGER.debug("testKeepFields() ended.");
-  }
+    @Test
+    public void testKeepFields() throws Exception {
+        LOGGER.debug("testKeepFields() started.");
 
-  @Test
-  public void testRemoveFields() throws Exception {
-    LOGGER.debug("testRemoveFields() started.");
+        agent.start("all");
+        agent.runKeepFieldsTest();
 
-    agent.start("none");
-    agent.runKeepFieldsTest();
+        LOGGER.debug("testKeepFields() ended.");
+    }
 
-    LOGGER.debug("testRemoveFields() ended.");
-  }
+    @Test
+    public void testRemoveFields() throws Exception {
+        LOGGER.debug("testRemoveFields() started.");
 
-  @Test
-  public void testKeepTimestampAndHostname() throws Exception {
-    LOGGER.debug("testKeepTimestampAndHostname() started.");
+        agent.start("none");
+        agent.runKeepFieldsTest();
 
-    agent.start("timestamp hostname");
-    agent.runKeepFieldsTest();
+        LOGGER.debug("testRemoveFields() ended.");
+    }
 
-    LOGGER.debug("testKeepTimestampAndHostname() ended.");
-  }
+    @Test
+    public void testKeepTimestampAndHostname() throws Exception {
+        LOGGER.debug("testKeepTimestampAndHostname() started.");
+
+        agent.start("timestamp hostname");
+        agent.runKeepFieldsTest();
+
+        LOGGER.debug("testKeepTimestampAndHostname() ended.");
+    }
 }

@@ -27,31 +27,31 @@ import java.util.List;
 
 public class RoundRobinOrderSelector<T> extends OrderSelector<T> {
 
-  private int nextHead = 0;
+    private int nextHead = 0;
 
-  public RoundRobinOrderSelector(boolean shouldBackOff) {
-    super(shouldBackOff);
-  }
-
-  @Override
-  public Iterator<T> createIterator() {
-    List<Integer> activeIndices = getIndexList();
-    int size = activeIndices.size();
-    // possible that the size has shrunk so gotta adjust nextHead for that
-    if (nextHead >= size) {
-      nextHead = 0;
-    }
-    int begin = nextHead++;
-    if (nextHead == activeIndices.size()) {
-      nextHead = 0;
+    public RoundRobinOrderSelector(boolean shouldBackOff) {
+        super(shouldBackOff);
     }
 
-    int[] indexOrder = new int[size];
+    @Override
+    public Iterator<T> createIterator() {
+        List<Integer> activeIndices = getIndexList();
+        int size = activeIndices.size();
+        // possible that the size has shrunk so gotta adjust nextHead for that
+        if (nextHead >= size) {
+            nextHead = 0;
+        }
+        int begin = nextHead++;
+        if (nextHead == activeIndices.size()) {
+            nextHead = 0;
+        }
 
-    for (int i = 0; i < size; i++) {
-      indexOrder[i] = activeIndices.get((begin + i) % size);
+        int[] indexOrder = new int[size];
+
+        for (int i = 0; i < size; i++) {
+            indexOrder[i] = activeIndices.get((begin + i) % size);
+        }
+
+        return new SpecificOrderIterator<T>(indexOrder, getObjects());
     }
-
-    return new SpecificOrderIterator<T>(indexOrder, getObjects());
-  }
 }

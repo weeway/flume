@@ -28,22 +28,22 @@ import org.apache.flume.conf.Configurable;
  */
 public interface EventValidator {
 
-  /**
-   * Validate the Event in a application specific manner
-   *
-   * @param event Flume Event
-   * @return  true if Event is valid as per App Logic
-   */
-  boolean validateEvent(Event event);
+    /**
+     * Validate the Event in a application specific manner
+     *
+     * @param event Flume Event
+     * @return true if Event is valid as per App Logic
+     */
+    boolean validateEvent(Event event);
 
-  EventValidator NOOP_VALIDATOR = new EventValidator() {
-    @Override
-    public boolean validateEvent(Event event) {
-      return true;
+    EventValidator NOOP_VALIDATOR = new EventValidator() {
+        @Override
+        public boolean validateEvent(Event event) {
+            return true;
+        }
+    };
+
+    interface Builder extends Configurable {
+        EventValidator build();
     }
-  };
-
-  interface Builder extends Configurable {
-    EventValidator build();
-  }
 }

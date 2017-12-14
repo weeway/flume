@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * list of active sinks returned by <tt>getIndexList</tt> method. Classes
  * instantiating subclasses of this class are expected to call <tt>informFailure</tt>
  * method when an object passed to this class should be marked as failed and backed off.
- *
+ * <p>
  * When implementing a different backoff algorithm, a subclass should
  * minimally override <tt>informFailure</tt> and <tt>getIndexList</tt> methods.
  *
@@ -39,59 +39,61 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class OrderSelector<T> {
 
-  private static final int EXP_BACKOFF_COUNTER_LIMIT = 16;
-  private static final long CONSIDER_SEQUENTIAL_RANGE = TimeUnit.HOURS.toMillis(1);
-  private static final long MAX_TIMEOUT = 30000L;
-  private final Map<T, FailureState> stateMap =
-          new LinkedHashMap<T, FailureState>();
-  private long maxTimeout = MAX_TIMEOUT;
-  private final boolean shouldBackOff;
+    private static final int EXP_BACKOFF_COUNTER_LIMIT = 16;
+    private static final long CONSIDER_SEQUENTIAL_RANGE = TimeUnit.HOURS.toMillis(1);
+    private static final long MAX_TIMEOUT = 30000L;
+    private final Map<T, FailureState> stateMap =
+            new LinkedHashMap<T, FailureState>();
+    private long maxTimeout = MAX_TIMEOUT;
+    private final boolean shouldBackOff;
 
-  protected OrderSelector(boolean shouldBackOff) {
-    this.shouldBackOff = shouldBackOff;
-  }
-
-  /**
-   * Set the list of objects which this class should return in order.
-   * @param objects
-   */
-  @SuppressWarnings("unchecked")
-  public void setObjects(List<T> objects) {
-    //Order is the same as the original order.
-
-    for (T sink : objects) {
-      FailureState state = new FailureState();
-      stateMap.put(sink, state);
+    protected OrderSelector(boolean shouldBackOff) {
+        this.shouldBackOff = shouldBackOff;
     }
-  }
 
-  /**
-   * Get the list of objects to be ordered. This list is in the same order
-   * as originally passed in, not in the algorithmically reordered order.
-   * @return - list of objects to be ordered.
-   */
-  public List<T> getObjects() {
-    return new ArrayList<T>(stateMap.keySet());
-  }
+    /**
+     * Set the list of objects which this class should return in order.
+     *
+     * @param objects
+     */
+    @SuppressWarnings("unchecked")
+    public void setObjects(List<T> objects) {
+        //Order is the same as the original order.
 
-  /**
-   *
-   * @return - list of algorithmically ordered active sinks
-   */
-  public abstract Iterator<T> createIterator();
-
-  /**
-   * Inform this class of the failure of an object so it can be backed off.
-   * @param failedObject
-   */
-  public void informFailure(T failedObject) {
-    //If there is no backoff this method is a no-op.
-    if (!shouldBackOff) {
-      return;
+        for (T sink : objects) {
+            FailureState state = new FailureState();
+            stateMap.put(sink, state);
+        }
     }
-    FailureState state = stateMap.get(failedObject);
-    long now = System.currentTimeMillis();
-    long delta = now - state.lastFail;
+
+    /**
+     * Get the list of objects to be ordered. This list is in the same order
+     * as originally passed in, not in the algorithmically reordered order.
+     *
+     * @return - list of objects to be ordered.
+     */
+    public List<T> getObjects() {
+        return new ArrayList<T>(stateMap.keySet());
+    }
+
+    /**
+     * @return - list of algorithmically ordered active sinks
+     */
+    public abstract Iterator<T> createIterator();
+
+    /**
+     * Inform this class of the failure of an object so it can be backed off.
+     *
+     * @param failedObject
+     */
+    public void informFailure(T failedObject) {
+        //If there is no backoff this method is a no-op.
+        if (!shouldBackOff) {
+            return;
+        }
+        FailureState state = stateMap.get(failedObject);
+        long now = System.currentTimeMillis();
+        long delta = now - state.lastFail;
 
     /*
      * When do we increase the backoff period?
@@ -101,56 +103,55 @@ public abstract class OrderSelector<T> {
      * since the object did not recover yet. Else we assume this is a fresh
      * failure and reset the count.
      */
-    long lastBackoffLength = Math.min(maxTimeout, 1000 * (1 << state.sequentialFails));
-    long allowableDiff = lastBackoffLength + CONSIDER_SEQUENTIAL_RANGE;
-    if (allowableDiff > delta) {
-      if (state.sequentialFails < EXP_BACKOFF_COUNTER_LIMIT) {
-        state.sequentialFails++;
-      }
-    } else {
-      state.sequentialFails = 1;
+        long lastBackoffLength = Math.min(maxTimeout, 1000 * (1 << state.sequentialFails));
+        long allowableDiff = lastBackoffLength + CONSIDER_SEQUENTIAL_RANGE;
+        if (allowableDiff > delta) {
+            if (state.sequentialFails < EXP_BACKOFF_COUNTER_LIMIT) {
+                state.sequentialFails++;
+            }
+        } else {
+            state.sequentialFails = 1;
+        }
+        state.lastFail = now;
+        //Depending on the number of sequential failures this component had, delay
+        //its restore time. Each time it fails, delay the restore by 1000 ms,
+        //until the maxTimeOut is reached.
+        state.restoreTime = now + Math.min(maxTimeout, 1000 * (1 << state.sequentialFails));
     }
-    state.lastFail = now;
-    //Depending on the number of sequential failures this component had, delay
-    //its restore time. Each time it fails, delay the restore by 1000 ms,
-    //until the maxTimeOut is reached.
-    state.restoreTime = now + Math.min(maxTimeout, 1000 * (1 << state.sequentialFails));
-  }
 
-  /**
-   *
-   * @return - List of indices currently active objects
-   */
-  protected List<Integer> getIndexList() {
-    long now = System.currentTimeMillis();
+    /**
+     * @return - List of indices currently active objects
+     */
+    protected List<Integer> getIndexList() {
+        long now = System.currentTimeMillis();
 
-    List<Integer> indexList = new ArrayList<Integer>();
+        List<Integer> indexList = new ArrayList<Integer>();
 
-    int i = 0;
-    for (T obj : stateMap.keySet()) {
-      if (!isShouldBackOff() || stateMap.get(obj).restoreTime < now) {
-        indexList.add(i);
-      }
-      i++;
+        int i = 0;
+        for (T obj : stateMap.keySet()) {
+            if (!isShouldBackOff() || stateMap.get(obj).restoreTime < now) {
+                indexList.add(i);
+            }
+            i++;
+        }
+        return indexList;
     }
-    return indexList;
-  }
 
-  public boolean isShouldBackOff() {
-    return shouldBackOff;
-  }
+    public boolean isShouldBackOff() {
+        return shouldBackOff;
+    }
 
-  public void setMaxTimeOut(long timeout) {
-    this.maxTimeout = timeout;
-  }
+    public void setMaxTimeOut(long timeout) {
+        this.maxTimeout = timeout;
+    }
 
-  public long getMaxTimeOut() {
-    return this.maxTimeout;
-  }
+    public long getMaxTimeOut() {
+        return this.maxTimeout;
+    }
 
-  private static class FailureState {
-    long lastFail = 0;
-    long restoreTime = 0;
-    int sequentialFails = 0;
-  }
+    private static class FailureState {
+        long lastFail = 0;
+        long restoreTime = 0;
+        int sequentialFails = 0;
+    }
 }

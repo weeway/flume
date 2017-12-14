@@ -28,31 +28,31 @@ import java.util.Arrays;
 
 public class MyCustomSerializer implements SequenceFileSerializer {
 
-  @Override
-  public Class<LongWritable> getKeyClass() {
-    return LongWritable.class;
-  }
-
-  @Override
-  public Class<BytesWritable> getValueClass() {
-    return BytesWritable.class;
-  }
-
-  @Override
-  public Iterable<Record> serialize(Event e) {
-    return Arrays.asList(
-        new Record(new LongWritable(1234L), new BytesWritable(new byte[10])),
-        new Record(new LongWritable(4567L), new BytesWritable(new byte[20]))
-    );
-  }
-
-  public static class Builder implements SequenceFileSerializer.Builder {
-
     @Override
-    public SequenceFileSerializer build(Context context) {
-      return new MyCustomSerializer();
+    public Class<LongWritable> getKeyClass() {
+        return LongWritable.class;
     }
 
-  }
+    @Override
+    public Class<BytesWritable> getValueClass() {
+        return BytesWritable.class;
+    }
+
+    @Override
+    public Iterable<Record> serialize(Event e) {
+        return Arrays.asList(
+                new Record(new LongWritable(1234L), new BytesWritable(new byte[10])),
+                new Record(new LongWritable(4567L), new BytesWritable(new byte[20]))
+        );
+    }
+
+    public static class Builder implements SequenceFileSerializer.Builder {
+
+        @Override
+        public SequenceFileSerializer build(Context context) {
+            return new MyCustomSerializer();
+        }
+
+    }
 
 }

@@ -19,16 +19,16 @@
 package org.apache.flume.channel.file.encryption;
 
 public enum CipherProviderType {
-  AESCTRNOPADDING(AESCTRNoPaddingProvider.class),
-  OTHER(null);
+    AESCTRNOPADDING(AESCTRNoPaddingProvider.class),
+    OTHER(null);
 
-  private final Class<? extends CipherProvider> providerClass;
+    private final Class<? extends CipherProvider> providerClass;
 
-  CipherProviderType(Class<? extends CipherProvider> providerClass) {
-    this.providerClass = providerClass;
-  }
+    CipherProviderType(Class<? extends CipherProvider> providerClass) {
+        this.providerClass = providerClass;
+    }
 
-  public Class<? extends  CipherProvider> getProviderClass() {
-    return providerClass;
-  }
+    public Class<? extends CipherProvider> getProviderClass() {
+        return providerClass;
+    }
 }

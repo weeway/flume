@@ -32,73 +32,74 @@ import com.google.common.base.Preconditions;
  * Represents a Take on disk
  */
 class Take extends TransactionEventRecord {
-  private int offset;
-  private int fileID;
+    private int offset;
+    private int fileID;
 
-  Take(Long transactionID, Long logWriteOrderID) {
-    super(transactionID, logWriteOrderID);
-  }
+    Take(Long transactionID, Long logWriteOrderID) {
+        super(transactionID, logWriteOrderID);
+    }
 
-  Take(Long transactionID, Long logWriteOrderID, int offset, int fileID) {
-    this(transactionID, logWriteOrderID);
-    this.offset = offset;
-    this.fileID = fileID;
-  }
+    Take(Long transactionID, Long logWriteOrderID, int offset, int fileID) {
+        this(transactionID, logWriteOrderID);
+        this.offset = offset;
+        this.fileID = fileID;
+    }
 
-  int getOffset() {
-    return offset;
-  }
+    int getOffset() {
+        return offset;
+    }
 
-  int getFileID() {
-    return fileID;
-  }
+    int getFileID() {
+        return fileID;
+    }
 
-  @Override
-  public void readFields(DataInput in) throws IOException {
-    super.readFields(in);
-    offset = in.readInt();
-    fileID = in.readInt();
-  }
+    @Override
+    public void readFields(DataInput in) throws IOException {
+        super.readFields(in);
+        offset = in.readInt();
+        fileID = in.readInt();
+    }
 
-  @Override
-  public void write(DataOutput out) throws IOException {
-    super.write(out);
-    out.writeInt(offset);
-    out.writeInt(fileID);
-  }
-  @Override
-  void writeProtos(OutputStream out) throws IOException {
-    ProtosFactory.Take.Builder takeBuilder = ProtosFactory.Take.newBuilder();
-    takeBuilder.setFileID(fileID);
-    takeBuilder.setOffset(offset);
-    takeBuilder.build().writeDelimitedTo(out);
-  }
+    @Override
+    public void write(DataOutput out) throws IOException {
+        super.write(out);
+        out.writeInt(offset);
+        out.writeInt(fileID);
+    }
 
-  @Override
-  void readProtos(InputStream in) throws IOException {
-    ProtosFactory.Take take = Preconditions.checkNotNull(
-        ProtosFactory.Take.parseDelimitedFrom(in), "Take cannot be null");
-    fileID = take.getFileID();
-    offset = take.getOffset();
-  }
+    @Override
+    void writeProtos(OutputStream out) throws IOException {
+        ProtosFactory.Take.Builder takeBuilder = ProtosFactory.Take.newBuilder();
+        takeBuilder.setFileID(fileID);
+        takeBuilder.setOffset(offset);
+        takeBuilder.build().writeDelimitedTo(out);
+    }
 
-  @Override
-  short getRecordType() {
-    return Type.TAKE.get();
-  }
+    @Override
+    void readProtos(InputStream in) throws IOException {
+        ProtosFactory.Take take = Preconditions.checkNotNull(
+                ProtosFactory.Take.parseDelimitedFrom(in), "Take cannot be null");
+        fileID = take.getFileID();
+        offset = take.getOffset();
+    }
 
-  @Override
-  public String toString() {
-    StringBuilder builder = new StringBuilder();
-    builder.append("Take [offset=");
-    builder.append(offset);
-    builder.append(", fileID=");
-    builder.append(fileID);
-    builder.append(", getLogWriteOrderID()=");
-    builder.append(getLogWriteOrderID());
-    builder.append(", getTransactionID()=");
-    builder.append(getTransactionID());
-    builder.append("]");
-    return builder.toString();
-  }
+    @Override
+    short getRecordType() {
+        return Type.TAKE.get();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Take [offset=");
+        builder.append(offset);
+        builder.append(", fileID=");
+        builder.append(fileID);
+        builder.append(", getLogWriteOrderID()=");
+        builder.append(getLogWriteOrderID());
+        builder.append(", getTransactionID()=");
+        builder.append(getTransactionID());
+        builder.append("]");
+        return builder.toString();
+    }
 }

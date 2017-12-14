@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,58 +30,59 @@ import java.util.Map;
  * without any authenticated privileges
  */
 class SimpleAuthenticator implements FlumeAuthenticator {
-  private SimpleAuthenticator() {}
-
-  private static class SimpleAuthenticatorHolder {
-    public static SimpleAuthenticator authenticator = new SimpleAuthenticator();
-  }
-
-  public static SimpleAuthenticator getSimpleAuthenticator() {
-    return SimpleAuthenticatorHolder.authenticator;
-  }
-
-  private Map<String, PrivilegedExecutor> proxyCache =
-          new HashMap<String, PrivilegedExecutor>();
-
-
-  @Override
-  public <T> T execute(PrivilegedExceptionAction<T> action)
-          throws Exception {
-    return action.run();
-  }
-
-  @Override
-  public <T> T execute(PrivilegedAction<T> action) {
-    return action.run();
-  }
-
-  @Override
-  public synchronized PrivilegedExecutor proxyAs(String proxyUserName) {
-    if (proxyUserName == null || proxyUserName.isEmpty()) {
-      return this;
+    private SimpleAuthenticator() {
     }
-    if (proxyCache.get(proxyUserName) == null) {
-      UserGroupInformation proxyUgi;
-      try {
-        proxyUgi = UserGroupInformation.createProxyUser(proxyUserName,
-                UserGroupInformation.getCurrentUser());
-      } catch (IOException e) {
-        throw new SecurityException("Unable to create proxy User", e);
-      }
-      proxyCache.put(proxyUserName, new UGIExecutor(proxyUgi));
+
+    private static class SimpleAuthenticatorHolder {
+        public static SimpleAuthenticator authenticator = new SimpleAuthenticator();
     }
-    return proxyCache.get(proxyUserName);
-  }
 
-  @Override
-  public boolean isAuthenticated() {
-    return false;
-  }
+    public static SimpleAuthenticator getSimpleAuthenticator() {
+        return SimpleAuthenticatorHolder.authenticator;
+    }
 
-  @Override
-  public void startCredentialRefresher() {
-    // no-op
-  }
+    private Map<String, PrivilegedExecutor> proxyCache =
+            new HashMap<String, PrivilegedExecutor>();
+
+
+    @Override
+    public <T> T execute(PrivilegedExceptionAction<T> action)
+            throws Exception {
+        return action.run();
+    }
+
+    @Override
+    public <T> T execute(PrivilegedAction<T> action) {
+        return action.run();
+    }
+
+    @Override
+    public synchronized PrivilegedExecutor proxyAs(String proxyUserName) {
+        if (proxyUserName == null || proxyUserName.isEmpty()) {
+            return this;
+        }
+        if (proxyCache.get(proxyUserName) == null) {
+            UserGroupInformation proxyUgi;
+            try {
+                proxyUgi = UserGroupInformation.createProxyUser(proxyUserName,
+                        UserGroupInformation.getCurrentUser());
+            } catch (IOException e) {
+                throw new SecurityException("Unable to create proxy User", e);
+            }
+            proxyCache.put(proxyUserName, new UGIExecutor(proxyUgi));
+        }
+        return proxyCache.get(proxyUserName);
+    }
+
+    @Override
+    public boolean isAuthenticated() {
+        return false;
+    }
+
+    @Override
+    public void startCredentialRefresher() {
+        // no-op
+    }
 
 }
 

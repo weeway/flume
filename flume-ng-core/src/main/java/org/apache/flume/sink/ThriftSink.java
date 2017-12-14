@@ -102,20 +102,20 @@ import org.apache.flume.api.SecureRpcClientFactory;
  * </p>
  */
 public class ThriftSink extends AbstractRpcSink {
-  @Override
-  protected RpcClient initializeRpcClient(Properties props) {
-    // Only one thread is enough, since only one sink thread processes
-    // transactions at any given time. Each sink owns its own Rpc client.
-    props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECTION_POOL_SIZE,
-                      String.valueOf(1));
-    boolean enableKerberos = Boolean.parseBoolean(
-        props.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
-    if (enableKerberos) {
-      return SecureRpcClientFactory.getThriftInstance(props);
-    } else {
-      props.setProperty(RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
-                        RpcClientFactory.ClientType.THRIFT.name());
-      return RpcClientFactory.getInstance(props);
+    @Override
+    protected RpcClient initializeRpcClient(Properties props) {
+        // Only one thread is enough, since only one sink thread processes
+        // transactions at any given time. Each sink owns its own Rpc client.
+        props.setProperty(RpcClientConfigurationConstants.CONFIG_CONNECTION_POOL_SIZE,
+                String.valueOf(1));
+        boolean enableKerberos = Boolean.parseBoolean(
+                props.getProperty(RpcClientConfigurationConstants.KERBEROS_KEY, "false"));
+        if (enableKerberos) {
+            return SecureRpcClientFactory.getThriftInstance(props);
+        } else {
+            props.setProperty(RpcClientConfigurationConstants.CONFIG_CLIENT_TYPE,
+                    RpcClientFactory.ClientType.THRIFT.name());
+            return RpcClientFactory.getInstance(props);
+        }
     }
-  }
 }

@@ -22,5 +22,5 @@ package org.apache.flume;
  * Facade for System.currentTimeMillis for Testing
  */
 public interface Clock {
-  long currentTimeMillis();
+    long currentTimeMillis();
 }

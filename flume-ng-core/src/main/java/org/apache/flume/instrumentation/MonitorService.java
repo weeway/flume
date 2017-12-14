@@ -28,8 +28,8 @@ import org.apache.flume.conf.Configurable;
  */
 public interface MonitorService extends Configurable {
 
-  public void start();
+    public void start();
 
-  public void stop();
+    public void stop();
 
 }

@@ -19,6 +19,6 @@ package org.apache.flume.conf;
 
 public interface ConfigurableComponent {
 
-  public void configure(ComponentConfiguration conf);
+    public void configure(ComponentConfiguration conf);
 
 }

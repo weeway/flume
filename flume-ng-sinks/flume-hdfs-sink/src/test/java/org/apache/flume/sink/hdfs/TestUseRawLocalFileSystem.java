@@ -19,6 +19,7 @@
 package org.apache.flume.sink.hdfs;
 
 import java.io.File;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -37,59 +38,61 @@ import com.google.common.io.Files;
 
 public class TestUseRawLocalFileSystem {
 
-  private static Logger logger =
-      LoggerFactory.getLogger(TestUseRawLocalFileSystem.class);
-  private Context context;
+    private static Logger logger =
+            LoggerFactory.getLogger(TestUseRawLocalFileSystem.class);
+    private Context context;
 
-  private File baseDir;
-  private File testFile;
-  private Event event;
+    private File baseDir;
+    private File testFile;
+    private Event event;
 
-  @Before
-  public void setup() throws Exception {
-    baseDir = Files.createTempDir();
-    testFile = new File(baseDir.getAbsoluteFile(), "test");
-    context = new Context();
-    event = EventBuilder.withBody("test", Charsets.UTF_8);
-  }
+    @Before
+    public void setup() throws Exception {
+        baseDir = Files.createTempDir();
+        testFile = new File(baseDir.getAbsoluteFile(), "test");
+        context = new Context();
+        event = EventBuilder.withBody("test", Charsets.UTF_8);
+    }
 
-  @After
-  public void teardown() throws Exception {
-    FileUtils.deleteQuietly(baseDir);
-  }
+    @After
+    public void teardown() throws Exception {
+        FileUtils.deleteQuietly(baseDir);
+    }
 
-  @Test
-  public void testTestFile() throws Exception {
-    String file = testFile.getCanonicalPath();
-    HDFSDataStream stream = new HDFSDataStream();
-    context.put("hdfs.useRawLocalFileSystem", "true");
-    stream.configure(context);
-    stream.open(file);
-    stream.append(event);
-    stream.sync();
-    Assert.assertTrue(testFile.length() > 0);
-  }
-  @Test
-  public void testCompressedFile() throws Exception {
-    String file = testFile.getCanonicalPath();
-    HDFSCompressedDataStream stream = new HDFSCompressedDataStream();
-    context.put("hdfs.useRawLocalFileSystem", "true");
-    stream.configure(context);
-    stream.open(file, new GzipCodec(), CompressionType.RECORD);
-    stream.append(event);
-    stream.sync();
-    Assert.assertTrue(testFile.length() > 0);
-  }
-  @Test
-  public void testSequenceFile() throws Exception {
-    String file = testFile.getCanonicalPath();
-    HDFSSequenceFile stream = new HDFSSequenceFile();
-    context.put("hdfs.useRawLocalFileSystem", "true");
-    stream.configure(context);
-    stream.open(file);
-    stream.append(event);
-    stream.sync();
-    Assert.assertTrue(testFile.length() > 0);
-  }
+    @Test
+    public void testTestFile() throws Exception {
+        String file = testFile.getCanonicalPath();
+        HDFSDataStream stream = new HDFSDataStream();
+        context.put("hdfs.useRawLocalFileSystem", "true");
+        stream.configure(context);
+        stream.open(file);
+        stream.append(event);
+        stream.sync();
+        Assert.assertTrue(testFile.length() > 0);
+    }
+
+    @Test
+    public void testCompressedFile() throws Exception {
+        String file = testFile.getCanonicalPath();
+        HDFSCompressedDataStream stream = new HDFSCompressedDataStream();
+        context.put("hdfs.useRawLocalFileSystem", "true");
+        stream.configure(context);
+        stream.open(file, new GzipCodec(), CompressionType.RECORD);
+        stream.append(event);
+        stream.sync();
+        Assert.assertTrue(testFile.length() > 0);
+    }
+
+    @Test
+    public void testSequenceFile() throws Exception {
+        String file = testFile.getCanonicalPath();
+        HDFSSequenceFile stream = new HDFSSequenceFile();
+        context.put("hdfs.useRawLocalFileSystem", "true");
+        stream.configure(context);
+        stream.open(file);
+        stream.append(event);
+        stream.sync();
+        Assert.assertTrue(testFile.length() > 0);
+    }
 
 }

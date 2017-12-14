@@ -19,19 +19,19 @@
 package org.apache.flume.sink.hdfs;
 
 public enum SequenceFileSerializerType {
-  Writable(HDFSWritableSerializer.Builder.class),
-  Text(HDFSTextSerializer.Builder.class),
-  Other(null);
+    Writable(HDFSWritableSerializer.Builder.class),
+    Text(HDFSTextSerializer.Builder.class),
+    Other(null);
 
-  private final Class<? extends SequenceFileSerializer.Builder> builderClass;
+    private final Class<? extends SequenceFileSerializer.Builder> builderClass;
 
-  SequenceFileSerializerType(Class<? extends SequenceFileSerializer.Builder> builderClass) {
-    this.builderClass = builderClass;
-  }
+    SequenceFileSerializerType(Class<? extends SequenceFileSerializer.Builder> builderClass) {
+        this.builderClass = builderClass;
+    }
 
-  public Class<? extends SequenceFileSerializer.Builder> getBuilderClass() {
-    return builderClass;
-  }
+    public Class<? extends SequenceFileSerializer.Builder> getBuilderClass() {
+        return builderClass;
+    }
 
 }
 

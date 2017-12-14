@@ -22,19 +22,20 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public final class TransactionIDOracle {
 
-  private TransactionIDOracle() {}
-
-  private static final AtomicLong TRANSACTION_ID =
-      new AtomicLong(System.currentTimeMillis());
-
-  public static void setSeed(long highest) {
-    long previous;
-    while (highest > (previous = TRANSACTION_ID.get())) {
-      TRANSACTION_ID.compareAndSet(previous, highest);
+    private TransactionIDOracle() {
     }
-  }
 
-  public static long next() {
-    return TRANSACTION_ID.incrementAndGet();
-  }
+    private static final AtomicLong TRANSACTION_ID =
+            new AtomicLong(System.currentTimeMillis());
+
+    public static void setSeed(long highest) {
+        long previous;
+        while (highest > (previous = TRANSACTION_ID.get())) {
+            TRANSACTION_ID.compareAndSet(previous, highest);
+        }
+    }
+
+    public static long next() {
+        return TRANSACTION_ID.incrementAndGet();
+    }
 }

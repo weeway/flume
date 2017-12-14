@@ -33,29 +33,29 @@ import java.util.Properties;
  */
 public class ZooKeeperLocal {
 
-  private static final Logger logger = LoggerFactory.getLogger(ZooKeeperLocal.class);
-  private ZooKeeperServerMain zooKeeperServer;
+    private static final Logger logger = LoggerFactory.getLogger(ZooKeeperLocal.class);
+    private ZooKeeperServerMain zooKeeperServer;
 
-  public ZooKeeperLocal(Properties zkProperties) throws IOException {
-    QuorumPeerConfig quorumConfiguration = new QuorumPeerConfig();
-    try {
-      quorumConfiguration.parseProperties(zkProperties);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
-    zooKeeperServer = new ZooKeeperServerMain();
-    final ServerConfig configuration = new ServerConfig();
-    configuration.readFrom(quorumConfiguration);
-
-    new Thread() {
-      public void run() {
+    public ZooKeeperLocal(Properties zkProperties) throws IOException {
+        QuorumPeerConfig quorumConfiguration = new QuorumPeerConfig();
         try {
-          zooKeeperServer.runFromConfig(configuration);
-        } catch (IOException e) {
-          logger.error("Zookeeper startup failed.", e);
+            quorumConfiguration.parseProperties(zkProperties);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-      }
-    }.start();
-  }
+
+        zooKeeperServer = new ZooKeeperServerMain();
+        final ServerConfig configuration = new ServerConfig();
+        configuration.readFrom(quorumConfiguration);
+
+        new Thread() {
+            public void run() {
+                try {
+                    zooKeeperServer.runFromConfig(configuration);
+                } catch (IOException e) {
+                    logger.error("Zookeeper startup failed.", e);
+                }
+            }
+        }.start();
+    }
 }

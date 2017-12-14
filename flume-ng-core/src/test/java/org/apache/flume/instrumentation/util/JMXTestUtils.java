@@ -19,6 +19,7 @@
 package org.apache.flume.instrumentation.util;
 
 import java.util.Map;
+
 import org.junit.Assert;
 
 /**
@@ -26,13 +27,13 @@ import org.junit.Assert;
  */
 public class JMXTestUtils {
 
-  public static void checkChannelCounterParams(Map<String, String> attrs) {
-    Assert.assertNotNull(attrs.get("StartTime"));
-    Assert.assertNotNull(attrs.get("StopTime"));
-    Assert.assertTrue(Long.parseLong(attrs.get("ChannelSize")) != 0);
-    Assert.assertTrue(Long.parseLong(attrs.get("EventPutAttemptCount")) == 2);
-    Assert.assertTrue(Long.parseLong(attrs.get("EventTakeAttemptCount")) == 1);
-    Assert.assertTrue(Long.parseLong(attrs.get("EventPutSuccessCount")) == 2);
-    Assert.assertTrue(Long.parseLong(attrs.get("EventTakeSuccessCount")) == 1);
-  }
+    public static void checkChannelCounterParams(Map<String, String> attrs) {
+        Assert.assertNotNull(attrs.get("StartTime"));
+        Assert.assertNotNull(attrs.get("StopTime"));
+        Assert.assertTrue(Long.parseLong(attrs.get("ChannelSize")) != 0);
+        Assert.assertTrue(Long.parseLong(attrs.get("EventPutAttemptCount")) == 2);
+        Assert.assertTrue(Long.parseLong(attrs.get("EventTakeAttemptCount")) == 1);
+        Assert.assertTrue(Long.parseLong(attrs.get("EventPutSuccessCount")) == 2);
+        Assert.assertTrue(Long.parseLong(attrs.get("EventTakeSuccessCount")) == 1);
+    }
 }

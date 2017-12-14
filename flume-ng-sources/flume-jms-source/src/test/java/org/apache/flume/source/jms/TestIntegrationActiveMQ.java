@@ -56,235 +56,235 @@ import com.google.common.io.Files;
 
 public class TestIntegrationActiveMQ {
 
-  private static final String INITIAL_CONTEXT_FACTORY =
-      "org.apache.activemq.jndi.ActiveMQInitialContextFactory";
-  public static final String BROKER_BIND_URL = "tcp://localhost:61516";
-  private static final String DESTINATION_NAME = "test";
-  private static final String USERNAME = "user";
-  private static final String PASSWORD = "pass";
-  // specific for dynamic queues on ActiveMq
-  public static final String JNDI_PREFIX = "dynamicQueues/";
+    private static final String INITIAL_CONTEXT_FACTORY =
+            "org.apache.activemq.jndi.ActiveMQInitialContextFactory";
+    public static final String BROKER_BIND_URL = "tcp://localhost:61516";
+    private static final String DESTINATION_NAME = "test";
+    private static final String USERNAME = "user";
+    private static final String PASSWORD = "pass";
+    // specific for dynamic queues on ActiveMq
+    public static final String JNDI_PREFIX = "dynamicQueues/";
 
-  private File baseDir;
-  private File tmpDir;
-  private File dataDir;
-  private File passwordFile;
+    private File baseDir;
+    private File tmpDir;
+    private File dataDir;
+    private File passwordFile;
 
-  private BrokerService broker;
-  private Context context;
-  private JMSSource source;
-  private List<Event> events;
+    private BrokerService broker;
+    private Context context;
+    private JMSSource source;
+    private List<Event> events;
 
 
-  @SuppressWarnings("unchecked")
-  @Before
-  public void setup() throws Exception {
-    baseDir = Files.createTempDir();
-    tmpDir = new File(baseDir, "tmp");
-    dataDir = new File(baseDir, "data");
-    Assert.assertTrue(tmpDir.mkdir());
-    passwordFile = new File(baseDir, "password");
-    Files.write(PASSWORD.getBytes(Charsets.UTF_8), passwordFile);
+    @SuppressWarnings("unchecked")
+    @Before
+    public void setup() throws Exception {
+        baseDir = Files.createTempDir();
+        tmpDir = new File(baseDir, "tmp");
+        dataDir = new File(baseDir, "data");
+        Assert.assertTrue(tmpDir.mkdir());
+        passwordFile = new File(baseDir, "password");
+        Files.write(PASSWORD.getBytes(Charsets.UTF_8), passwordFile);
 
-    broker = new BrokerService();
+        broker = new BrokerService();
 
-    broker.addConnector(BROKER_BIND_URL);
-    broker.setTmpDataDirectory(tmpDir);
-    broker.setDataDirectoryFile(dataDir);
-    List<AuthenticationUser> users = Lists.newArrayList();
-    users.add(new AuthenticationUser(USERNAME, PASSWORD, ""));
-    SimpleAuthenticationPlugin authentication = new SimpleAuthenticationPlugin(users);
-    broker.setPlugins(new BrokerPlugin[]{authentication});
-    broker.start();
+        broker.addConnector(BROKER_BIND_URL);
+        broker.setTmpDataDirectory(tmpDir);
+        broker.setDataDirectoryFile(dataDir);
+        List<AuthenticationUser> users = Lists.newArrayList();
+        users.add(new AuthenticationUser(USERNAME, PASSWORD, ""));
+        SimpleAuthenticationPlugin authentication = new SimpleAuthenticationPlugin(users);
+        broker.setPlugins(new BrokerPlugin[]{authentication});
+        broker.start();
 
-    context = new Context();
-    context.put(JMSSourceConfiguration.INITIAL_CONTEXT_FACTORY, INITIAL_CONTEXT_FACTORY);
-    context.put(JMSSourceConfiguration.PROVIDER_URL, BROKER_BIND_URL);
-    context.put(JMSSourceConfiguration.DESTINATION_NAME, DESTINATION_NAME);
-    context.put(JMSSourceConfiguration.USERNAME, USERNAME);
-    context.put(JMSSourceConfiguration.PASSWORD_FILE, passwordFile.getAbsolutePath());
+        context = new Context();
+        context.put(JMSSourceConfiguration.INITIAL_CONTEXT_FACTORY, INITIAL_CONTEXT_FACTORY);
+        context.put(JMSSourceConfiguration.PROVIDER_URL, BROKER_BIND_URL);
+        context.put(JMSSourceConfiguration.DESTINATION_NAME, DESTINATION_NAME);
+        context.put(JMSSourceConfiguration.USERNAME, USERNAME);
+        context.put(JMSSourceConfiguration.PASSWORD_FILE, passwordFile.getAbsolutePath());
 
-    events = Lists.newArrayList();
-    source = new JMSSource();
-    source.setName("JMSSource-" + UUID.randomUUID());
-    ChannelProcessor channelProcessor = mock(ChannelProcessor.class);
-    doAnswer(new Answer<Void>() {
-      @Override
-      public Void answer(InvocationOnMock invocation) throws Throwable {
-        events.addAll((List<Event>)invocation.getArguments()[0]);
-        return null;
-      }
-    }).when(channelProcessor).processEventBatch(any(List.class));
-    source.setChannelProcessor(channelProcessor);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    if (source != null) {
-      source.stop();
+        events = Lists.newArrayList();
+        source = new JMSSource();
+        source.setName("JMSSource-" + UUID.randomUUID());
+        ChannelProcessor channelProcessor = mock(ChannelProcessor.class);
+        doAnswer(new Answer<Void>() {
+            @Override
+            public Void answer(InvocationOnMock invocation) throws Throwable {
+                events.addAll((List<Event>) invocation.getArguments()[0]);
+                return null;
+            }
+        }).when(channelProcessor).processEventBatch(any(List.class));
+        source.setChannelProcessor(channelProcessor);
     }
-    if (broker != null) {
-      broker.stop();
+
+    @After
+    public void tearDown() throws Exception {
+        if (source != null) {
+            source.stop();
+        }
+        if (broker != null) {
+            broker.stop();
+        }
+        FileUtils.deleteDirectory(baseDir);
     }
-    FileUtils.deleteDirectory(baseDir);
-  }
 
-  private void putQueue(List<String> events) throws Exception {
-    ConnectionFactory factory = new ActiveMQConnectionFactory(USERNAME,
-        PASSWORD, BROKER_BIND_URL);
-    Connection connection = factory.createConnection();
-    connection.start();
+    private void putQueue(List<String> events) throws Exception {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(USERNAME,
+                PASSWORD, BROKER_BIND_URL);
+        Connection connection = factory.createConnection();
+        connection.start();
 
-    Session session = connection.createSession(true,
-        Session.AUTO_ACKNOWLEDGE);
-    Destination destination = session.createQueue(DESTINATION_NAME);
-    MessageProducer producer = session.createProducer(destination);
+        Session session = connection.createSession(true,
+                Session.AUTO_ACKNOWLEDGE);
+        Destination destination = session.createQueue(DESTINATION_NAME);
+        MessageProducer producer = session.createProducer(destination);
 
-    for (String event : events) {
-      TextMessage message = session.createTextMessage();
-      message.setText(event);
-      producer.send(message);
+        for (String event : events) {
+            TextMessage message = session.createTextMessage();
+            message.setText(event);
+            producer.send(message);
+        }
+        session.commit();
+        session.close();
+        connection.close();
     }
-    session.commit();
-    session.close();
-    connection.close();
-  }
 
-  private void putTopic(List<String> events) throws Exception {
-    ConnectionFactory factory = new ActiveMQConnectionFactory(USERNAME,
-        PASSWORD, BROKER_BIND_URL);
-    Connection connection = factory.createConnection();
-    connection.start();
+    private void putTopic(List<String> events) throws Exception {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(USERNAME,
+                PASSWORD, BROKER_BIND_URL);
+        Connection connection = factory.createConnection();
+        connection.start();
 
-    Session session = connection.createSession(true,
-        Session.AUTO_ACKNOWLEDGE);
-    Destination destination = session.createTopic(DESTINATION_NAME);
-    MessageProducer producer = session.createProducer(destination);
+        Session session = connection.createSession(true,
+                Session.AUTO_ACKNOWLEDGE);
+        Destination destination = session.createTopic(DESTINATION_NAME);
+        MessageProducer producer = session.createProducer(destination);
 
-    for (String event : events) {
-      TextMessage message = session.createTextMessage();
-      message.setText(event);
-      producer.send(message);
+        for (String event : events) {
+            TextMessage message = session.createTextMessage();
+            message.setText(event);
+            producer.send(message);
+        }
+        session.commit();
+        session.close();
+        connection.close();
     }
-    session.commit();
-    session.close();
-    connection.close();
-  }
 
-  @Test
-  public void testQueueLocatedWithJndi() throws Exception {
-    context.put(JMSSourceConfiguration.DESTINATION_NAME,
-            JNDI_PREFIX + DESTINATION_NAME);
-    context.put(JMSSourceConfiguration.DESTINATION_LOCATOR,
-            JMSDestinationLocator.JNDI.name());
-    testQueue();
-  }
-
-  @Test
-  public void testQueue() throws Exception {
-    context.put(JMSSourceConfiguration.DESTINATION_TYPE,
-        JMSSourceConfiguration.DESTINATION_TYPE_QUEUE);
-    source.configure(context);
-    source.start();
-    Thread.sleep(500L);
-
-    List<String> expected = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      expected.add(String.valueOf(i));
+    @Test
+    public void testQueueLocatedWithJndi() throws Exception {
+        context.put(JMSSourceConfiguration.DESTINATION_NAME,
+                JNDI_PREFIX + DESTINATION_NAME);
+        context.put(JMSSourceConfiguration.DESTINATION_LOCATOR,
+                JMSDestinationLocator.JNDI.name());
+        testQueue();
     }
-    putQueue(expected);
 
-    Thread.sleep(500L);
+    @Test
+    public void testQueue() throws Exception {
+        context.put(JMSSourceConfiguration.DESTINATION_TYPE,
+                JMSSourceConfiguration.DESTINATION_TYPE_QUEUE);
+        source.configure(context);
+        source.start();
+        Thread.sleep(500L);
 
-    Assert.assertEquals(Status.READY, source.process());
-    Assert.assertEquals(Status.BACKOFF, source.process());
-    Assert.assertEquals(expected.size(), events.size());
-    List<String> actual = Lists.newArrayList();
-    for (Event event : events) {
-      actual.add(new String(event.getBody(), Charsets.UTF_8));
+        List<String> expected = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            expected.add(String.valueOf(i));
+        }
+        putQueue(expected);
+
+        Thread.sleep(500L);
+
+        Assert.assertEquals(Status.READY, source.process());
+        Assert.assertEquals(Status.BACKOFF, source.process());
+        Assert.assertEquals(expected.size(), events.size());
+        List<String> actual = Lists.newArrayList();
+        for (Event event : events) {
+            actual.add(new String(event.getBody(), Charsets.UTF_8));
+        }
+        Collections.sort(expected);
+        Collections.sort(actual);
+        Assert.assertEquals(expected, actual);
     }
-    Collections.sort(expected);
-    Collections.sort(actual);
-    Assert.assertEquals(expected, actual);
-  }
 
-  @Test
-  public void testTopic() throws Exception {
-    context.put(JMSSourceConfiguration.DESTINATION_TYPE,
-        JMSSourceConfiguration.DESTINATION_TYPE_TOPIC);
-    source.configure(context);
-    source.start();
-    Thread.sleep(500L);
+    @Test
+    public void testTopic() throws Exception {
+        context.put(JMSSourceConfiguration.DESTINATION_TYPE,
+                JMSSourceConfiguration.DESTINATION_TYPE_TOPIC);
+        source.configure(context);
+        source.start();
+        Thread.sleep(500L);
 
-    List<String> expected = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      expected.add(String.valueOf(i));
+        List<String> expected = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            expected.add(String.valueOf(i));
+        }
+        putTopic(expected);
+
+        Thread.sleep(500L);
+
+        Assert.assertEquals(Status.READY, source.process());
+        Assert.assertEquals(Status.BACKOFF, source.process());
+        Assert.assertEquals(expected.size(), events.size());
+        List<String> actual = Lists.newArrayList();
+        for (Event event : events) {
+            actual.add(new String(event.getBody(), Charsets.UTF_8));
+        }
+        Collections.sort(expected);
+        Collections.sort(actual);
+        Assert.assertEquals(expected, actual);
     }
-    putTopic(expected);
 
-    Thread.sleep(500L);
+    @Test
+    public void testDurableSubscription() throws Exception {
+        context.put(JMSSourceConfiguration.DESTINATION_TYPE,
+                JMSSourceConfiguration.DESTINATION_TYPE_TOPIC);
+        context.put(JMSSourceConfiguration.CLIENT_ID, "FLUME");
+        context.put(JMSSourceConfiguration.DURABLE_SUBSCRIPTION_NAME, "SOURCE1");
+        context.put(JMSSourceConfiguration.CREATE_DURABLE_SUBSCRIPTION, "true");
+        context.put(JMSSourceConfiguration.BATCH_SIZE, "10");
+        source.configure(context);
+        source.start();
+        Thread.sleep(5000L);
+        List<String> expected = Lists.newArrayList();
+        List<String> input = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            input.add("before " + String.valueOf(i));
+        }
+        expected.addAll(input);
+        putTopic(input);
 
-    Assert.assertEquals(Status.READY, source.process());
-    Assert.assertEquals(Status.BACKOFF, source.process());
-    Assert.assertEquals(expected.size(), events.size());
-    List<String> actual = Lists.newArrayList();
-    for (Event event : events) {
-      actual.add(new String(event.getBody(), Charsets.UTF_8));
-    }
-    Collections.sort(expected);
-    Collections.sort(actual);
-    Assert.assertEquals(expected, actual);
-  }
+        Thread.sleep(500L);
+        Assert.assertEquals(Status.READY, source.process());
+        Assert.assertEquals(Status.BACKOFF, source.process());
+        source.stop();
+        Thread.sleep(500L);
+        input = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            input.add("during " + String.valueOf(i));
+        }
+        expected.addAll(input);
+        putTopic(input);
+        source.start();
+        Thread.sleep(500L);
+        input = Lists.newArrayList();
+        for (int i = 0; i < 10; i++) {
+            input.add("after " + String.valueOf(i));
+        }
+        expected.addAll(input);
+        putTopic(input);
 
-  @Test
-  public void testDurableSubscription() throws Exception {
-    context.put(JMSSourceConfiguration.DESTINATION_TYPE,
-        JMSSourceConfiguration.DESTINATION_TYPE_TOPIC);
-    context.put(JMSSourceConfiguration.CLIENT_ID, "FLUME");
-    context.put(JMSSourceConfiguration.DURABLE_SUBSCRIPTION_NAME, "SOURCE1");
-    context.put(JMSSourceConfiguration.CREATE_DURABLE_SUBSCRIPTION, "true");
-    context.put(JMSSourceConfiguration.BATCH_SIZE, "10");
-    source.configure(context);
-    source.start();
-    Thread.sleep(5000L);
-    List<String> expected = Lists.newArrayList();
-    List<String> input = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      input.add("before " + String.valueOf(i));
+        Assert.assertEquals(Status.READY, source.process());
+        Assert.assertEquals(Status.READY, source.process());
+        Assert.assertEquals(Status.BACKOFF, source.process());
+        Assert.assertEquals(expected.size(), events.size());
+        List<String> actual = Lists.newArrayList();
+        for (Event event : events) {
+            actual.add(new String(event.getBody(), Charsets.UTF_8));
+        }
+        Collections.sort(expected);
+        Collections.sort(actual);
+        Assert.assertEquals(expected, actual);
     }
-    expected.addAll(input);
-    putTopic(input);
-
-    Thread.sleep(500L);
-    Assert.assertEquals(Status.READY, source.process());
-    Assert.assertEquals(Status.BACKOFF, source.process());
-    source.stop();
-    Thread.sleep(500L);
-    input = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      input.add("during " + String.valueOf(i));
-    }
-    expected.addAll(input);
-    putTopic(input);
-    source.start();
-    Thread.sleep(500L);
-    input = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
-      input.add("after " + String.valueOf(i));
-    }
-    expected.addAll(input);
-    putTopic(input);
-
-    Assert.assertEquals(Status.READY, source.process());
-    Assert.assertEquals(Status.READY, source.process());
-    Assert.assertEquals(Status.BACKOFF, source.process());
-    Assert.assertEquals(expected.size(), events.size());
-    List<String> actual = Lists.newArrayList();
-    for (Event event : events) {
-      actual.add(new String(event.getBody(), Charsets.UTF_8));
-    }
-    Collections.sort(expected);
-    Collections.sort(actual);
-    Assert.assertEquals(expected, actual);
-  }
 }

@@ -29,8 +29,8 @@ import org.apache.flume.annotations.InterfaceStability;
 @InterfaceStability.Stable
 public interface NamedComponent {
 
-  public void setName(String name);
+    public void setName(String name);
 
-  public String getName();
+    public String getName();
 
 }

@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,31 +25,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class StaticZooKeeperConfigurationProvider extends
-    AbstractZooKeeperConfigurationProvider {
+        AbstractZooKeeperConfigurationProvider {
 
-  private static final Logger LOGGER = LoggerFactory
-      .getLogger(StaticZooKeeperConfigurationProvider.class);
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(StaticZooKeeperConfigurationProvider.class);
 
-  public StaticZooKeeperConfigurationProvider(String agentName,
-      String zkConnString, String basePath) {
-    super(agentName, zkConnString, basePath);
-  }
-
-  @Override
-  protected FlumeConfiguration getFlumeConfiguration() {
-    try {
-      CuratorFramework cf = createClient();
-      cf.start();
-      try {
-        byte[] data = cf.getData().forPath(basePath + "/" + getAgentName());
-        return configFromBytes(data);
-      } finally {
-        cf.close();
-      }
-    } catch (Exception e) {
-      LOGGER.error("Error getting configuration info from Zookeeper", e);
-      throw new FlumeException(e);
+    public StaticZooKeeperConfigurationProvider(String agentName,
+                                                String zkConnString, String basePath) {
+        super(agentName, zkConnString, basePath);
     }
-  }
+
+    @Override
+    protected FlumeConfiguration getFlumeConfiguration() {
+        try {
+            CuratorFramework cf = createClient();
+            cf.start();
+            try {
+                byte[] data = cf.getData().forPath(basePath + "/" + getAgentName());
+                return configFromBytes(data);
+            } finally {
+                cf.close();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error getting configuration info from Zookeeper", e);
+            throw new FlumeException(e);
+        }
+    }
 
 }

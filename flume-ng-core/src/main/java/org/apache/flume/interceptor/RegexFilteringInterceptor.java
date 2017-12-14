@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -71,105 +71,105 @@ import com.google.common.collect.Lists;
  */
 public class RegexFilteringInterceptor implements Interceptor {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(RegexFilteringInterceptor.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(RegexFilteringInterceptor.class);
 
-  private final Pattern regex;
-  private final boolean excludeEvents;
+    private final Pattern regex;
+    private final boolean excludeEvents;
 
-  /**
-   * Only {@link RegexFilteringInterceptor.Builder} can build me
-   */
-  private RegexFilteringInterceptor(Pattern regex, boolean excludeEvents) {
-    this.regex = regex;
-    this.excludeEvents = excludeEvents;
-  }
-
-  @Override
-  public void initialize() {
-    // no-op
-  }
-
-
-  @Override
-  /**
-   * Returns the event if it passes the regular expression filter and null
-   * otherwise.
-   */
-  public Event intercept(Event event) {
-    // We've already ensured here that at most one of includeRegex and
-    // excludeRegex are defined.
-
-    if (!excludeEvents) {
-      if (regex.matcher(new String(event.getBody())).find()) {
-        return event;
-      } else {
-        return null;
-      }
-    } else {
-      if (regex.matcher(new String(event.getBody())).find()) {
-        return null;
-      } else {
-        return event;
-      }
-    }
-  }
-
-  /**
-   * Returns the set of events which pass filters, according to
-   * {@link #intercept(Event)}.
-   * @param events
-   * @return
-   */
-  @Override
-  public List<Event> intercept(List<Event> events) {
-    List<Event> out = Lists.newArrayList();
-    for (Event event : events) {
-      Event outEvent = intercept(event);
-      if (outEvent != null) {
-        out.add(outEvent);
-      }
-    }
-    return out;
-  }
-
-  @Override
-  public void close() {
-    // no-op
-  }
-
-  /**
-   * Builder which builds new instance of the RegexFilteringInterceptor.
-   */
-  public static class Builder implements Interceptor.Builder {
-
-    private Pattern regex;
-    private boolean excludeEvents;
-
-    @Override
-    public void configure(Context context) {
-      String regexString = context.getString(REGEX, DEFAULT_REGEX);
-      regex = Pattern.compile(regexString);
-      excludeEvents = context.getBoolean(EXCLUDE_EVENTS,
-          DEFAULT_EXCLUDE_EVENTS);
+    /**
+     * Only {@link RegexFilteringInterceptor.Builder} can build me
+     */
+    private RegexFilteringInterceptor(Pattern regex, boolean excludeEvents) {
+        this.regex = regex;
+        this.excludeEvents = excludeEvents;
     }
 
     @Override
-    public Interceptor build() {
-      logger.info(String.format(
-          "Creating RegexFilteringInterceptor: regex=%s,excludeEvents=%s",
-          regex, excludeEvents));
-      return new RegexFilteringInterceptor(regex, excludeEvents);
+    public void initialize() {
+        // no-op
     }
-  }
 
-  public static class Constants {
 
-    public static final String REGEX = "regex";
-    public static final String DEFAULT_REGEX = ".*";
+    @Override
+    /**
+     * Returns the event if it passes the regular expression filter and null
+     * otherwise.
+     */
+    public Event intercept(Event event) {
+        // We've already ensured here that at most one of includeRegex and
+        // excludeRegex are defined.
 
-    public static final String EXCLUDE_EVENTS = "excludeEvents";
-    public static final boolean DEFAULT_EXCLUDE_EVENTS = false;
-  }
+        if (!excludeEvents) {
+            if (regex.matcher(new String(event.getBody())).find()) {
+                return event;
+            } else {
+                return null;
+            }
+        } else {
+            if (regex.matcher(new String(event.getBody())).find()) {
+                return null;
+            } else {
+                return event;
+            }
+        }
+    }
+
+    /**
+     * Returns the set of events which pass filters, according to
+     * {@link #intercept(Event)}.
+     * @param events
+     * @return
+     */
+    @Override
+    public List<Event> intercept(List<Event> events) {
+        List<Event> out = Lists.newArrayList();
+        for (Event event : events) {
+            Event outEvent = intercept(event);
+            if (outEvent != null) {
+                out.add(outEvent);
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public void close() {
+        // no-op
+    }
+
+    /**
+     * Builder which builds new instance of the RegexFilteringInterceptor.
+     */
+    public static class Builder implements Interceptor.Builder {
+
+        private Pattern regex;
+        private boolean excludeEvents;
+
+        @Override
+        public void configure(Context context) {
+            String regexString = context.getString(REGEX, DEFAULT_REGEX);
+            regex = Pattern.compile(regexString);
+            excludeEvents = context.getBoolean(EXCLUDE_EVENTS,
+                    DEFAULT_EXCLUDE_EVENTS);
+        }
+
+        @Override
+        public Interceptor build() {
+            logger.info(String.format(
+                    "Creating RegexFilteringInterceptor: regex=%s,excludeEvents=%s",
+                    regex, excludeEvents));
+            return new RegexFilteringInterceptor(regex, excludeEvents);
+        }
+    }
+
+    public static class Constants {
+
+        public static final String REGEX = "regex";
+        public static final String DEFAULT_REGEX = ".*";
+
+        public static final String EXCLUDE_EVENTS = "excludeEvents";
+        public static final boolean DEFAULT_EXCLUDE_EVENTS = false;
+    }
 
 }

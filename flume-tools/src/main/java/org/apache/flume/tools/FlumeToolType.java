@@ -21,22 +21,23 @@ package org.apache.flume.tools;
 import java.util.Locale;
 
 public enum FlumeToolType {
-  FCINTEGRITYTOOL(FileChannelIntegrityTool.class);
+    FCINTEGRITYTOOL(FileChannelIntegrityTool.class);
 
-  private final Class<? extends FlumeTool> klass;
-  private FlumeToolType(Class<? extends FlumeTool> klass) {
-    this.klass = klass;
-  }
+    private final Class<? extends FlumeTool> klass;
 
-  public Class<? extends FlumeTool> getClassInstance() {
-    return this.klass;
-  }
-
-  public static String getNames() {
-    StringBuilder builder = new StringBuilder();
-    for (FlumeToolType type: values()) {
-      builder.append(type.name().toLowerCase(Locale.ENGLISH) + "\n");
+    private FlumeToolType(Class<? extends FlumeTool> klass) {
+        this.klass = klass;
     }
-    return builder.toString();
-  }
+
+    public Class<? extends FlumeTool> getClassInstance() {
+        return this.klass;
+    }
+
+    public static String getNames() {
+        StringBuilder builder = new StringBuilder();
+        for (FlumeToolType type : values()) {
+            builder.append(type.name().toLowerCase(Locale.ENGLISH) + "\n");
+        }
+        return builder.toString();
+    }
 }

@@ -24,11 +24,11 @@ import org.apache.flume.Event;
 @Deprecated
 public class TextDelimitedOutputFormatter implements EventFormatter {
 
-  @Override
-  public byte[] format(Event event) {
-    String body = event.getBody().length > 0 ? new String(event.getBody()) : "";
+    @Override
+    public byte[] format(Event event) {
+        String body = event.getBody().length > 0 ? new String(event.getBody()) : "";
 
-    return (body + "\n").getBytes();
-  }
+        return (body + "\n").getBytes();
+    }
 
 }

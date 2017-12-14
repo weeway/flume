@@ -25,5 +25,7 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.lang.annotation.ElementType.TYPE;
 
-@Target({ TYPE }) @Retention(RUNTIME)
-public @interface Disposable {}
+@Target({TYPE})
+@Retention(RUNTIME)
+public @interface Disposable {
+}

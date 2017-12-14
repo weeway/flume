@@ -46,292 +46,292 @@ import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class TestThriftSink {
-  private ThriftTestingSource src;
-  private ThriftSink sink;
-  private MemoryChannel channel;
-  private String hostname;
-  private int port;
+    private ThriftTestingSource src;
+    private ThriftSink sink;
+    private MemoryChannel channel;
+    private String hostname;
+    private int port;
 
-  @Before
-  public void setUp() throws Exception {
-    sink = new ThriftSink();
-    channel = new MemoryChannel();
-    hostname = "0.0.0.0";
-    try (ServerSocket socket = new ServerSocket(0)) {
-      port = socket.getLocalPort();
-    }
-    Context context = new Context();
+    @Before
+    public void setUp() throws Exception {
+        sink = new ThriftSink();
+        channel = new MemoryChannel();
+        hostname = "0.0.0.0";
+        try (ServerSocket socket = new ServerSocket(0)) {
+            port = socket.getLocalPort();
+        }
+        Context context = new Context();
 
-    context.put("hostname", hostname);
-    context.put("port", String.valueOf(port));
-    context.put("batch-size", String.valueOf(2));
-    context.put("request-timeout", String.valueOf(2000L));
-    context.put(ThriftRpcClient.CONFIG_PROTOCOL, ThriftRpcClient.COMPACT_PROTOCOL);
-    sink.setChannel(channel);
+        context.put("hostname", hostname);
+        context.put("port", String.valueOf(port));
+        context.put("batch-size", String.valueOf(2));
+        context.put("request-timeout", String.valueOf(2000L));
+        context.put(ThriftRpcClient.CONFIG_PROTOCOL, ThriftRpcClient.COMPACT_PROTOCOL);
+        sink.setChannel(channel);
 
-    Configurables.configure(sink, context);
-    Configurables.configure(channel, context);
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    channel.stop();
-    sink.stop();
-    src.stop();
-  }
-
-  @Test
-  public void testProcess() throws Exception {
-
-    Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
-      port, ThriftRpcClient.COMPACT_PROTOCOL);
-
-    channel.start();
-    sink.start();
-
-    Transaction transaction = channel.getTransaction();
-
-    transaction.begin();
-    for (int i = 0; i < 11; i++) {
-      channel.put(event);
-    }
-    transaction.commit();
-    transaction.close();
-    for (int i = 0; i < 6; i++) {
-      Sink.Status status = sink.process();
-      Assert.assertEquals(Sink.Status.READY, status);
+        Configurables.configure(sink, context);
+        Configurables.configure(channel, context);
     }
 
-    Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
-
-    sink.stop();
-    Assert.assertEquals(11, src.flumeEvents.size());
-    Assert.assertEquals(6, src.batchCount);
-    Assert.assertEquals(0, src.individualCount);
-
-  }
-
-  @Test
-  public void testTimeout() throws Exception {
-    AtomicLong delay = new AtomicLong();
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.ALTERNATE
-      .name(), port, ThriftRpcClient.COMPACT_PROTOCOL);
-    src.setDelay(delay);
-    delay.set(2500);
-
-    Event event = EventBuilder.withBody("foo", Charsets.UTF_8);
-    sink.start();
-
-    Transaction txn = channel.getTransaction();
-    txn.begin();
-    for (int i = 0; i < 4; i++) {
-      channel.put(event);
-    }
-    txn.commit();
-    txn.close();
-
-    // should throw EventDeliveryException due to connect timeout
-    boolean threw = false;
-    try {
-      sink.process();
-    } catch (EventDeliveryException ex) {
-      threw = true;
+    @After
+    public void tearDown() throws Exception {
+        channel.stop();
+        sink.stop();
+        src.stop();
     }
 
-    Assert.assertTrue("Must throw due to connect timeout", threw);
+    @Test
+    public void testProcess() throws Exception {
 
-    // now, allow the connect handshake to occur
-    delay.set(0);
-    sink.process();
+        Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
+                port, ThriftRpcClient.COMPACT_PROTOCOL);
 
-    // should throw another EventDeliveryException due to request timeout
-    delay.set(2500L); // because request-timeout = 3000
-    threw = false;
-    try {
-      sink.process();
-    } catch (EventDeliveryException ex) {
-      threw = true;
+        channel.start();
+        sink.start();
+
+        Transaction transaction = channel.getTransaction();
+
+        transaction.begin();
+        for (int i = 0; i < 11; i++) {
+            channel.put(event);
+        }
+        transaction.commit();
+        transaction.close();
+        for (int i = 0; i < 6; i++) {
+            Sink.Status status = sink.process();
+            Assert.assertEquals(Sink.Status.READY, status);
+        }
+
+        Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
+
+        sink.stop();
+        Assert.assertEquals(11, src.flumeEvents.size());
+        Assert.assertEquals(6, src.batchCount);
+        Assert.assertEquals(0, src.individualCount);
+
     }
 
-    Assert.assertTrue("Must throw due to request timeout", threw);
+    @Test
+    public void testTimeout() throws Exception {
+        AtomicLong delay = new AtomicLong();
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.ALTERNATE
+                .name(), port, ThriftRpcClient.COMPACT_PROTOCOL);
+        src.setDelay(delay);
+        delay.set(2500);
 
-    sink.stop();
-  }
+        Event event = EventBuilder.withBody("foo", Charsets.UTF_8);
+        sink.start();
 
-  @Test
-  public void testFailedConnect() throws Exception {
+        Transaction txn = channel.getTransaction();
+        txn.begin();
+        for (int i = 0; i < 4; i++) {
+            channel.put(event);
+        }
+        txn.commit();
+        txn.close();
 
-    Event event = EventBuilder.withBody("test event 1", Charset.forName("UTF8"));
+        // should throw EventDeliveryException due to connect timeout
+        boolean threw = false;
+        try {
+            sink.process();
+        } catch (EventDeliveryException ex) {
+            threw = true;
+        }
 
-    sink.start();
+        Assert.assertTrue("Must throw due to connect timeout", threw);
 
-    Thread.sleep(500L); // let socket startup
-    Thread.sleep(500L); // sleep a little to allow close occur
-
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-    for (int i = 0; i < 10; i++) {
-      channel.put(event);
-    }
-    transaction.commit();
-    transaction.close();
-
-    for (int i = 0; i < 5; i++) {
-      boolean threwException = false;
-      try {
+        // now, allow the connect handshake to occur
+        delay.set(0);
         sink.process();
-      } catch (EventDeliveryException e) {
-        threwException = true;
-      }
-      Assert.assertTrue("Must throw EventDeliveryException if disconnected",
-          threwException);
+
+        // should throw another EventDeliveryException due to request timeout
+        delay.set(2500L); // because request-timeout = 3000
+        threw = false;
+        try {
+            sink.process();
+        } catch (EventDeliveryException ex) {
+            threw = true;
+        }
+
+        Assert.assertTrue("Must throw due to request timeout", threw);
+
+        sink.stop();
     }
 
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
-      port, ThriftRpcClient.COMPACT_PROTOCOL);
+    @Test
+    public void testFailedConnect() throws Exception {
 
-    for (int i = 0; i < 5; i++) {
-      Sink.Status status = sink.process();
-      Assert.assertEquals(Sink.Status.READY, status);
+        Event event = EventBuilder.withBody("test event 1", Charset.forName("UTF8"));
+
+        sink.start();
+
+        Thread.sleep(500L); // let socket startup
+        Thread.sleep(500L); // sleep a little to allow close occur
+
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+        for (int i = 0; i < 10; i++) {
+            channel.put(event);
+        }
+        transaction.commit();
+        transaction.close();
+
+        for (int i = 0; i < 5; i++) {
+            boolean threwException = false;
+            try {
+                sink.process();
+            } catch (EventDeliveryException e) {
+                threwException = true;
+            }
+            Assert.assertTrue("Must throw EventDeliveryException if disconnected",
+                    threwException);
+        }
+
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
+                port, ThriftRpcClient.COMPACT_PROTOCOL);
+
+        for (int i = 0; i < 5; i++) {
+            Sink.Status status = sink.process();
+            Assert.assertEquals(Sink.Status.READY, status);
+        }
+
+        Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
+        sink.stop();
     }
 
-    Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
-    sink.stop();
-  }
+    @Test
+    public void testSslProcess() throws Exception {
+        Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(), port,
+                ThriftRpcClient.COMPACT_PROTOCOL, "src/test/resources/keystorefile.jks",
+                "password", KeyManagerFactory.getDefaultAlgorithm(), "JKS");
+        Context context = new Context();
+        context.put("hostname", hostname);
+        context.put("port", String.valueOf(port));
+        context.put("ssl", String.valueOf(true));
+        context.put("batch-size", String.valueOf(2));
+        context.put("connect-timeout", String.valueOf(2000L));
+        context.put("request-timeout", String.valueOf(3000L));
+        context.put("truststore", "src/test/resources/truststorefile.jks");
+        context.put("truststore-password", "password");
+        context.put("trustmanager-type", TrustManagerFactory.getDefaultAlgorithm());
 
-  @Test
-  public void testSslProcess() throws Exception {
-    Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(), port,
-            ThriftRpcClient.COMPACT_PROTOCOL, "src/test/resources/keystorefile.jks",
-            "password", KeyManagerFactory.getDefaultAlgorithm(), "JKS");
-    Context context = new Context();
-    context.put("hostname", hostname);
-    context.put("port", String.valueOf(port));
-    context.put("ssl", String.valueOf(true));
-    context.put("batch-size", String.valueOf(2));
-    context.put("connect-timeout", String.valueOf(2000L));
-    context.put("request-timeout", String.valueOf(3000L));
-    context.put("truststore", "src/test/resources/truststorefile.jks");
-    context.put("truststore-password", "password");
-    context.put("trustmanager-type", TrustManagerFactory.getDefaultAlgorithm());
+        Configurables.configure(sink, context);
+        channel.start();
+        sink.start();
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+        for (int i = 0; i < 11; i++) {
+            channel.put(event);
+        }
+        transaction.commit();
+        transaction.close();
+        for (int i = 0; i < 6; i++) {
+            Sink.Status status = sink.process();
+            Assert.assertEquals(Sink.Status.READY, status);
+        }
+        Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
 
-    Configurables.configure(sink, context);
-    channel.start();
-    sink.start();
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-    for (int i = 0; i < 11; i++) {
-      channel.put(event);
-    }
-    transaction.commit();
-    transaction.close();
-    for (int i = 0; i < 6; i++) {
-      Sink.Status status = sink.process();
-      Assert.assertEquals(Sink.Status.READY, status);
-    }
-    Assert.assertEquals(Sink.Status.BACKOFF, sink.process());
-
-    sink.stop();
-    Assert.assertEquals(11, src.flumeEvents.size());
-    Assert.assertEquals(6, src.batchCount);
-    Assert.assertEquals(0, src.individualCount);
-  }
-
-  @Test
-  public void testSslSinkWithNonSslServer() throws Exception {
-    Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
-            port, ThriftRpcClient.COMPACT_PROTOCOL);
-
-    Context context = new Context();
-    context.put("hostname", hostname);
-    context.put("port", String.valueOf(port));
-    context.put("ssl", String.valueOf(true));
-    context.put("batch-size", String.valueOf(2));
-    context.put("connect-timeout", String.valueOf(2000L));
-    context.put("request-timeout", String.valueOf(3000L));
-    context.put("truststore", "src/test/resources/truststorefile.jks");
-    context.put("truststore-password", "password");
-    context.put("trustmanager-type", TrustManagerFactory.getDefaultAlgorithm());
-
-    Configurables.configure(sink, context);
-    channel.start();
-    sink.start();
-    Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-            LifecycleState.START_OR_ERROR, 5000));
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-    for (int i = 0; i < 11; i++) {
-      channel.put(event);
-    }
-    transaction.commit();
-    transaction.close();
-
-    boolean failed = false;
-    try {
-      for (int i = 0; i < 6; i++) {
-        Sink.Status status = sink.process();
-        failed = true;
-      }
-    } catch (EventDeliveryException ex) {
-      // This is correct
+        sink.stop();
+        Assert.assertEquals(11, src.flumeEvents.size());
+        Assert.assertEquals(6, src.batchCount);
+        Assert.assertEquals(0, src.individualCount);
     }
 
-    sink.stop();
-    Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-            LifecycleState.STOP_OR_ERROR, 5000));
-    if (failed) {
-      Assert.fail("SSL-enabled sink successfully connected to a non-SSL-enabled server, " +
-                  "that's wrong.");
+    @Test
+    public void testSslSinkWithNonSslServer() throws Exception {
+        Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(),
+                port, ThriftRpcClient.COMPACT_PROTOCOL);
+
+        Context context = new Context();
+        context.put("hostname", hostname);
+        context.put("port", String.valueOf(port));
+        context.put("ssl", String.valueOf(true));
+        context.put("batch-size", String.valueOf(2));
+        context.put("connect-timeout", String.valueOf(2000L));
+        context.put("request-timeout", String.valueOf(3000L));
+        context.put("truststore", "src/test/resources/truststorefile.jks");
+        context.put("truststore-password", "password");
+        context.put("trustmanager-type", TrustManagerFactory.getDefaultAlgorithm());
+
+        Configurables.configure(sink, context);
+        channel.start();
+        sink.start();
+        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
+                LifecycleState.START_OR_ERROR, 5000));
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+        for (int i = 0; i < 11; i++) {
+            channel.put(event);
+        }
+        transaction.commit();
+        transaction.close();
+
+        boolean failed = false;
+        try {
+            for (int i = 0; i < 6; i++) {
+                Sink.Status status = sink.process();
+                failed = true;
+            }
+        } catch (EventDeliveryException ex) {
+            // This is correct
+        }
+
+        sink.stop();
+        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
+                LifecycleState.STOP_OR_ERROR, 5000));
+        if (failed) {
+            Assert.fail("SSL-enabled sink successfully connected to a non-SSL-enabled server, " +
+                    "that's wrong.");
+        }
     }
-  }
 
-  @Test
-  public void testSslSinkWithNonTrustedCert() throws Exception {
-    Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
-    src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(), port,
-            ThriftRpcClient.COMPACT_PROTOCOL, "src/test/resources/keystorefile.jks",
-            "password", KeyManagerFactory.getDefaultAlgorithm(), "JKS");
+    @Test
+    public void testSslSinkWithNonTrustedCert() throws Exception {
+        Event event = EventBuilder.withBody("test event 1", Charsets.UTF_8);
+        src = new ThriftTestingSource(ThriftTestingSource.HandlerType.OK.name(), port,
+                ThriftRpcClient.COMPACT_PROTOCOL, "src/test/resources/keystorefile.jks",
+                "password", KeyManagerFactory.getDefaultAlgorithm(), "JKS");
 
-    Context context = new Context();
-    context.put("hostname", hostname);
-    context.put("port", String.valueOf(port));
-    context.put("ssl", String.valueOf(true));
-    context.put("batch-size", String.valueOf(2));
-    context.put("connect-timeout", String.valueOf(2000L));
-    context.put("request-timeout", String.valueOf(3000L));
+        Context context = new Context();
+        context.put("hostname", hostname);
+        context.put("port", String.valueOf(port));
+        context.put("ssl", String.valueOf(true));
+        context.put("batch-size", String.valueOf(2));
+        context.put("connect-timeout", String.valueOf(2000L));
+        context.put("request-timeout", String.valueOf(3000L));
 
-    Configurables.configure(sink, context);
-    channel.start();
-    sink.start();
-    Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-            LifecycleState.START_OR_ERROR, 5000));
-    Transaction transaction = channel.getTransaction();
-    transaction.begin();
-    for (int i = 0; i < 11; i++) {
-      channel.put(event);
+        Configurables.configure(sink, context);
+        channel.start();
+        sink.start();
+        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
+                LifecycleState.START_OR_ERROR, 5000));
+        Transaction transaction = channel.getTransaction();
+        transaction.begin();
+        for (int i = 0; i < 11; i++) {
+            channel.put(event);
+        }
+        transaction.commit();
+        transaction.close();
+
+        boolean failed = false;
+        try {
+            for (int i = 0; i < 6; i++) {
+                Sink.Status status = sink.process();
+                failed = true;
+            }
+        } catch (EventDeliveryException ex) {
+            // This is correct
+        }
+
+        sink.stop();
+        Assert.assertTrue(LifecycleController.waitForOneOf(sink,
+                LifecycleState.STOP_OR_ERROR, 5000));
+        if (failed) {
+            Assert.fail("SSL-enabled sink successfully connected to a server with an " +
+                    "untrusted certificate when it should have failed");
+        }
     }
-    transaction.commit();
-    transaction.close();
-
-    boolean failed = false;
-    try {
-      for (int i = 0; i < 6; i++) {
-        Sink.Status status = sink.process();
-        failed = true;
-      }
-    } catch (EventDeliveryException ex) {
-      // This is correct
-    }
-
-    sink.stop();
-    Assert.assertTrue(LifecycleController.waitForOneOf(sink,
-            LifecycleState.STOP_OR_ERROR, 5000));
-    if (failed) {
-      Assert.fail("SSL-enabled sink successfully connected to a server with an " +
-                  "untrusted certificate when it should have failed");
-    }
-  }
 }

@@ -27,23 +27,23 @@ package org.apache.flume.instrumentation;
  */
 public interface ChannelCounterMBean {
 
-  long getChannelSize();
+    long getChannelSize();
 
-  long getEventPutAttemptCount();
+    long getEventPutAttemptCount();
 
-  long getEventTakeAttemptCount();
+    long getEventTakeAttemptCount();
 
-  long getEventPutSuccessCount();
+    long getEventPutSuccessCount();
 
-  long getEventTakeSuccessCount();
+    long getEventTakeSuccessCount();
 
-  long getStartTime();
+    long getStartTime();
 
-  long getStopTime();
+    long getStopTime();
 
-  long getChannelCapacity();
+    long getChannelCapacity();
 
-  String getType();
+    String getType();
 
-  double getChannelFillPercentage();
+    double getChannelFillPercentage();
 }

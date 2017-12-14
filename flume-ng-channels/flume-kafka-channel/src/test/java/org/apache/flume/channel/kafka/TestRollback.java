@@ -27,58 +27,58 @@ import java.util.concurrent.Executors;
 
 public class TestRollback extends TestKafkaChannelBase {
 
-  @Test
-  public void testSuccess() throws Exception {
-    doTestSuccessRollback(false, false);
-  }
-
-  @Test
-  public void testSuccessInterleave() throws Exception {
-    doTestSuccessRollback(false, true);
-  }
-
-  @Test
-  public void testRollbacks() throws Exception {
-    doTestSuccessRollback(true, false);
-  }
-
-  @Test
-  public void testRollbacksInterleave() throws Exception {
-    doTestSuccessRollback(true, true);
-  }
-
-  private void doTestSuccessRollback(final boolean rollback,
-                                     final boolean interleave) throws Exception {
-    final KafkaChannel channel = startChannel(true);
-    writeAndVerify(rollback, channel, interleave);
-    channel.stop();
-  }
-
-  private void writeAndVerify(final boolean testRollbacks,
-                              final KafkaChannel channel, final boolean interleave)
-      throws Exception {
-
-    final List<List<Event>> events = createBaseList();
-
-    ExecutorCompletionService<Void> submitterSvc =
-        new ExecutorCompletionService<Void>(Executors.newCachedThreadPool());
-
-    putEvents(channel, events, submitterSvc);
-
-    if (interleave) {
-      wait(submitterSvc, 5);
+    @Test
+    public void testSuccess() throws Exception {
+        doTestSuccessRollback(false, false);
     }
 
-    ExecutorCompletionService<Void> submitterSvc2 =
-        new ExecutorCompletionService<Void>(Executors.newCachedThreadPool());
-
-    final List<Event> eventsPulled = pullEvents(channel, submitterSvc2, 50, testRollbacks, true);
-
-    if (!interleave) {
-      wait(submitterSvc, 5);
+    @Test
+    public void testSuccessInterleave() throws Exception {
+        doTestSuccessRollback(false, true);
     }
-    wait(submitterSvc2, 5);
 
-    verify(eventsPulled);
-  }
+    @Test
+    public void testRollbacks() throws Exception {
+        doTestSuccessRollback(true, false);
+    }
+
+    @Test
+    public void testRollbacksInterleave() throws Exception {
+        doTestSuccessRollback(true, true);
+    }
+
+    private void doTestSuccessRollback(final boolean rollback,
+                                       final boolean interleave) throws Exception {
+        final KafkaChannel channel = startChannel(true);
+        writeAndVerify(rollback, channel, interleave);
+        channel.stop();
+    }
+
+    private void writeAndVerify(final boolean testRollbacks,
+                                final KafkaChannel channel, final boolean interleave)
+            throws Exception {
+
+        final List<List<Event>> events = createBaseList();
+
+        ExecutorCompletionService<Void> submitterSvc =
+                new ExecutorCompletionService<Void>(Executors.newCachedThreadPool());
+
+        putEvents(channel, events, submitterSvc);
+
+        if (interleave) {
+            wait(submitterSvc, 5);
+        }
+
+        ExecutorCompletionService<Void> submitterSvc2 =
+                new ExecutorCompletionService<Void>(Executors.newCachedThreadPool());
+
+        final List<Event> eventsPulled = pullEvents(channel, submitterSvc2, 50, testRollbacks, true);
+
+        if (!interleave) {
+            wait(submitterSvc, 5);
+        }
+        wait(submitterSvc2, 5);
+
+        verify(eventsPulled);
+    }
 }

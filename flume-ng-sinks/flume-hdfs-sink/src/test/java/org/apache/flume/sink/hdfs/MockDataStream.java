@@ -25,15 +25,15 @@ import org.apache.hadoop.fs.Path;
 import java.io.IOException;
 
 class MockDataStream extends HDFSDataStream {
-  private final FileSystem fs;
+    private final FileSystem fs;
 
-  MockDataStream(FileSystem fs) {
-    this.fs = fs;
-  }
+    MockDataStream(FileSystem fs) {
+        this.fs = fs;
+    }
 
-  @Override
-  protected FileSystem getDfs(Configuration conf, Path dstPath) throws IOException {
-    return fs;
-  }
+    @Override
+    protected FileSystem getDfs(Configuration conf, Path dstPath) throws IOException {
+        return fs;
+    }
 
 }

@@ -20,6 +20,7 @@
 package org.apache.flume.source;
 
 import com.google.common.collect.Lists;
+
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.flume.Channel;
@@ -43,111 +44,111 @@ import org.slf4j.LoggerFactory;
 
 public class TestPollableSourceRunner {
 
-  private static final Logger logger = LoggerFactory
-      .getLogger(TestPollableSourceRunner.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(TestPollableSourceRunner.class);
 
-  private PollableSourceRunner sourceRunner;
+    private PollableSourceRunner sourceRunner;
 
-  @Before
-  public void setUp() {
-    sourceRunner = new PollableSourceRunner();
-  }
+    @Before
+    public void setUp() {
+        sourceRunner = new PollableSourceRunner();
+    }
 
-  @Test
-  public void testLifecycle() throws InterruptedException {
-    final Channel channel = new MemoryChannel();
-    final CountDownLatch latch = new CountDownLatch(50);
+    @Test
+    public void testLifecycle() throws InterruptedException {
+        final Channel channel = new MemoryChannel();
+        final CountDownLatch latch = new CountDownLatch(50);
 
-    Configurables.configure(channel, new Context());
+        Configurables.configure(channel, new Context());
 
-    final ChannelSelector cs = new ReplicatingChannelSelector();
-    cs.setChannels(Lists.newArrayList(channel));
+        final ChannelSelector cs = new ReplicatingChannelSelector();
+        cs.setChannels(Lists.newArrayList(channel));
 
-    PollableSource source = new PollableSource() {
+        PollableSource source = new PollableSource() {
 
-      private String name;
-      private ChannelProcessor cp = new ChannelProcessor(cs);
+            private String name;
+            private ChannelProcessor cp = new ChannelProcessor(cs);
 
-      @Override
-      public Status process() throws EventDeliveryException {
-        Transaction transaction = channel.getTransaction();
+            @Override
+            public Status process() throws EventDeliveryException {
+                Transaction transaction = channel.getTransaction();
 
-        try {
-          transaction.begin();
-          Event event = EventBuilder.withBody(String.valueOf(
-              "Event " + latch.getCount()).getBytes());
+                try {
+                    transaction.begin();
+                    Event event = EventBuilder.withBody(String.valueOf(
+                            "Event " + latch.getCount()).getBytes());
 
-          latch.countDown();
+                    latch.countDown();
 
-          if (latch.getCount() % 20 == 0) {
-            throw new EventDeliveryException("I don't like event:" + event);
-          }
-          channel.put(event);
-          transaction.commit();
-          return Status.READY;
-        } catch (EventDeliveryException e) {
-          logger.error("Unable to deliver event. Exception follows.", e);
-          transaction.rollback();
-          return Status.BACKOFF;
-        } finally {
-          transaction.close();
-        }
-      }
+                    if (latch.getCount() % 20 == 0) {
+                        throw new EventDeliveryException("I don't like event:" + event);
+                    }
+                    channel.put(event);
+                    transaction.commit();
+                    return Status.READY;
+                } catch (EventDeliveryException e) {
+                    logger.error("Unable to deliver event. Exception follows.", e);
+                    transaction.rollback();
+                    return Status.BACKOFF;
+                } finally {
+                    transaction.close();
+                }
+            }
 
-      @Override
-      public long getBackOffSleepIncrement() {
-        return PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT;
-      }
+            @Override
+            public long getBackOffSleepIncrement() {
+                return PollableSourceConstants.DEFAULT_BACKOFF_SLEEP_INCREMENT;
+            }
 
-      @Override
-      public long getMaxBackOffSleepInterval() {
-        return PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP;
-      }
+            @Override
+            public long getMaxBackOffSleepInterval() {
+                return PollableSourceConstants.DEFAULT_MAX_BACKOFF_SLEEP;
+            }
 
-      @Override
-      public void start() {
-        // Unused.
-      }
+            @Override
+            public void start() {
+                // Unused.
+            }
 
-      @Override
-      public void stop() {
-        // Unused.
-      }
+            @Override
+            public void stop() {
+                // Unused.
+            }
 
-      @Override
-      public LifecycleState getLifecycleState() {
-        // Unused.
-        return null;
-      }
+            @Override
+            public LifecycleState getLifecycleState() {
+                // Unused.
+                return null;
+            }
 
-      @Override
-      public void setName(String name) {
-        this.name = name;
-      }
+            @Override
+            public void setName(String name) {
+                this.name = name;
+            }
 
-      @Override
-      public String getName() {
-        return name;
-      }
+            @Override
+            public String getName() {
+                return name;
+            }
 
-      @Override
-      public void setChannelProcessor(ChannelProcessor channelProcessor) {
-        cp = channelProcessor;
-      }
+            @Override
+            public void setChannelProcessor(ChannelProcessor channelProcessor) {
+                cp = channelProcessor;
+            }
 
-      @Override
-      public ChannelProcessor getChannelProcessor() {
-        return cp;
-      }
+            @Override
+            public ChannelProcessor getChannelProcessor() {
+                return cp;
+            }
 
-    };
+        };
 
-    sourceRunner.setSource(source);
-    sourceRunner.start();
+        sourceRunner.setSource(source);
+        sourceRunner.start();
 
-    latch.await();
+        latch.await();
 
-    sourceRunner.stop();
-  }
+        sourceRunner.stop();
+    }
 
 }

@@ -21,7 +21,9 @@ package org.apache.flume.sink.hbase;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+
 import java.util.Collections;
+
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.conf.ComponentConfiguration;
@@ -34,47 +36,55 @@ import java.util.List;
  * For Increment-related unit tests.
  */
 class IncrementHBaseSerializer implements HbaseEventSerializer, BatchAware {
-  private Event event;
-  private byte[] family;
-  private int numBatchesStarted = 0;
+    private Event event;
+    private byte[] family;
+    private int numBatchesStarted = 0;
 
-  @Override public void configure(Context context) { }
-  @Override public void configure(ComponentConfiguration conf) { }
-  @Override public void close() { }
+    @Override
+    public void configure(Context context) {
+    }
 
-  @Override
-  public void initialize(Event event, byte[] columnFamily) {
-    this.event = event;
-    this.family = columnFamily;
-  }
+    @Override
+    public void configure(ComponentConfiguration conf) {
+    }
 
-  // This class only creates Increments.
-  @Override
-  public List<Row> getActions() {
-    return Collections.emptyList();
-  }
+    @Override
+    public void close() {
+    }
 
-  // Treat each Event as a String, i,e, "row:qualifier".
-  @Override
-  public List<Increment> getIncrements() {
-    List<Increment> increments = Lists.newArrayList();
-    String body = new String(event.getBody(), Charsets.UTF_8);
-    String[] pieces = body.split(":");
-    String row = pieces[0];
-    String qualifier = pieces[1];
-    Increment inc = new Increment(row.getBytes(Charsets.UTF_8));
-    inc.addColumn(family, qualifier.getBytes(Charsets.UTF_8), 1L);
-    increments.add(inc);
-    return increments;
-  }
+    @Override
+    public void initialize(Event event, byte[] columnFamily) {
+        this.event = event;
+        this.family = columnFamily;
+    }
 
-  @Override
-  public void onBatchStart() {
-    numBatchesStarted++;
-  }
+    // This class only creates Increments.
+    @Override
+    public List<Row> getActions() {
+        return Collections.emptyList();
+    }
 
-  @VisibleForTesting
-  public int getNumBatchesStarted() {
-    return numBatchesStarted;
-  }
+    // Treat each Event as a String, i,e, "row:qualifier".
+    @Override
+    public List<Increment> getIncrements() {
+        List<Increment> increments = Lists.newArrayList();
+        String body = new String(event.getBody(), Charsets.UTF_8);
+        String[] pieces = body.split(":");
+        String row = pieces[0];
+        String qualifier = pieces[1];
+        Increment inc = new Increment(row.getBytes(Charsets.UTF_8));
+        inc.addColumn(family, qualifier.getBytes(Charsets.UTF_8), 1L);
+        increments.add(inc);
+        return increments;
+    }
+
+    @Override
+    public void onBatchStart() {
+        numBatchesStarted++;
+    }
+
+    @VisibleForTesting
+    public int getNumBatchesStarted() {
+        return numBatchesStarted;
+    }
 }

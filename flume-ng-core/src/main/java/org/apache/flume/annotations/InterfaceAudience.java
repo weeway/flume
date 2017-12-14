@@ -28,14 +28,14 @@ import java.lang.annotation.Documented;
  * <ul>
  * <li>Public classes that are not marked with this annotation must be
  * considered by default as {@link Private}.</li>
- *
+ * <p>
  * <li>External applications must only use classes that are marked
  * {@link Public}. Avoid using non public classes as these classes
  * could be removed or change in incompatible ways.</li>
- *
+ * <p>
  * <li>Flume projects must only use classes that are marked
  * {@link LimitedPrivate} or {@link Public}</li>
- *
+ * <p>
  * <li> Methods may have a different annotation that it is more restrictive
  * compared to the audience classification of the class. Example: A class
  * might be {@link Public}, but a method may be {@link LimitedPrivate}
@@ -44,23 +44,35 @@ import java.lang.annotation.Documented;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public class InterfaceAudience {
-  /**
-   * Intended for use by any project or application.
-   */
-  @Documented public @interface Public {};
+    /**
+     * Intended for use by any project or application.
+     */
+    @Documented
+    public @interface Public {
+    }
 
-  /**
-   * Intended only for the project(s) specified in the annotation.
-   * For example, "Common", "HDFS", "MapReduce", "ZooKeeper", "HBase".
-   */
-  @Documented public @interface LimitedPrivate {
-    String[] value();
-  };
+    ;
 
-  /**
-   * Intended for use only within Flume
-   */
-  @Documented public @interface Private {};
+    /**
+     * Intended only for the project(s) specified in the annotation.
+     * For example, "Common", "HDFS", "MapReduce", "ZooKeeper", "HBase".
+     */
+    @Documented
+    public @interface LimitedPrivate {
+        String[] value();
+    }
 
-  private InterfaceAudience() {} // Audience can't exist on its own
+    ;
+
+    /**
+     * Intended for use only within Flume
+     */
+    @Documented
+    public @interface Private {
+    }
+
+    ;
+
+    private InterfaceAudience() {
+    } // Audience can't exist on its own
 }

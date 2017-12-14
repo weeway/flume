@@ -19,6 +19,7 @@
 package org.apache.flume.interceptor;
 
 import java.util.List;
+
 import org.apache.flume.Event;
 import org.apache.flume.annotations.InterfaceAudience;
 import org.apache.flume.annotations.InterfaceStability;
@@ -27,36 +28,40 @@ import org.apache.flume.conf.Configurable;
 @InterfaceAudience.Public
 @InterfaceStability.Stable
 public interface Interceptor {
-  /**
-   * Any initialization / startup needed by the Interceptor.
-   */
-  public void initialize();
+    /**
+     * Any initialization / startup needed by the Interceptor.
+     */
+    public void initialize();
 
-  /**
-   * Interception of a single {@link Event}.
-   * @param event Event to be intercepted
-   * @return Original or modified event, or {@code null} if the Event
-   * is to be dropped (i.e. filtered out).
-   */
-  public Event intercept(Event event);
+    /**
+     * Interception of a single {@link Event}.
+     *
+     * @param event Event to be intercepted
+     * @return Original or modified event, or {@code null} if the Event
+     * is to be dropped (i.e. filtered out).
+     */
+    public Event intercept(Event event);
 
-  /**
-   * Interception of a batch of {@linkplain Event events}.
-   * @param events Input list of events
-   * @return Output list of events. The size of output list MUST NOT BE GREATER
-   * than the size of the input list (i.e. transformation and removal ONLY).
-   * Also, this method MUST NOT return {@code null}. If all events are dropped,
-   * then an empty List is returned.
-   */
-  public List<Event> intercept(List<Event> events);
+    /**
+     * Interception of a batch of {@linkplain Event events}.
+     *
+     * @param events Input list of events
+     * @return Output list of events. The size of output list MUST NOT BE GREATER
+     * than the size of the input list (i.e. transformation and removal ONLY).
+     * Also, this method MUST NOT return {@code null}. If all events are dropped,
+     * then an empty List is returned.
+     */
+    public List<Event> intercept(List<Event> events);
 
-  /**
-   * Perform any closing / shutdown needed by the Interceptor.
-   */
-  public void close();
+    /**
+     * Perform any closing / shutdown needed by the Interceptor.
+     */
+    public void close();
 
-  /** Builder implementations MUST have a no-arg constructor */
-  public interface Builder extends Configurable {
-    public Interceptor build();
-  }
+    /**
+     * Builder implementations MUST have a no-arg constructor
+     */
+    public interface Builder extends Configurable {
+        public Interceptor build();
+    }
 }

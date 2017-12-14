@@ -23,57 +23,71 @@ import java.io.IOException;
 import com.google.common.collect.ImmutableSortedSet;
 
 abstract class EventQueueBackingStore {
-  protected static final int EMPTY = 0;
-  private int queueSize;
-  private int queueHead;
-  private long logWriteOrderID;
-  private final int capacity;
-  private final String name;
-  public static final String BACKUP_COMPLETE_FILENAME = "backupComplete";
-  protected Boolean slowdownBackup = false;
+    protected static final int EMPTY = 0;
+    private int queueSize;
+    private int queueHead;
+    private long logWriteOrderID;
+    private final int capacity;
+    private final String name;
+    public static final String BACKUP_COMPLETE_FILENAME = "backupComplete";
+    protected Boolean slowdownBackup = false;
 
-  protected EventQueueBackingStore(int capacity, String name) {
-    this.capacity = capacity;
-    this.name = name;
-  }
+    protected EventQueueBackingStore(int capacity, String name) {
+        this.capacity = capacity;
+        this.name = name;
+    }
 
 
-  abstract void beginCheckpoint() throws IOException;
-  abstract void checkpoint() throws IOException;
-  abstract void incrementFileID(int fileID);
-  abstract void decrementFileID(int fileID);
-  abstract ImmutableSortedSet<Integer> getReferenceCounts();
-  abstract long get(int index);
-  abstract void put(int index, long value);
-  abstract boolean syncRequired();
-  abstract void close() throws IOException;
+    abstract void beginCheckpoint() throws IOException;
 
-  protected abstract int getVersion();
+    abstract void checkpoint() throws IOException;
 
-  int getSize() {
-    return queueSize;
-  }
-  void setSize(int size) {
-    queueSize = size;
-  }
-  int getHead() {
-    return queueHead;
-  }
-  void setHead(int head) {
-    queueHead = head;
-  }
-  int getCapacity() {
-    return capacity;
-  }
+    abstract void incrementFileID(int fileID);
 
-  String getName() {
-    return name;
-  }
-  protected void setLogWriteOrderID(long logWriteOrderID) {
-    this.logWriteOrderID = logWriteOrderID;
-  }
-  long getLogWriteOrderID() {
-    return logWriteOrderID;
-  }
+    abstract void decrementFileID(int fileID);
+
+    abstract ImmutableSortedSet<Integer> getReferenceCounts();
+
+    abstract long get(int index);
+
+    abstract void put(int index, long value);
+
+    abstract boolean syncRequired();
+
+    abstract void close() throws IOException;
+
+    protected abstract int getVersion();
+
+    int getSize() {
+        return queueSize;
+    }
+
+    void setSize(int size) {
+        queueSize = size;
+    }
+
+    int getHead() {
+        return queueHead;
+    }
+
+    void setHead(int head) {
+        queueHead = head;
+    }
+
+    int getCapacity() {
+        return capacity;
+    }
+
+    String getName() {
+        return name;
+    }
+
+    protected void setLogWriteOrderID(long logWriteOrderID) {
+        this.logWriteOrderID = logWriteOrderID;
+    }
+
+    long getLogWriteOrderID() {
+        return logWriteOrderID;
+    }
 
 }

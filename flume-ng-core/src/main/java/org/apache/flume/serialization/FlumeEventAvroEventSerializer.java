@@ -19,7 +19,9 @@
 package org.apache.flume.serialization;
 
 import org.apache.flume.serialization.AbstractAvroEventSerializer;
+
 import java.io.OutputStream;
+
 import org.apache.avro.Schema;
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -27,46 +29,47 @@ import org.apache.flume.serialization.EventSerializer;
 
 public class FlumeEventAvroEventSerializer extends AbstractAvroEventSerializer<Event> {
 
-  private static final Schema SCHEMA = new Schema.Parser().parse(
-      "{ \"type\":\"record\", \"name\": \"Event\", \"fields\": [" +
-      " {\"name\": \"headers\", \"type\": { \"type\": \"map\", \"values\": \"string\" } }, " +
-      " {\"name\": \"body\", \"type\": \"bytes\" } ] }");
+    private static final Schema SCHEMA = new Schema.Parser().parse(
+            "{ \"type\":\"record\", \"name\": \"Event\", \"fields\": [" +
+                    " {\"name\": \"headers\", \"type\": { \"type\": \"map\", \"values\": \"string\" } }, " +
+                    " {\"name\": \"body\", \"type\": \"bytes\" } ] }");
 
-  private final OutputStream out;
+    private final OutputStream out;
 
-  private FlumeEventAvroEventSerializer(OutputStream out) {
-    this.out = out;
-  }
-
-  @Override
-  protected Schema getSchema() {
-    return SCHEMA;
-  }
-
-  @Override
-  protected OutputStream getOutputStream() {
-    return out;
-  }
-
-  /**
-   * A no-op for this simple, special-case implementation
-   * @param event
-   * @return
-   */
-  @Override
-  protected Event convert(Event event) {
-    return event;
-  }
-
-  public static class Builder implements EventSerializer.Builder {
-
-    @Override
-    public EventSerializer build(Context context, OutputStream out) {
-      FlumeEventAvroEventSerializer writer = new FlumeEventAvroEventSerializer(out);
-      writer.configure(context);
-      return writer;
+    private FlumeEventAvroEventSerializer(OutputStream out) {
+        this.out = out;
     }
 
-  }
+    @Override
+    protected Schema getSchema() {
+        return SCHEMA;
+    }
+
+    @Override
+    protected OutputStream getOutputStream() {
+        return out;
+    }
+
+    /**
+     * A no-op for this simple, special-case implementation
+     *
+     * @param event
+     * @return
+     */
+    @Override
+    protected Event convert(Event event) {
+        return event;
+    }
+
+    public static class Builder implements EventSerializer.Builder {
+
+        @Override
+        public EventSerializer build(Context context, OutputStream out) {
+            FlumeEventAvroEventSerializer writer = new FlumeEventAvroEventSerializer(out);
+            writer.configure(context);
+            return writer;
+        }
+
+    }
 
 }

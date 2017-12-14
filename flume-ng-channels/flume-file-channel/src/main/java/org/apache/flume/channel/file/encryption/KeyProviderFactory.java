@@ -28,56 +28,56 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 public class KeyProviderFactory {
-  private static final Logger logger =
-      LoggerFactory.getLogger(KeyProviderFactory.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(KeyProviderFactory.class);
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
-  public static KeyProvider getInstance(String keyProviderType, Context context) {
-    Preconditions.checkNotNull(keyProviderType,
-        "key provider type must not be null");
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static KeyProvider getInstance(String keyProviderType, Context context) {
+        Preconditions.checkNotNull(keyProviderType,
+                "key provider type must not be null");
 
-    // try to find builder class in enum of known providers
-    KeyProviderType type;
-    try {
-      type = KeyProviderType.valueOf(keyProviderType.toUpperCase(Locale.ENGLISH));
-    } catch (IllegalArgumentException e) {
-      logger.debug("Not in enum, loading provider class: {}", keyProviderType);
-      type = KeyProviderType.OTHER;
-    }
-    Class<? extends KeyProvider.Builder> providerClass =
-        type.getBuilderClass();
-
-    // handle the case where they have specified their own builder in the config
-    if (providerClass == null) {
-      try {
-        Class c = Class.forName(keyProviderType);
-        if (c != null && KeyProvider.Builder.class.isAssignableFrom(c)) {
-          providerClass = (Class<? extends KeyProvider.Builder>) c;
-        } else {
-          String errMessage = "Unable to instantiate Builder from " +
-              keyProviderType;
-          logger.error(errMessage);
-          throw new FlumeException(errMessage);
+        // try to find builder class in enum of known providers
+        KeyProviderType type;
+        try {
+            type = KeyProviderType.valueOf(keyProviderType.toUpperCase(Locale.ENGLISH));
+        } catch (IllegalArgumentException e) {
+            logger.debug("Not in enum, loading provider class: {}", keyProviderType);
+            type = KeyProviderType.OTHER;
         }
-      } catch (ClassNotFoundException ex) {
-        logger.error("Class not found: " + keyProviderType, ex);
-        throw new FlumeException(ex);
-      }
-    }
+        Class<? extends KeyProvider.Builder> providerClass =
+                type.getBuilderClass();
 
-    // build the builder
-    KeyProvider.Builder provider;
-    try {
-      provider = providerClass.newInstance();
-    } catch (InstantiationException ex) {
-      String errMessage = "Cannot instantiate builder: " + keyProviderType;
-      logger.error(errMessage, ex);
-      throw new FlumeException(errMessage, ex);
-    } catch (IllegalAccessException ex) {
-      String errMessage = "Cannot instantiate builder: " + keyProviderType;
-      logger.error(errMessage, ex);
-      throw new FlumeException(errMessage, ex);
+        // handle the case where they have specified their own builder in the config
+        if (providerClass == null) {
+            try {
+                Class c = Class.forName(keyProviderType);
+                if (c != null && KeyProvider.Builder.class.isAssignableFrom(c)) {
+                    providerClass = (Class<? extends KeyProvider.Builder>) c;
+                } else {
+                    String errMessage = "Unable to instantiate Builder from " +
+                            keyProviderType;
+                    logger.error(errMessage);
+                    throw new FlumeException(errMessage);
+                }
+            } catch (ClassNotFoundException ex) {
+                logger.error("Class not found: " + keyProviderType, ex);
+                throw new FlumeException(ex);
+            }
+        }
+
+        // build the builder
+        KeyProvider.Builder provider;
+        try {
+            provider = providerClass.newInstance();
+        } catch (InstantiationException ex) {
+            String errMessage = "Cannot instantiate builder: " + keyProviderType;
+            logger.error(errMessage, ex);
+            throw new FlumeException(errMessage, ex);
+        } catch (IllegalAccessException ex) {
+            String errMessage = "Cannot instantiate builder: " + keyProviderType;
+            logger.error(errMessage, ex);
+            throw new FlumeException(errMessage, ex);
+        }
+        return provider.build(context);
     }
-    return provider.build(context);
-  }
 }
