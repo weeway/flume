@@ -319,13 +319,26 @@ public class Application {
                 }
                 List<LifecycleAware> components = Lists.newArrayList();
 
+                //flume 默认允许热更新
                 if (reload) {
                     EventBus eventBus = new EventBus(agentName + "-event-bus");
+
+                    /*=================================
+                     *  configProvider
+                     *  1、定时检测配置文件变化
+                     *  2、eventBus.post() 通知变化
+                     *  3、handleConfigurationEvent()接收
+                     *     变化并处理
+                     *=================================*/
                     PollingPropertiesFileConfigurationProvider configurationProvider =
                             new PollingPropertiesFileConfigurationProvider(
                                     agentName, configurationFile, eventBus, 30);
                     components.add(configurationProvider);
                     application = new Application(components);
+
+                    /*=================================
+                     *  注册监听事件，对配置文件变化做出响应
+                     *=================================*/
                     eventBus.register(application);
                 } else {
                     PropertiesFileConfigurationProvider configurationProvider =
