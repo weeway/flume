@@ -88,6 +88,10 @@ public abstract class AbstractConfigurationProvider implements ConfigurationProv
 
     protected abstract FlumeConfiguration getFlumeConfiguration();
 
+    /*===============================================
+    //   获取配置文件中的 source、channel、sink
+    //   以 MaterializedConfiguration 的形式返回
+    /*==============================================*/
     public MaterializedConfiguration getConfiguration() {
         MaterializedConfiguration conf = new SimpleMaterializedConfiguration();
         FlumeConfiguration fconfig = getFlumeConfiguration();
@@ -172,10 +176,17 @@ public abstract class AbstractConfigurationProvider implements ConfigurationProv
         for (String chName : channelNames) {
             ComponentConfiguration comp = compMap.get(chName);
             if (comp != null) {
+                /*=================================
+                 *  在这里创建出一个 channel
+                 *=================================*/
                 Channel channel = getOrCreateChannel(channelsNotReused,
                         comp.getComponentName(), comp.getType());
                 try {
                     Configurables.configure(channel, comp);
+
+                    /*=================================
+                     *  创建出的 channel 添加到 channelComponentMap
+                     *=================================*/
                     channelComponentMap.put(comp.getComponentName(),
                             new ChannelComponent(channel));
                     LOGGER.info("Created channel " + chName);
@@ -253,6 +264,11 @@ public abstract class AbstractConfigurationProvider implements ConfigurationProv
         return channel;
     }
 
+    /*===============================================
+    //   Source ------ Channel ------ Sink 之间的Map关系
+    //  Map(source,List(channel))
+    //  Map(channel,List(sink))
+    /*==============================================*/
     private void loadSources(AgentConfiguration agentConf,
                              Map<String, ChannelComponent> channelComponentMap,
                              Map<String, SourceRunner> sourceRunnerMap)
@@ -492,6 +508,12 @@ public abstract class AbstractConfigurationProvider implements ConfigurationProv
         }
     }
 
+    /*===============================================
+    //  Channel 的容器对象，包含有两个部分
+    //
+    //  1、一个真正的 channel
+    //  2、一个 List 用于存储与之关联的 component
+    /*==============================================*/
     private static class ChannelComponent {
         final Channel channel;
         final List<String> components;

@@ -347,6 +347,9 @@ public class FileChannel extends BasicChannelSemantics {
                 Arrays.toString(dataDirs) + " }";
     }
 
+    /*===============================================
+    //   创建 fileChannel 的事务
+    /*==============================================*/
     @Override
     protected BasicTransactionSemantics createTransaction() {
         if (!open) {
@@ -458,6 +461,10 @@ public class FileChannel extends BasicChannelSemantics {
         private final FlumeEventQueue queue;
         private final Semaphore queueRemaining;
         private final String channelNameDescriptor;
+        /*===============================================
+        //   channel 计数器
+        //   反应出 channel 处理性能
+        /*==============================================*/
         private final FileChannelCounter channelCounter;
         private final boolean fsyncPerTransaction;
 

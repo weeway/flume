@@ -1,0 +1,326 @@
+14 十二月 2017 22:20:01,628 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:20:01,640 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:20:01,649 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:20:01,649 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:20:01,649 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: loggerSink Agent: agent
+14 十二月 2017 22:20:01,666 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:20:01,666 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:20:01,680 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:20:01,687 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:20:01,688 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:20:01,708 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: loggerSink, type: logger
+14 十二月 2017 22:20:01,713 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.getConfiguration:116)  - Channel memoryChannel connected to [seqGenSrc, loggerSink]
+14 十二月 2017 22:20:01,721 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:137)  - Starting new configuration:{ sourceRunners:{seqGenSrc=EventDrivenSourceRunner: { source:Spool Directory source seqGenSrc: { spoolDir: ./entry } }} sinkRunners:{loggerSink=SinkRunner: { policy:org.apache.flume.sink.DefaultSinkProcessor@4ee22804 counterGroup:{ name:null counters:{} } }} channels:{memoryChannel=org.apache.flume.channel.MemoryChannel{name: memoryChannel}} }
+14 十二月 2017 22:20:01,733 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:144)  - Starting Channel memoryChannel
+14 十二月 2017 22:20:01,735 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: CHANNEL, name: memoryChannel: Successfully registered new MBean.
+14 十二月 2017 22:20:01,735 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: CHANNEL, name: memoryChannel started
+14 十二月 2017 22:20:01,735 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:171)  - Starting Sink loggerSink
+14 十二月 2017 22:20:01,736 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:182)  - Starting Source seqGenSrc
+14 十二月 2017 22:20:01,736 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.source.SpoolDirectorySource.start:83)  - SpoolDirectorySource source starting with directory: ./entry
+14 十二月 2017 22:20:01,772 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: SOURCE, name: seqGenSrc: Successfully registered new MBean.
+14 十二月 2017 22:20:01,773 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: SOURCE, name: seqGenSrc started
+14 十二月 2017 22:20:43,077 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:20:43,079 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: SOURCE, name: seqGenSrc stopped
+14 十二月 2017 22:20:43,079 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.start.time == 1513261201773
+14 十二月 2017 22:20:43,080 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.stop.time == 1513261243079
+14 十二月 2017 22:20:43,080 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.accepted == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.received == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.accepted == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.received == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.accepted == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.received == 0
+14 十二月 2017 22:20:43,081 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.open-connection.count == 0
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.source.SpoolDirectorySource.stop:134)  - SpoolDir source seqGenSrc stopped. Metrics: SOURCE:seqGenSrc{src.events.accepted=0, src.open-connection.count=0, src.append.received=0, src.append-batch.received=0, src.append-batch.accepted=0, src.append.accepted=0, src.events.received=0}
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: CHANNEL, name: memoryChannel stopped
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.start.time == 1513261201735
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.stop.time == 1513261243082
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.capacity == 100
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.current.size == 0
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.attempt == 0
+14 十二月 2017 22:20:43,082 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.success == 0
+14 十二月 2017 22:20:43,083 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.attempt == 7
+14 十二月 2017 22:20:43,083 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.success == 0
+14 十二月 2017 22:20:43,083 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 十二月 2017 22:21:09,698 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:21:09,710 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:21:09,719 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:21:09,719 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:21:09,719 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: loggerSink Agent: agent
+14 十二月 2017 22:21:09,740 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:21:09,741 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:21:09,749 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:21:09,757 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:21:09,758 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:21:09,776 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: loggerSink, type: null
+14 十二月 2017 22:21:09,784 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.getConfiguration:116)  - Channel memoryChannel connected to [seqGenSrc, loggerSink]
+14 十二月 2017 22:21:09,792 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:137)  - Starting new configuration:{ sourceRunners:{seqGenSrc=EventDrivenSourceRunner: { source:Spool Directory source seqGenSrc: { spoolDir: ./entry } }} sinkRunners:{loggerSink=SinkRunner: { policy:org.apache.flume.sink.DefaultSinkProcessor@4635451a counterGroup:{ name:null counters:{} } }} channels:{memoryChannel=org.apache.flume.channel.MemoryChannel{name: memoryChannel}} }
+14 十二月 2017 22:21:09,803 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:144)  - Starting Channel memoryChannel
+14 十二月 2017 22:21:09,804 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: CHANNEL, name: memoryChannel: Successfully registered new MBean.
+14 十二月 2017 22:21:09,804 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: CHANNEL, name: memoryChannel started
+14 十二月 2017 22:21:09,805 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:171)  - Starting Sink loggerSink
+14 十二月 2017 22:21:09,805 INFO  [lifecycleSupervisor-1-1] (org.apache.flume.sink.NullSink.start:117)  - Starting NullSink loggerSink { batchSize: 100 }...
+14 十二月 2017 22:21:09,805 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:182)  - Starting Source seqGenSrc
+14 十二月 2017 22:21:09,805 INFO  [lifecycleSupervisor-1-1] (org.apache.flume.sink.NullSink.start:122)  - Null sink loggerSink started.
+14 十二月 2017 22:21:09,806 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.source.SpoolDirectorySource.start:83)  - SpoolDirectorySource source starting with directory: ./entry
+14 十二月 2017 22:21:09,845 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: SOURCE, name: seqGenSrc: Successfully registered new MBean.
+14 十二月 2017 22:21:09,846 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: SOURCE, name: seqGenSrc started
+14 十二月 2017 22:21:23,957 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.readEvents:328)  - Last read took us just up to a file boundary. Rolling to the next file, if there is one.
+14 十二月 2017 22:21:23,958 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.rollCurrentFile:437)  - Preparing to move file /Users/waywee/IdeaProjects/flume-fork/./entry/hello to /Users/waywee/IdeaProjects/flume-fork/./entry/hello.COMPLETED
+14 十二月 2017 22:22:21,871 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:22:21,875 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: SOURCE, name: seqGenSrc stopped
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.start.time == 1513261269846
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.stop.time == 1513261341875
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.accepted == 1
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.received == 1
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.accepted == 0
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.received == 0
+14 十二月 2017 22:22:21,876 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.accepted == 1
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.received == 1
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.open-connection.count == 0
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.source.SpoolDirectorySource.stop:134)  - SpoolDir source seqGenSrc stopped. Metrics: SOURCE:seqGenSrc{src.events.accepted=1, src.open-connection.count=0, src.append.received=0, src.append-batch.received=1, src.append-batch.accepted=1, src.append.accepted=0, src.events.received=1}
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: CHANNEL, name: memoryChannel stopped
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.start.time == 1513261269804
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.stop.time == 1513261341877
+14 十二月 2017 22:22:21,877 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.capacity == 100
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.current.size == 0
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.attempt == 1
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.success == 1
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.attempt == 12
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.success == 1
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:127)  - Null sink loggerSink stopping...
+14 十二月 2017 22:22:21,878 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:131)  - Null sink loggerSink stopped. Event metrics: { name:loggerSink counters:{transaction.success=11, events.success=1} }
+14 十二月 2017 22:22:53,484 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:22:53,497 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:22:53,505 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:22:53,506 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:22:53,506 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: loggerSink Agent: agent
+14 十二月 2017 22:22:53,528 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:22:53,529 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:22:53,547 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:22:53,556 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:22:53,557 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:22:53,580 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: loggerSink, type: null
+14 十二月 2017 22:22:53,586 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.getConfiguration:116)  - Channel memoryChannel connected to [seqGenSrc, loggerSink]
+14 十二月 2017 22:22:53,596 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:137)  - Starting new configuration:{ sourceRunners:{seqGenSrc=EventDrivenSourceRunner: { source:Spool Directory source seqGenSrc: { spoolDir: ./entry } }} sinkRunners:{loggerSink=SinkRunner: { policy:org.apache.flume.sink.DefaultSinkProcessor@6420b32a counterGroup:{ name:null counters:{} } }} channels:{memoryChannel=org.apache.flume.channel.MemoryChannel{name: memoryChannel}} }
+14 十二月 2017 22:22:53,619 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:144)  - Starting Channel memoryChannel
+14 十二月 2017 22:22:53,620 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: CHANNEL, name: memoryChannel: Successfully registered new MBean.
+14 十二月 2017 22:22:53,621 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: CHANNEL, name: memoryChannel started
+14 十二月 2017 22:22:53,621 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:171)  - Starting Sink loggerSink
+14 十二月 2017 22:22:53,622 INFO  [lifecycleSupervisor-1-2] (org.apache.flume.sink.NullSink.start:117)  - Starting NullSink loggerSink { batchSize: 100 }...
+14 十二月 2017 22:22:53,622 INFO  [lifecycleSupervisor-1-2] (org.apache.flume.sink.NullSink.start:122)  - Null sink loggerSink started.
+14 十二月 2017 22:22:53,623 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:182)  - Starting Source seqGenSrc
+14 十二月 2017 22:22:53,623 INFO  [lifecycleSupervisor-1-3] (org.apache.flume.source.SpoolDirectorySource.start:83)  - SpoolDirectorySource source starting with directory: ./entry
+14 十二月 2017 22:22:53,664 INFO  [lifecycleSupervisor-1-3] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: SOURCE, name: seqGenSrc: Successfully registered new MBean.
+14 十二月 2017 22:22:53,664 INFO  [lifecycleSupervisor-1-3] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: SOURCE, name: seqGenSrc started
+14 十二月 2017 22:23:06,068 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.readEvents:328)  - Last read took us just up to a file boundary. Rolling to the next file, if there is one.
+14 十二月 2017 22:23:06,069 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.rollCurrentFile:437)  - Preparing to move file /Users/waywee/IdeaProjects/flume-fork/./entry/includes.sh to /Users/waywee/IdeaProjects/flume-fork/./entry/includes.sh.COMPLETED
+14 十二月 2017 22:23:47,690 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.readEvents:328)  - Last read took us just up to a file boundary. Rolling to the next file, if there is one.
+14 十二月 2017 22:23:47,690 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.rollCurrentFile:437)  - Preparing to move file /Users/waywee/IdeaProjects/flume-fork/./entry/HowToRelease.md to /Users/waywee/IdeaProjects/flume-fork/./entry/HowToRelease.md.COMPLETED
+14 十二月 2017 22:24:37,133 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:24:37,134 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:127)  - Null sink loggerSink stopping...
+14 十二月 2017 22:24:37,134 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:131)  - Null sink loggerSink stopped. Event metrics: { name:loggerSink counters:{transaction.success=21, events.success=569} }
+14 十二月 2017 22:24:37,135 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: SOURCE, name: seqGenSrc stopped
+14 十二月 2017 22:24:37,136 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.start.time == 1513261373664
+14 十二月 2017 22:24:37,137 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.stop.time == 1513261477135
+14 十二月 2017 22:24:37,137 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.accepted == 7
+14 十二月 2017 22:24:37,137 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.received == 7
+14 十二月 2017 22:24:37,138 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.accepted == 0
+14 十二月 2017 22:24:37,138 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.received == 0
+14 十二月 2017 22:24:37,138 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.accepted == 569
+14 十二月 2017 22:24:37,139 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.received == 569
+14 十二月 2017 22:24:37,139 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.open-connection.count == 0
+14 十二月 2017 22:24:37,139 INFO  [agent-shutdown-hook] (org.apache.flume.source.SpoolDirectorySource.stop:134)  - SpoolDir source seqGenSrc stopped. Metrics: SOURCE:seqGenSrc{src.events.accepted=569, src.open-connection.count=0, src.append.received=0, src.append-batch.received=7, src.append-batch.accepted=7, src.append.accepted=0, src.events.received=569}
+14 十二月 2017 22:24:37,139 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 十二月 2017 22:24:37,140 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: CHANNEL, name: memoryChannel stopped
+14 十二月 2017 22:24:37,140 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.start.time == 1513261373621
+14 十二月 2017 22:24:37,140 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.stop.time == 1513261477140
+14 十二月 2017 22:24:37,140 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.capacity == 100
+14 十二月 2017 22:24:37,140 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.current.size == 0
+14 十二月 2017 22:24:37,141 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.attempt == 569
+14 十二月 2017 22:24:37,141 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.success == 569
+14 十二月 2017 22:24:37,141 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.attempt == 585
+14 十二月 2017 22:24:37,141 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.success == 569
+14 十二月 2017 22:24:54,818 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:24:54,832 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:24:54,843 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:24:54,843 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:loggerSink
+14 十二月 2017 22:24:54,843 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: loggerSink Agent: agent
+14 十二月 2017 22:24:54,864 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:24:54,864 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:24:54,875 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:24:54,883 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:24:54,884 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:24:54,902 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: loggerSink, type: null
+14 十二月 2017 22:24:54,914 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.getConfiguration:116)  - Channel memoryChannel connected to [seqGenSrc, loggerSink]
+14 十二月 2017 22:24:54,923 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:137)  - Starting new configuration:{ sourceRunners:{seqGenSrc=EventDrivenSourceRunner: { source:Spool Directory source seqGenSrc: { spoolDir: ./entry } }} sinkRunners:{loggerSink=SinkRunner: { policy:org.apache.flume.sink.DefaultSinkProcessor@7ff6a17c counterGroup:{ name:null counters:{} } }} channels:{memoryChannel=org.apache.flume.channel.MemoryChannel{name: memoryChannel}} }
+14 十二月 2017 22:24:54,939 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:144)  - Starting Channel memoryChannel
+14 十二月 2017 22:24:54,940 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: CHANNEL, name: memoryChannel: Successfully registered new MBean.
+14 十二月 2017 22:24:54,941 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: CHANNEL, name: memoryChannel started
+14 十二月 2017 22:24:54,941 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:171)  - Starting Sink loggerSink
+14 十二月 2017 22:24:54,941 INFO  [lifecycleSupervisor-1-2] (org.apache.flume.sink.NullSink.start:117)  - Starting NullSink loggerSink { batchSize: 100 }...
+14 十二月 2017 22:24:54,941 INFO  [conf-file-poller-0] (org.apache.flume.node.Application.startAllComponents:182)  - Starting Source seqGenSrc
+14 十二月 2017 22:24:54,941 INFO  [lifecycleSupervisor-1-2] (org.apache.flume.sink.NullSink.start:122)  - Null sink loggerSink started.
+14 十二月 2017 22:24:54,942 INFO  [lifecycleSupervisor-1-5] (org.apache.flume.source.SpoolDirectorySource.start:83)  - SpoolDirectorySource source starting with directory: ./entry
+14 十二月 2017 22:24:54,982 INFO  [lifecycleSupervisor-1-5] (org.apache.flume.instrumentation.MonitoredCounterGroup.register:119)  - Monitored counter group for type: SOURCE, name: seqGenSrc: Successfully registered new MBean.
+14 十二月 2017 22:24:54,985 INFO  [lifecycleSupervisor-1-5] (org.apache.flume.instrumentation.MonitoredCounterGroup.start:95)  - Component type: SOURCE, name: seqGenSrc started
+14 十二月 2017 22:25:12,502 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.readEvents:328)  - Last read took us just up to a file boundary. Rolling to the next file, if there is one.
+14 十二月 2017 22:25:12,503 INFO  [pool-4-thread-1] (org.apache.flume.client.avro.ReliableSpoolingFileEventReader.rollCurrentFile:437)  - Preparing to move file /Users/waywee/IdeaProjects/flume-fork/./entry/generate-source-release.sh to /Users/waywee/IdeaProjects/flume-fork/./entry/generate-source-release.sh.COMPLETED
+14 十二月 2017 22:26:25,642 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:26:25,646 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: SOURCE, name: seqGenSrc stopped
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.start.time == 1513261494985
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. source.stop.time == 1513261585647
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.accepted == 1
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append-batch.received == 1
+14 十二月 2017 22:26:25,647 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.accepted == 0
+14 十二月 2017 22:26:25,648 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.append.received == 0
+14 十二月 2017 22:26:25,648 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.accepted == 49
+14 十二月 2017 22:26:25,648 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.events.received == 49
+14 十二月 2017 22:26:25,648 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: SOURCE, name: seqGenSrc. src.open-connection.count == 0
+14 十二月 2017 22:26:25,648 INFO  [agent-shutdown-hook] (org.apache.flume.source.SpoolDirectorySource.stop:134)  - SpoolDir source seqGenSrc stopped. Metrics: SOURCE:seqGenSrc{src.events.accepted=49, src.open-connection.count=0, src.append.received=0, src.append-batch.received=1, src.append-batch.accepted=1, src.append.accepted=0, src.events.received=49}
+14 十二月 2017 22:26:25,649 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:149)  - Component type: CHANNEL, name: memoryChannel stopped
+14 十二月 2017 22:26:25,649 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:155)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.start.time == 1513261494941
+14 十二月 2017 22:26:25,649 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:161)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.stop.time == 1513261585649
+14 十二月 2017 22:26:25,649 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.capacity == 100
+14 十二月 2017 22:26:25,650 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.current.size == 0
+14 十二月 2017 22:26:25,650 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.attempt == 49
+14 十二月 2017 22:26:25,650 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.put.success == 49
+14 十二月 2017 22:26:25,651 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.attempt == 62
+14 十二月 2017 22:26:25,651 INFO  [agent-shutdown-hook] (org.apache.flume.instrumentation.MonitoredCounterGroup.stop:177)  - Shutdown Metric for type: CHANNEL, name: memoryChannel. channel.event.take.success == 49
+14 十二月 2017 22:26:25,652 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:127)  - Null sink loggerSink stopping...
+14 十二月 2017 22:26:25,652 INFO  [agent-shutdown-hook] (org.apache.flume.sink.NullSink.stop:131)  - Null sink loggerSink stopped. Event metrics: { name:loggerSink counters:{transaction.success=13, events.success=49} }
+14 十二月 2017 22:32:19,896 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:32:19,909 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:32:19,918 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,918 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,918 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,919 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,919 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,919 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: kafkaSink Agent: agent
+14 十二月 2017 22:32:19,919 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,919 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:32:19,943 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:32:19,944 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:32:19,955 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:32:19,962 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:32:19,963 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:32:19,988 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: kafkaSink, type: org.apache.flume.sink.kafka.KafkaSink
+14 十二月 2017 22:32:19,989 ERROR [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:143)  - Failed to load configuration data. Exception follows.
+org.apache.flume.FlumeException: Unable to load sink type: org.apache.flume.sink.kafka.KafkaSink, class: org.apache.flume.sink.kafka.KafkaSink
+	at org.apache.flume.sink.DefaultSinkFactory.getClass(DefaultSinkFactory.java:70) ~[classes/:?]
+	at org.apache.flume.sink.DefaultSinkFactory.create(DefaultSinkFactory.java:43) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.loadSinks(AbstractConfigurationProvider.java:420) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.getConfiguration(AbstractConfigurationProvider.java:102) ~[classes/:?]
+	at org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run(PollingPropertiesFileConfigurationProvider.java:141) [classes/:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [?:1.8.0_131]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:1.8.0_131]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_131]
+Caused by: java.lang.ClassNotFoundException: org.apache.flume.sink.kafka.KafkaSink
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:381) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424) ~[?:1.8.0_131]
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:335) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357) ~[?:1.8.0_131]
+	at java.lang.Class.forName0(Native Method) ~[?:1.8.0_131]
+	at java.lang.Class.forName(Class.java:264) ~[?:1.8.0_131]
+	at org.apache.flume.sink.DefaultSinkFactory.getClass(DefaultSinkFactory.java:68) ~[classes/:?]
+	... 11 more
+14 十二月 2017 22:34:21,124 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:34:21,128 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 十二月 2017 22:38:34,821 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:38:34,839 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:38:34,849 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,849 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,849 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,850 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,850 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,852 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: kafkaSink Agent: agent
+14 十二月 2017 22:38:34,852 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,852 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:38:34,875 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:38:34,876 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:38:34,890 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:38:34,899 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:38:34,901 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:38:34,929 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: kafkaSink, type: org.apache.flume.sink.kafka.KafkaSink
+14 十二月 2017 22:38:34,930 ERROR [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:143)  - Failed to load configuration data. Exception follows.
+org.apache.flume.FlumeException: Unable to load sink type: org.apache.flume.sink.kafka.KafkaSink, class: org.apache.flume.sink.kafka.KafkaSink
+	at org.apache.flume.sink.DefaultSinkFactory.getClass(DefaultSinkFactory.java:70) ~[classes/:?]
+	at org.apache.flume.sink.DefaultSinkFactory.create(DefaultSinkFactory.java:43) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.loadSinks(AbstractConfigurationProvider.java:420) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.getConfiguration(AbstractConfigurationProvider.java:102) ~[classes/:?]
+	at org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run(PollingPropertiesFileConfigurationProvider.java:141) [classes/:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [?:1.8.0_131]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:1.8.0_131]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_131]
+Caused by: java.lang.ClassNotFoundException: org.apache.flume.sink.kafka.KafkaSink
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:381) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424) ~[?:1.8.0_131]
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:335) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357) ~[?:1.8.0_131]
+	at java.lang.Class.forName0(Native Method) ~[?:1.8.0_131]
+	at java.lang.Class.forName(Class.java:264) ~[?:1.8.0_131]
+	at org.apache.flume.sink.DefaultSinkFactory.getClass(DefaultSinkFactory.java:68) ~[classes/:?]
+	... 11 more
+14 十二月 2017 22:38:55,517 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:38:55,521 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping
+14 ??? 2017 22:48:25,507 ERROR [main] (org.apache.flume.node.Application.main:361)  - A fatal error occurred while running. Exception follows.
+org.apache.commons.cli.UnrecognizedOptionException: Unrecognized option: -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50465:/Applications/IntelliJ IDEA.app/Contents/bin
+	at org.apache.commons.cli.Parser.processOption(Parser.java:363) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.commons.cli.Parser.parse(Parser.java:199) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.commons.cli.Parser.parse(Parser.java:85) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.flume.node.Application.main(Application.java:263) [classes/:?]
+14 ??? 2017 22:50:15,477 ERROR [main] (org.apache.flume.node.Application.main:361)  - A fatal error occurred while running. Exception follows.
+org.apache.commons.cli.UnrecognizedOptionException: Unrecognized option: -javaagent:/Applications/IntelliJ IDEA.app/Contents/lib/idea_rt.jar=50505:/Applications/IntelliJ IDEA.app/Contents/bin
+	at org.apache.commons.cli.Parser.processOption(Parser.java:363) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.commons.cli.Parser.parse(Parser.java:199) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.commons.cli.Parser.parse(Parser.java:85) ~[commons-cli-1.2.jar:1.2]
+	at org.apache.flume.node.Application.main(Application.java:263) [classes/:?]
+14 十二月 2017 22:54:31,229 INFO  [lifecycleSupervisor-1-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.start:62)  - Configuration provider starting
+14 十二月 2017 22:54:31,250 INFO  [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:134)  - Reloading configuration file:conf/flume.conf
+14 十二月 2017 22:54:31,263 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,264 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,264 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,264 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,265 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,265 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:926)  - Added sinks: kafkaSink Agent: agent
+14 十二月 2017 22:54:31,266 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,266 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration$AgentConfiguration.addProperty:1012)  - Processing:kafkaSink
+14 十二月 2017 22:54:31,293 INFO  [conf-file-poller-0] (org.apache.flume.conf.FlumeConfiguration.validateConfiguration:140)  - Post-validation flume configuration contains configuration for agents: [agent]
+14 十二月 2017 22:54:31,294 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:147)  - Creating channels
+14 十二月 2017 22:54:31,311 INFO  [conf-file-poller-0] (org.apache.flume.channel.DefaultChannelFactory.create:42)  - Creating instance of channel memoryChannel type memory
+14 十二月 2017 22:54:31,323 INFO  [conf-file-poller-0] (org.apache.flume.node.AbstractConfigurationProvider.loadChannels:208)  - Created channel memoryChannel
+14 十二月 2017 22:54:31,324 INFO  [conf-file-poller-0] (org.apache.flume.source.DefaultSourceFactory.create:41)  - Creating instance of source seqGenSrc, type spooldir
+14 十二月 2017 22:54:31,349 INFO  [conf-file-poller-0] (org.apache.flume.sink.DefaultSinkFactory.create:42)  - Creating instance of sink: kafkaSink, type: org.apache.flume.sink.kafka.KafkaSink
+14 十二月 2017 22:54:31,362 ERROR [conf-file-poller-0] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run:146)  - Failed to start agent because dependencies were not found in classpath. Error follows.
+java.lang.NoClassDefFoundError: org/apache/kafka/clients/producer/Callback
+	at java.lang.Class.forName0(Native Method) ~[?:1.8.0_131]
+	at java.lang.Class.forName(Class.java:264) ~[?:1.8.0_131]
+	at org.apache.flume.sink.DefaultSinkFactory.getClass(DefaultSinkFactory.java:68) ~[classes/:?]
+	at org.apache.flume.sink.DefaultSinkFactory.create(DefaultSinkFactory.java:43) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.loadSinks(AbstractConfigurationProvider.java:420) ~[classes/:?]
+	at org.apache.flume.node.AbstractConfigurationProvider.getConfiguration(AbstractConfigurationProvider.java:102) ~[classes/:?]
+	at org.apache.flume.node.PollingPropertiesFileConfigurationProvider$FileWatcherRunnable.run(PollingPropertiesFileConfigurationProvider.java:141) [classes/:?]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) [?:1.8.0_131]
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180) [?:1.8.0_131]
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142) [?:1.8.0_131]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617) [?:1.8.0_131]
+	at java.lang.Thread.run(Thread.java:748) [?:1.8.0_131]
+Caused by: java.lang.ClassNotFoundException: org.apache.kafka.clients.producer.Callback
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:381) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:424) ~[?:1.8.0_131]
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:335) ~[?:1.8.0_131]
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:357) ~[?:1.8.0_131]
+	... 14 more
+14 十二月 2017 22:54:56,129 INFO  [agent-shutdown-hook] (org.apache.flume.lifecycle.LifecycleSupervisor.stop:78)  - Stopping lifecycle supervisor 13
+14 十二月 2017 22:54:56,134 INFO  [agent-shutdown-hook] (org.apache.flume.node.PollingPropertiesFileConfigurationProvider.stop:84)  - Configuration provider stopping

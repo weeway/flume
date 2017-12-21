@@ -247,14 +247,30 @@ public class SpoolDirectorySource extends AbstractSource
             int backoffInterval = 250;
             try {
                 while (!Thread.interrupted()) {
+                    /*===============================================
+                    //   从文件读取 batchSize 的 event
+                    //   按行读取
+                    /*==============================================*/
                     List<Event> events = reader.readEvents(batchSize);
                     if (events.isEmpty()) {
                         break;
                     }
+
+                    /*===============================================
+                    //   source 计数器接收时间数增加 batchSize
+                    /*==============================================*/
                     sourceCounter.addToEventReceivedCount(events.size());
+
+                    /*===============================================
+                    //   接收一次批处理数据，计数加1
+                    /*==============================================*/
                     sourceCounter.incrementAppendBatchReceivedCount();
 
                     try {
+
+                        /*===============================================
+                        //   event 交由指定的 channel 处理
+                        /*==============================================*/
                         getChannelProcessor().processEventBatch(events);
                         reader.commit();
                     } catch (ChannelFullException ex) {

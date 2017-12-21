@@ -145,6 +145,9 @@ public class ChannelProcessor implements Configurable {
     public void processEventBatch(List<Event> events) {
         Preconditions.checkNotNull(events, "Event list must not be null");
 
+        /*===============================================
+        //   channelProcessor 中进行 interceptor 操作
+        /*==============================================*/
         events = interceptorChain.intercept(events);
 
         Map<Channel, List<Event>> reqChannelQueue =
@@ -154,9 +157,16 @@ public class ChannelProcessor implements Configurable {
                 new LinkedHashMap<Channel, List<Event>>();
 
         for (Event event : events) {
+
+            /*===============================================
+            //   获取 requiredChannels
+            /*==============================================*/
             List<Channel> reqChannels = selector.getRequiredChannels(event);
 
             for (Channel ch : reqChannels) {
+                /*===============================================
+                //   每个 requiredChannel 对应一个 eventQueue
+                /*==============================================*/
                 List<Event> eventQueue = reqChannelQueue.get(ch);
                 if (eventQueue == null) {
                     eventQueue = new ArrayList<Event>();
@@ -165,6 +175,9 @@ public class ChannelProcessor implements Configurable {
                 eventQueue.add(event);
             }
 
+            /*===============================================
+            //   optionalChannel
+            /*==============================================*/
             List<Channel> optChannels = selector.getOptionalChannels(event);
 
             for (Channel ch : optChannels) {
@@ -187,6 +200,10 @@ public class ChannelProcessor implements Configurable {
 
                 List<Event> batch = reqChannelQueue.get(reqChannel);
 
+                /*===============================================
+                //   事务中使用 for 对每个 channel 对应的 event
+                //   进行处理
+                //==============================================*/
                 for (Event event : batch) {
                     reqChannel.put(event);
                 }
